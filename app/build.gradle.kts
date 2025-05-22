@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.team.review_android"
+    namespace = "com.data.review_android"
     compileSdk = 35
 
     defaultConfig {
