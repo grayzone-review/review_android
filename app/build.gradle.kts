@@ -5,17 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "com.data.review_android"
-    compileSdk = 35
+    namespace = AppConfig.NameSpace.app
+    compileSdk = AppConfig.compileSdk
 
     defaultConfig {
-        applicationId = "com.team.review_android"
-        minSdk = 24
-        targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = AppConfig.applicationId
+        minSdk = AppConfig.minSdk
+        targetSdk = AppConfig.targetSdk
+        versionCode = AppConfig.versionCode
+        versionName = AppConfig.versionName
     }
 
     buildTypes {
@@ -28,11 +26,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = AppConfig.javaVersion
+        targetCompatibility = AppConfig.javaVersion
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = AppConfig.jvmTarget
     }
     buildFeatures {
         compose = true

@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.data.repository_implementation"
-    compileSdk = 35
+    namespace = AppConfig.NameSpace.repository_impl
+    compileSdk = AppConfig.compileSdk
 
     defaultConfig {
-        minSdk = 24
+        minSdk = AppConfig.minSdk
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -24,11 +24,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = AppConfig.javaVersion
+        targetCompatibility = AppConfig.javaVersion
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = AppConfig.jvmTarget
     }
 }
 
