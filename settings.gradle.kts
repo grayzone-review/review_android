@@ -21,12 +21,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "Review-Android"
 include(":app")
-include(":presentation:design_system")
+include(":presentation:design-system")
 include(":domain:entity")
 include(":data:network")
 include(":data:dto")
-include(":data:repository_implementation")
-include(":domain:repository_interface")
+include(":data:repository-implementation")
+include(":domain:repository-interface")
 include(":domain:usecase")
-include(":presentation:feature:company_detail")
+include(":presentation:feature:company-detail")
 include(":presentation:feature:comments")
