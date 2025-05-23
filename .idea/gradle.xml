@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
@@ -22,8 +23,19 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/buildSrc" />
+            <option value="$PROJECT_DIR$/data" />
+            <option value="$PROJECT_DIR$/data/dto" />
+            <option value="$PROJECT_DIR$/data/network" />
+            <option value="$PROJECT_DIR$/data/repository-implementation" />
+            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/domain/entity" />
+            <option value="$PROJECT_DIR$/domain/repository-interface" />
+            <option value="$PROJECT_DIR$/domain/usecase" />
             <option value="$PROJECT_DIR$/presentation" />
-            <option value="$PROJECT_DIR$/presentation/design_system" />
+            <option value="$PROJECT_DIR$/presentation/design-system" />
+            <option value="$PROJECT_DIR$/presentation/feature" />
+            <option value="$PROJECT_DIR$/presentation/feature/comments" />
+            <option value="$PROJECT_DIR$/presentation/feature/company-detail" />
           </set>
         </option>
       </GradleProjectSettings>
