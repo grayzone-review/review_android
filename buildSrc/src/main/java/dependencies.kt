@@ -60,4 +60,5 @@ object Retrofit {
 object DaggerHilt {
     const val dagger                    = "com.google.dagger:dagger-android:2.x"
     const val hilt                      = "com.google.dagger:hilt-android:${Versions.hilt}"
+    const val hiltCompiler              = "com.google.dagger:hilt-compiler:${Versions.hilt}"
 }
