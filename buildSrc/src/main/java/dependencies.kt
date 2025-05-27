@@ -18,7 +18,7 @@ object Versions {
     const val okHttp              = "4.12.0"
 
     // ── Hilt ─────────────────────────────
-    const val hilt                = "2.38.1"
+    const val hilt                = "2.51.1"
 
 }
 
@@ -60,4 +60,5 @@ object Retrofit {
 object DaggerHilt {
     const val dagger                    = "com.google.dagger:dagger-android:2.x"
     const val hilt                      = "com.google.dagger:hilt-android:${Versions.hilt}"
+    const val hiltCompiler              = "com.google.dagger:hilt-compiler:${Versions.hilt}"
 }

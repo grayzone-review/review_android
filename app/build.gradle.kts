@@ -1,7 +1,9 @@
 plugins {
     id("com.android.application")               version "8.10.0"
-    id("org.jetbrains.kotlin.android")          version "2.0.21"
-    id("org.jetbrains.kotlin.plugin.compose")   version "2.0.21"
+    id("org.jetbrains.kotlin.android")          version "2.1.10"
+    id("org.jetbrains.kotlin.plugin.compose")   version "2.1.10"
+    id("com.google.dagger.hilt.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -38,6 +40,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":data:network"))
+    implementation(project(":data:repository-implementation"))
+    implementation(DaggerHilt.hilt)
+    kapt(DaggerHilt.hiltCompiler)
+    implementation(Retrofit.retrofit)
 
     implementation(Deps.coreKtx)
     implementation(Deps.lifecycleRuntimeKtx)
