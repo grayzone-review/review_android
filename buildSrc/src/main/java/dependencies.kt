@@ -18,7 +18,7 @@ object Versions {
     const val okHttp              = "4.12.0"
 
     // ── Hilt ─────────────────────────────
-    const val hilt                = "2.38.1"
+    const val hilt                = "2.51.1"
 
 }
 
