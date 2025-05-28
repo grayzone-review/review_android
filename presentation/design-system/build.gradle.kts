@@ -40,6 +40,7 @@ android {
 
 dependencies {
     implementation(DaggerHilt.hilt)
+    implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:0.16.0-alpha01")
     kapt(DaggerHilt.hiltCompiler)
     implementation(Deps.coreKtx)
     implementation(Deps.appcompat)

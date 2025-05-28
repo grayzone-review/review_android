@@ -1,13 +1,16 @@
 package com.presentation.design_system.appbar.appbar
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import colors.CS
+import com.example.presentation.designsystem.typography.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,13 +20,13 @@ fun DefaultTopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    TopAppBar(
-        title = { Text(text = title) },
+    CenterAlignedTopAppBar(
+        title = { Text(text = title, style = Typography.h2) },
         navigationIcon = { navigationIcon?.invoke() },
         actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            containerColor = CS.Gray.White,
+            titleContentColor = CS.Gray.G90
         ),
         modifier = modifier
     )
