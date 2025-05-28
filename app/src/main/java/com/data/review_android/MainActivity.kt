@@ -7,34 +7,71 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
+import com.presentation.design_system.appbar.appbar.AppBarViewModel
+import com.presentation.design_system.appbar.appbar.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import androidx.compose.material3.IconButton as IconButton1
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     @Inject
     lateinit var navigationProvider: NavigationProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             ReviewAndroidTheme {
                 val navController = rememberNavController()
-                App(navHostController = navController, navigationProvider = navigationProvider)
+                val appBarViewModel: AppBarViewModel = hiltViewModel()
+
+                Scaffold(
+                    topBar = {
+                        val appBarState by appBarViewModel.appBarState.collectAsState()
+                        DefaultTopAppBar(
+                            title = appBarState.title,
+                            navigationIcon = {
+                                if (appBarState.showBackButton) {
+                                    IconButton1(onClick = { navController.navigateUp() }) {
+                                        Icon(Icons.Default.ArrowBack, "뒤로가기")
+                                    }
+                                }
+                            },
+                            actions = {
+                                appBarState.actions.forEach { action ->
+                                    IconButton1(onClick = action.onClick) {
+                                        Icon(action.icon, action.contentDescription)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                ) { paddingValuesd ->
+                    AppNavGraph(
+                        navController = navController,
+                        navigationProvider = navigationProvider,
+                        appBarViewModel = appBarViewModel
+                    )
+                    paddingValuesd
+                }
             }
         }
     }
@@ -43,13 +80,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App(
     navHostController: NavHostController,
-    navigationProvider: NavigationProvider
+    navigationProvider: NavigationProvider,
+    appBarViewModel: AppBarViewModel
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        AppNavGraph(navController = navHostController, navigationProvider = navigationProvider)
+        AppNavGraph(navController = navHostController, navigationProvider = navigationProvider, appBarViewModel = appBarViewModel)
     }
 
 }

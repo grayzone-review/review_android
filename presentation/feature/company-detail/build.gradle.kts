@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":presentation:design-system"))
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

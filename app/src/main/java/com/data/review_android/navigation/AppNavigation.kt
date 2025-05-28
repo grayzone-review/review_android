@@ -4,11 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.team.common.feature_api.navigation_constant.ReviewDetailFeature
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.presentation.company_detail.Scene.ReviewDetailScene
+import com.presentation.design_system.appbar.appbar.AppBarViewModel
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    navigationProvider: NavigationProvider
+    navigationProvider: NavigationProvider,
+    appBarViewModel: AppBarViewModel
 ) {
     NavHost(
         navController = navController,
@@ -16,7 +20,8 @@ fun AppNavGraph(
     ) {
         navigationProvider.reviewAPI.registerGraph(
             navController = navController,
-            navGraphBuilder = this
+            navGraphBuilder = this,
+            appBarViewModel = appBarViewModel
         )
     }
 }

@@ -44,9 +44,11 @@ dependencies {
     implementation(project(":data:repository-implementation"))
     implementation(project(":presentation:feature:company-detail"))
     implementation(project(":common"))
+    implementation(project(":presentation:design-system"))
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
+    implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Retrofit.retrofit)
 
     implementation(Deps.coreKtx)
