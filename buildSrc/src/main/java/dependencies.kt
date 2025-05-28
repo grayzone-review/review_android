@@ -5,6 +5,7 @@ object Versions {
     const val lifecycleRuntimeKtx = "2.9.0"
     const val activityCompose     = "1.10.1"
     const val composeBom          = "2024.09.00"
+    const val material3           = "1.3.2"
 
     // ── Navigation (Compose) ───────────────────────────
     const val navigationCompose   = "2.9.0"
@@ -18,7 +19,8 @@ object Versions {
     const val okHttp              = "4.12.0"
 
     // ── Hilt ─────────────────────────────
-    const val hilt                = "2.51.1"
+    const val hilt                  = "2.56.2"
+    const val hiltNavigationCompose = "1.2.0"
 
 }
 
@@ -41,7 +43,7 @@ object Deps {
     const val composeUiTestManifest    = "androidx.compose.ui:ui-test-manifest"
 
     // --- Material3 (버전 역시 BOM으로 통일) ---
-    const val material3            = "androidx.compose.material3:material3"
+    const val material3            = "androidx.compose.material3:material3:${Versions.material3}"
 
     // --- Navigation Compose ---
     const val navigationCompose        = "androidx.navigation:navigation-compose:${Versions.navigationCompose}"
@@ -61,4 +63,5 @@ object DaggerHilt {
     const val dagger                    = "com.google.dagger:dagger-android:2.x"
     const val hilt                      = "com.google.dagger:hilt-android:${Versions.hilt}"
     const val hiltCompiler              = "com.google.dagger:hilt-compiler:${Versions.hilt}"
+    const val hiltNavigationCompose     = "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}"
 }

@@ -1,6 +1,9 @@
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -23,6 +26,10 @@ android {
             )
         }
     }
+    buildFeatures {
+        compose = true
+    }
+
     compileOptions {
         sourceCompatibility = AppConfig.javaVersion
         targetCompatibility = AppConfig.javaVersion
@@ -33,7 +40,13 @@ android {
 }
 
 dependencies {
+    implementation(project(":common"))
+
+    implementation(DaggerHilt.hilt)
+    kapt(DaggerHilt.hiltCompiler)
+    implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Deps.coreKtx)
+    implementation(Deps.navigationCompose)
     implementation(Deps.appcompat)
     implementation(Deps.material3)
 }

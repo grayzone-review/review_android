@@ -42,6 +42,9 @@ android {
 dependencies {
     implementation(project(":data:network"))
     implementation(project(":data:repository-implementation"))
+    implementation(project(":presentation:feature:company-detail"))
+    implementation(project(":common"))
+
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
     implementation(Retrofit.retrofit)
@@ -53,6 +56,7 @@ dependencies {
     implementation(platform(Deps.composeBom))
     implementation(Deps.composeUi)
     implementation(Deps.composeUiGraphics)
+    implementation(Deps.navigationCompose)
     implementation(Deps.composeUiToolingPreview)
     implementation(Deps.material3)
 
