@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import colors.CS
 
 @Composable
@@ -20,7 +19,7 @@ fun StarFilled(
         painter = painterResource(com.presentation.design_system.R.drawable.star_origin),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
-        tint = CS.SementicYellow.Y40
+        tint = CS.SemanticYellow.Y40
     )
 }
 

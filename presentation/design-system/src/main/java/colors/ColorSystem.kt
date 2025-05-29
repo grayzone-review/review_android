@@ -60,7 +60,7 @@ object CS {
         val O70 = O70Hex.asComposeColor()
     }
 
-    object SementicYellow {
+    object SemanticYellow {
         const val Y10Hex = "#fffbf2"
         const val Y20Hex = "#FFE3A6"
         const val Y30Hex = "#FFD373"
@@ -76,5 +76,59 @@ object CS {
         val Y50 = Y50Hex.asComposeColor()
         val Y60 = Y60Hex.asComposeColor()
         val Y70 = Y70Hex.asComposeColor()
+    }
+
+    object SecondBlue {
+        const val B10Hex = "#F2FAFF"
+        const val B20Hex = "#D9EFFF"
+        const val B30Hex = "#A6D9FF"
+        const val B40Hex = "#40AEFF"
+        const val B50Hex = "#0D99FF"
+        const val B60Hex = "#007ED9"
+        const val B70Hex = "#0060A6"
+
+        val B10: Color = B10Hex.asComposeColor()
+        val B20: Color = B20Hex.asComposeColor()
+        val B30: Color = B30Hex.asComposeColor()
+        val B40: Color = B40Hex.asComposeColor()
+        val B50: Color = B50Hex.asComposeColor()
+        val B60: Color = B60Hex.asComposeColor()
+        val B70: Color = B70Hex.asComposeColor()
+    }
+
+    object SemanticRed {
+        const val R10Hex = "#FFF2F2"
+        const val R20Hex = "#FFA6A6"
+        const val R30Hex = "#FF7373"
+        const val R40Hex = "#FF4040"
+        const val R50Hex = "#FF0D0D"
+        const val R60Hex = "#D90000"
+        const val R70Hex = "#A60000"
+
+        val R10: Color = R10Hex.asComposeColor()
+        val R20: Color = R20Hex.asComposeColor()
+        val R30: Color = R30Hex.asComposeColor()
+        val R40: Color = R40Hex.asComposeColor()
+        val R50: Color = R50Hex.asComposeColor()
+        val R60: Color = R60Hex.asComposeColor()
+        val R70: Color = R70Hex.asComposeColor()
+    }
+
+    object SemanticBlue {
+        const val B10Hex = "#F2F8FF"
+        const val B20Hex = "#A6CFFF"
+        const val B30Hex = "#73B4FF"
+        const val B40Hex = "#4099FF"
+        const val B50Hex = "#0D7EFF"
+        const val B60Hex = "#0065D9"
+        const val B70Hex = "#004DA6"
+
+        val B10: Color = B10Hex.asComposeColor()
+        val B20: Color = B20Hex.asComposeColor()
+        val B30: Color = B30Hex.asComposeColor()
+        val B40: Color = B40Hex.asComposeColor()
+        val B50: Color = B50Hex.asComposeColor()
+        val B60: Color = B60Hex.asComposeColor()
+        val B70: Color = B70Hex.asComposeColor()
     }
 }
