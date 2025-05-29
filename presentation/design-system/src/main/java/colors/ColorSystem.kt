@@ -59,4 +59,22 @@ object CS {
         val O60 = O60Hex.asComposeColor()
         val O70 = O70Hex.asComposeColor()
     }
+
+    object SementicYellow {
+        const val Y10Hex = "#fffbf2"
+        const val Y20Hex = "#FFE3A6"
+        const val Y30Hex = "#FFD373"
+        const val Y40Hex = "#FFC340"
+        const val Y50Hex = "#FFB30D"
+        const val Y60Hex = "#D99500"
+        const val Y70Hex = "#A67200"
+
+        val Y10 = Y10Hex.asComposeColor()
+        val Y20 = Y20Hex.asComposeColor()
+        val Y30 = Y30Hex.asComposeColor()
+        val Y40 = Y40Hex.asComposeColor()
+        val Y50 = Y50Hex.asComposeColor()
+        val Y60 = Y60Hex.asComposeColor()
+        val Y70 = Y70Hex.asComposeColor()
+    }
 }

@@ -2,15 +2,12 @@ package com.presentation.company_detail.Scene
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,17 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.presentation.company_detail.Scene.ReviewDetailViewModel.Action.*
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.AppBarAction
 import com.presentation.design_system.appbar.appbars.AppBarState
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
-import preset_ui.CSSpacer
+import preset_ui.CSSpacerHorizontal
 import preset_ui.IconTextToggleButton
 import preset_ui.KakaoMapView
 import preset_ui.PrimaryIconTextButton
+import preset_ui.Review
+import preset_ui.ReviewCard
+import preset_ui.StarFilled
 
 @Composable
 fun ReviewDetailScene(
@@ -93,7 +92,7 @@ fun Content(viewModel: ReviewDetailViewModel) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-
+        ReviewExample()
     }
 }
 
@@ -116,12 +115,7 @@ fun StarRating(modifier: Modifier) {
         horizontalArrangement = Arrangement.spacedBy(2.5.dp),
         modifier = modifier
     ) {
-        Icon(
-            painter = painterResource(com.presentation.design_system.R.drawable.star_fill),
-            contentDescription = "별점",
-            modifier = Modifier.size(width = 24.dp, height = 24.dp),
-            tint = Color.Unspecified
-        )
+        StarFilled(24.dp, 24.dp)
         Text(text = "4.5", color = CS.Gray.G90, style = Typography.h1)
     }
 }
@@ -181,9 +175,22 @@ fun CompanyLocationMap(modifier: Modifier) {
 
 @Composable
 fun GraySpacer(modifier: Modifier) {
-    CSSpacer(
+    CSSpacerHorizontal(
         modifier = modifier,
         height = 6.dp,
         color = CS.Gray.G20
     )
+}
+
+@Composable
+fun ReviewExample() {
+    val review = Review(
+        nickname = "서현웅",
+        jobDescription = "안녕하세요",
+        period = "1년 이상 근무",
+        createAt = "2055. 05 작성",
+        totalScore = 3.9
+    )
+
+    ReviewCard(review = review)
 }
