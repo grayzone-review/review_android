@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":presentation:design-system"))
 
     implementation(DaggerHilt.hilt)
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:3.0.3")
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Retrofit.retrofit)
