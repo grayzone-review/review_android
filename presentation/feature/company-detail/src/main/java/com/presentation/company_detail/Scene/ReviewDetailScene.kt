@@ -2,12 +2,15 @@ package com.presentation.company_detail.Scene
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +30,7 @@ import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.AppBarAction
 import com.presentation.design_system.appbar.appbars.AppBarState
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
+import preset_ui.CSSpacer
 import preset_ui.IconTextToggleButton
 import preset_ui.KakaoMapView
 import preset_ui.PrimaryIconTextButton
@@ -52,17 +56,26 @@ fun ReviewDetailScene(
             )
         )
     }
-    Content(viewModel)
+    ScrollView(viewModel)
+}
+
+@Composable
+fun ScrollView(viewModel: ReviewDetailViewModel) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(scrollState)
+    ) {
+        Content(viewModel)
+    }
 }
 
 @Composable
 fun Content(viewModel: ReviewDetailViewModel) {
-    val scrollState = rememberScrollState()
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .padding(horizontal = 20.dp)
     ) {
         CompanyProfile(modifier = Modifier.padding(top = 16.dp))
@@ -70,10 +83,17 @@ fun Content(viewModel: ReviewDetailViewModel) {
         ProfileActionButtons(
             isFollowing = viewModel.isFollowing,
             onFollowClick = { viewModel.handleAction(DidTapFollowingButton) },
-            onReviewClick = {},
+            onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton)},
             modifier = Modifier.padding(top = 20.dp)
         )
         CompanyLocationMap(modifier = Modifier.padding(top = 20.dp))
+    }
+    GraySpacer(modifier = Modifier.padding(top = 20.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+
     }
 }
 
@@ -81,7 +101,8 @@ fun Content(viewModel: ReviewDetailViewModel) {
 fun CompanyProfile(modifier: Modifier) {
     Column(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(text = "스타벅스 석촌역점", color = CS.Gray.G90, style = Typography.h3)
@@ -155,5 +176,14 @@ fun CompanyLocationMap(modifier: Modifier) {
             .height(179.dp),
         locationX = longitude,
         locationY = latitude
+    )
+}
+
+@Composable
+fun GraySpacer(modifier: Modifier) {
+    CSSpacer(
+        modifier = modifier,
+        height = 6.dp,
+        color = CS.Gray.G20
     )
 }

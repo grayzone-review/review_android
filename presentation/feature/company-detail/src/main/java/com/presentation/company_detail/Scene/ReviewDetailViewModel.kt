@@ -10,7 +10,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ReviewDetailViewModel @Inject constructor() : ViewModel() {
     enum class Action {
-        DidTapFollowingButton
+        DidTapFollowingButton,
+        DidTapWriteReviewButton
     }
 
     var isFollowing by mutableStateOf(false)
@@ -19,6 +20,9 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
     fun handleAction(action: Action) {
         when (action) {
             Action.DidTapFollowingButton -> {
+                isFollowing = !isFollowing
+            }
+            Action.DidTapWriteReviewButton -> {
                 isFollowing = !isFollowing
             }
         }
