@@ -28,6 +28,7 @@ import com.presentation.design_system.appbar.appbars.AppBarAction
 import com.presentation.design_system.appbar.appbars.AppBarState
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import preset_ui.IconTextToggleButton
+import preset_ui.KakaoMapView
 import preset_ui.PrimaryIconTextButton
 
 @Composable
@@ -72,6 +73,7 @@ fun Content(viewModel: ReviewDetailViewModel) {
             onReviewClick = {},
             modifier = Modifier.padding(top = 20.dp)
         )
+        CompanyLocationMap(modifier = Modifier.padding(top = 20.dp))
     }
 }
 
@@ -140,4 +142,18 @@ fun ProfileActionButtons(
             cornerRadius = 8.dp
         )
     }
+}
+
+@Composable
+fun CompanyLocationMap(modifier: Modifier) {
+    val latitude  = 37.514
+    val longitude = 127.105
+
+    KakaoMapView(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(179.dp),
+        locationX = longitude,
+        locationY = latitude
+    )
 }
