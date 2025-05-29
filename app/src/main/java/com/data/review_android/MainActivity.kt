@@ -3,8 +3,7 @@ package com.data.review_android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -13,20 +12,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
-import com.presentation.design_system.appbar.appbar.AppBarViewModel
-import com.presentation.design_system.appbar.appbar.DefaultTopAppBar
+import com.presentation.design_system.appbar.appbars.AppBarViewModel
+import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import androidx.compose.material3.IconButton as IconButton1
@@ -64,13 +61,13 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                ) { paddingValuesd ->
-                    AppNavGraph(
-                        navController = navController,
+                ) { paddingValues ->
+                    App(
+                        navHostController = navController,
                         navigationProvider = navigationProvider,
-                        appBarViewModel = appBarViewModel
+                        appBarViewModel = appBarViewModel,
+                        paddingValues = paddingValues
                     )
-                    paddingValuesd
                 }
             }
         }
@@ -81,13 +78,19 @@ class MainActivity : ComponentActivity() {
 fun App(
     navHostController: NavHostController,
     navigationProvider: NavigationProvider,
-    appBarViewModel: AppBarViewModel
+    appBarViewModel: AppBarViewModel,
+    paddingValues: PaddingValues = PaddingValues()
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
         color = MaterialTheme.colorScheme.background
     ) {
-        AppNavGraph(navController = navHostController, navigationProvider = navigationProvider, appBarViewModel = appBarViewModel)
+        AppNavGraph(
+            navController = navHostController,
+            navigationProvider = navigationProvider,
+            appBarViewModel = appBarViewModel
+        )
     }
-
 }

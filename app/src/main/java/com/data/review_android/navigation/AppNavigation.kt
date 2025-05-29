@@ -4,9 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.team.common.feature_api.navigation_constant.ReviewDetailFeature
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.presentation.company_detail.Scene.ReviewDetailScene
-import com.presentation.design_system.appbar.appbar.AppBarViewModel
+import com.presentation.design_system.appbar.appbars.AppBarViewModel
 
 @Composable
 fun AppNavGraph(

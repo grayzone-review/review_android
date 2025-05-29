@@ -1,4 +1,4 @@
-package com.presentation.design_system.appbar.appbar
+package com.presentation.design_system.appbar.appbars
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
