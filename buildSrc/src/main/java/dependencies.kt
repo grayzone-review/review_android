@@ -69,5 +69,5 @@ object DaggerHilt {
 }
 
 object Kakao {
-    const val map                       = "com.kakao.maps.open:android${Versions.map}"
+    const val map                       = "com.kakao.maps.open:android:${Versions.map}"
 }
