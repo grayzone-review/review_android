@@ -46,7 +46,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":presentation:design-system"))
 
-    implementation("com.kakao.maps.open:android:2.12.8")
+    implementation(Kakao.map)
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

@@ -22,6 +22,8 @@ object Versions {
     const val hilt                  = "2.56.2"
     const val hiltNavigationCompose = "1.2.0"
 
+    // ── Kakao ─────────────────────────────
+    const val map                   = "2.12.8"
 }
 
 object Deps {
@@ -64,4 +66,8 @@ object DaggerHilt {
     const val hilt                      = "com.google.dagger:hilt-android:${Versions.hilt}"
     const val hiltCompiler              = "com.google.dagger:hilt-compiler:${Versions.hilt}"
     const val hiltNavigationCompose     = "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}"
+}
+
+object Kakao {
+    const val map                       = "com.kakao.maps.open:android${Versions.map}"
 }

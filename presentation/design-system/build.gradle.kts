@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation(DaggerHilt.hilt)
-    implementation("com.kakao.maps.open:android:2.12.8")
+    implementation(Kakao.map)
     kapt(DaggerHilt.hiltCompiler)
     implementation(Deps.coreKtx)
     implementation(Deps.appcompat)
