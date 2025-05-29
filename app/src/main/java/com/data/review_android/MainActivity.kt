@@ -20,17 +20,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
+import com.kakao.vectormap.KakaoMapSdk
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import javax.inject.Named
 import androidx.compose.material3.IconButton as IconButton1
 
 @AndroidEntryPoint
@@ -38,8 +42,14 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navigationProvider: NavigationProvider
 
+    @Inject
+    @Named("NATIVE_APP_KEY")
+    lateinit var nativeAppKey: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        KakaoMapSdk.init(this, nativeAppKey)
+
         setContent {
             ReviewAndroidTheme {
                 val navController = rememberNavController()
