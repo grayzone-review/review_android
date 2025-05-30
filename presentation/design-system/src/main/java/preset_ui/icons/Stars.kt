@@ -1,4 +1,4 @@
-package preset_ui
+package preset_ui.icons
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon

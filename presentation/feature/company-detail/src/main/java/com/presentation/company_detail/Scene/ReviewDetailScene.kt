@@ -7,17 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.presentation.company_detail.Scene.ReviewDetailViewModel.Action.*
@@ -33,7 +30,7 @@ import preset_ui.IconTextToggleButton
 import preset_ui.KakaoMapView
 import preset_ui.PrimaryIconTextButton
 import preset_ui.ReviewCard
-import preset_ui.StarFilled
+import preset_ui.icons.StarFilled
 
 @Composable
 fun ReviewDetailScene(
@@ -206,16 +203,16 @@ fun ReviewExample() {
     }
 
     val review = Review(
-        advantagePoint      = "복지가 좋아요.",
+        advantagePoint      = "복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.",
         commentCount        = 19,
         createdAt           = "2025-05-23T17:40:33",
-        disadvantagePoint   = "야근이 많아요.",
+        disadvantagePoint   = "야근이 많아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.",
         employmentPeriod    = "1년 이상",
         id                  = 2,
         jobRole             = "백엔드 개발자",
         likeCount           = 3,
         liked               = true,
-        managementFeedback  = "소통이 필요합니다.",
+        managementFeedback  = "소통이 필요합니다복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요소통이 필요합니다",
         totalRating         = totalRating,
         ratings             = ratings,
         title               = "좋은 회사입니다.",

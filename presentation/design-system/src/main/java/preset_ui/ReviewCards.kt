@@ -7,20 +7,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,11 +24,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
-import com.domain.entity.Ratings
 import com.domain.entity.Review
 import com.example.presentation.designsystem.typography.Typography
 import com.team.common.feature_api.utility.Utility
-import kotlin.math.floor
+import preset_ui.icons.ChatLine
+import preset_ui.icons.LikeHeartFill
+import preset_ui.icons.LikeHeartLine
+import preset_ui.icons.StarFilled
+import preset_ui.icons.StarHalf
+import preset_ui.icons.StarOutline
 
 @Composable
 fun ReviewCard(review: Review) {
@@ -43,7 +42,7 @@ fun ReviewCard(review: Review) {
         WriterProfile(review, Modifier.padding(top = 20.dp))
         RatingSummary(review, Modifier.padding(vertical = 16.dp))
         RatingBox(review, Modifier)
-        RatingSummary(review, Modifier.padding(top = 16.dp))
+        ReviewTextContent(review, Modifier.padding(top = 20.dp))
     }
 }
 
@@ -169,5 +168,97 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
                 StarOutline(width = 12.dp, height = 12.dp)
             }
         }
+    }
+}
+
+@Composable
+fun ReviewTextContent(review: Review, modifier: Modifier = Modifier) {
+    val textContentItems: List<Pair<String, String>> = listOf(
+        "장점"     to review.advantagePoint,
+        "단점"     to review.disadvantagePoint,
+        "바라는점"  to review.managementFeedback
+    )
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+    ) {
+        ReviewTextContentTitle(title = review.title)
+        Spacer(Modifier.height(16.dp))
+        textContentItems.indices.forEach { index ->
+            val sectionItem = textContentItems[index]
+            ReviewSectionRow(sectionItem)
+            Spacer(Modifier.height(if (index == 2) 16.dp else 32.dp))
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LikeTextIcon(count = review.likeCount)
+            CommentTextIcon(count = review.commentCount)
+        }
+    }
+}
+
+@Composable
+fun ReviewTextContentTitle(title: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Text(text = title, color = CS.Gray.G90, style = Typography.h3)
+    }
+}
+
+@Composable
+fun ReviewSectionRow(item: Pair<String, String>) {
+    val category = item.first
+    val content = item.second
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        TagChip(tag = category)
+        Text(text = content, color = CS.Gray.G80, style = Typography.body1Regular, modifier = Modifier.alignByBaseline())
+    }
+}
+
+@Composable
+fun TagChip(tag: String) {
+    val (backgroundColor, textColor) = when (tag) {
+        "장점"     -> CS.SemanticBlue.B10 to CS.SemanticBlue.B50
+        "단점"     -> CS.SemanticRed.R10  to CS.SemanticRed.R50
+        "바라는점" -> CS.Gray.G10        to CS.Gray.G50
+        else       -> CS.Gray.G10        to CS.Gray.G80    // 예외 처리
+    }
+
+    Surface(
+        color = backgroundColor,
+        shape = RoundedCornerShape(4.dp),
+        modifier = Modifier.padding(end = 8.dp)
+    ) {
+        Text(
+            text = tag, color = textColor, style = Typography.captionBold, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        )
+    }
+}
+
+@Composable
+fun LikeTextIcon(count: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+        Spacer(Modifier.width(4.dp))
+        Text(text = count.toString(), color = CS.Gray.Black, style = Typography.body1Bold)
+    }
+}
+
+@Composable
+fun CommentTextIcon(count: Int) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ChatLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+        Spacer(Modifier.width(4.dp))
+        Text(text = count.toString(), color = CS.Gray.Black, style = Typography.body1Bold)
     }
 }
