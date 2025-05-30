@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -196,8 +200,12 @@ fun ReviewTextContent(review: Review, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LikeTextIcon(count = review.likeCount)
-            CommentTextIcon(count = review.commentCount)
+            InteractionButton(count = review.likeCount, modifier = Modifier, onClick = { }) {
+                LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+            }
+            InteractionButton(count = review.commentCount, modifier = Modifier, onClick = { }) {
+                ChatLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+            }
         }
     }
 }
@@ -230,8 +238,8 @@ fun TagChip(tag: String) {
     val (backgroundColor, textColor) = when (tag) {
         "장점"     -> CS.SemanticBlue.B10 to CS.SemanticBlue.B50
         "단점"     -> CS.SemanticRed.R10  to CS.SemanticRed.R50
-        "바라는점" -> CS.Gray.G10        to CS.Gray.G50
-        else       -> CS.Gray.G10        to CS.Gray.G80    // 예외 처리
+        "바라는점" -> CS.Gray.G10          to CS.Gray.G50
+        else       -> CS.Gray.G10        to CS.Gray.G80
     }
 
     Surface(
@@ -246,19 +254,23 @@ fun TagChip(tag: String) {
 }
 
 @Composable
-fun LikeTextIcon(count: Int) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
-        Spacer(Modifier.width(4.dp))
-        Text(text = count.toString(), color = CS.Gray.Black, style = Typography.body1Bold)
-    }
-}
-
-@Composable
-fun CommentTextIcon(count: Int) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ChatLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
-        Spacer(Modifier.width(4.dp))
-        Text(text = count.toString(), color = CS.Gray.Black, style = Typography.body1Bold)
+fun InteractionButton(
+    count: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: @Composable () -> Unit
+) {
+    TextButton(
+        onClick = onClick,
+        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 4.dp),
+        colors = ButtonDefaults.textButtonColors(contentColor = CS.Gray.Black),
+        modifier = modifier
+            .height(IntrinsicSize.Min)
+    ) {
+        icon()
+        Text(
+            text  = count.toString(),
+            style = Typography.body1Bold
+        )
     }
 }
