@@ -39,6 +39,9 @@ android {
 }
 
 dependencies {
+    implementation(project(":domain:entity"))
+    implementation(project(":common"))
+
     implementation(DaggerHilt.hilt)
     implementation(Kakao.map)
     kapt(DaggerHilt.hiltCompiler)

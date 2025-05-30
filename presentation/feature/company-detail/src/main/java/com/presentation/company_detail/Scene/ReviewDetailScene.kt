@@ -22,6 +22,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.presentation.company_detail.Scene.ReviewDetailViewModel.Action.*
 import colors.CS
+import com.domain.entity.Ratings
+import com.domain.entity.Review
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.AppBarAction
 import com.presentation.design_system.appbar.appbars.AppBarState
@@ -30,7 +32,6 @@ import preset_ui.CSSpacerHorizontal
 import preset_ui.IconTextToggleButton
 import preset_ui.KakaoMapView
 import preset_ui.PrimaryIconTextButton
-import preset_ui.Review
 import preset_ui.ReviewCard
 import preset_ui.StarFilled
 
@@ -184,12 +185,41 @@ fun GraySpacer(modifier: Modifier) {
 
 @Composable
 fun ReviewExample() {
+    val ratings = Ratings(
+        COMPANY_CULTURE    = 2.5,
+        MANAGEMENT         = 2.0,
+        SALARY             = 4.0,
+        WELFARE            = 3.0,
+        WORK_LIFE_BALANCE  = 2.5
+    )
+
+    val totalRating: Double by lazy {
+        with(ratings) {
+            listOf(
+                COMPANY_CULTURE,
+                MANAGEMENT,
+                SALARY,
+                WELFARE,
+                WORK_LIFE_BALANCE
+            ).average().let { "%.1f".format(it).toDouble() }
+        }
+    }
+
     val review = Review(
-        nickname = "서현웅",
-        jobDescription = "안녕하세요",
-        period = "1년 이상 근무",
-        createAt = "2055. 05 작성",
-        totalScore = 3.8
+        advantagePoint      = "복지가 좋아요.",
+        commentCount        = 19,
+        createdAt           = "2025-05-23T17:40:33",
+        disadvantagePoint   = "야근이 많아요.",
+        employmentPeriod    = "1년 이상",
+        id                  = 2,
+        jobRole             = "백엔드 개발자",
+        likeCount           = 3,
+        liked               = true,
+        managementFeedback  = "소통이 필요합니다.",
+        totalRating         = totalRating,
+        ratings             = ratings,
+        title               = "좋은 회사입니다.",
+        nickName            = "서현웅"
     )
 
     ReviewCard(review = review)

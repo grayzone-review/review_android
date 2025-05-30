@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":presentation:design-system"))
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
     implementation(Deps.coreKtx)

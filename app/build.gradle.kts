@@ -6,13 +6,6 @@ plugins {
     id("kotlin-kapt")
 }
 
-val localProperties = java.util.Properties().apply {
-    val localPropertiesFile = rootProject.file("local.properties")
-    if (localPropertiesFile.exists()) {
-        load(localPropertiesFile.inputStream())
-    }
-}
-
 android {
     namespace = AppConfig.NameSpace.app
     compileSdk = AppConfig.compileSdk

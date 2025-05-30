@@ -8,6 +8,6 @@ data class Company(
     val roadNameAddress: String,
     val siteFullAddress: String,
     val totalRating: Double,
-    val xcoordinate: Double,
-    val ycoordinate: Double
+    val xCoordinate: Double,
+    val yCoordinate: Double
 )

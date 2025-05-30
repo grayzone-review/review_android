@@ -7,6 +7,7 @@ data class Reviews(
 )
 
 data class Review(
+    val nickName: String,           // 추가요청 해두었음
     val advantagePoint: String,
     val commentCount: Int,
     val createdAt: String,
@@ -17,6 +18,7 @@ data class Review(
     val likeCount: Int,
     val liked: Boolean,
     val managementFeedback: String,
+    val totalRating: Double,            // DTO 매핑 시 계산하여 변환
     val ratings: Ratings,
     val title: String
 )
