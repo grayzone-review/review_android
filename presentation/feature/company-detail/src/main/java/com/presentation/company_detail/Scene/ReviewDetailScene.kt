@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -17,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.presentation.company_detail.Scene.ReviewDetailViewModel.Action.*
@@ -89,6 +91,7 @@ fun Content(viewModel: ReviewDetailViewModel) {
                 onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
                 modifier = Modifier.padding(vertical = 12.dp)
             )
+            CSSpacerHorizontal(modifier = Modifier, height = 1.dp, color = CS.Gray.G20)
         }
     }
 }
@@ -111,8 +114,9 @@ fun StarRating(modifier: Modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(2.5.dp),
         modifier = modifier
+            .padding(horizontal = 20.dp)
     ) {
-        StarFilled(24.dp, 24.dp)
+        StarFilled(width = 24.dp, height = 24.dp)
         Text(text = "4.5", color = CS.Gray.G90, style = Typography.h1)
     }
 }
@@ -126,7 +130,8 @@ fun ProfileActionButtons(
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         IconTextToggleButton(
@@ -163,8 +168,9 @@ fun CompanyLocationMap(modifier: Modifier) {
 
     KakaoMapView(
         modifier = modifier
+            .height(179.dp)
             .fillMaxWidth()
-            .height(179.dp),
+            .padding(horizontal = 20.dp),
         locationX = longitude,
         locationY = latitude
     )

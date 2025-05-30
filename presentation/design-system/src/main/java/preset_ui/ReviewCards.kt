@@ -197,7 +197,7 @@ fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = 
         Spacer(Modifier.height(16.dp))
         for ((index, sectionItem) in textContentItems.withIndex()) {
             if (!isFullMode && index > 0) {
-                Text("더보기", color = CS.Gray.G50, style = Typography.body1Regular)
+                Text("더보기", color = CS.Gray.G50, style = Typography.body1Regular, modifier = Modifier.padding(start = 10.dp))
                 break
             }
             ReviewSectionRow(sectionItem)
@@ -210,7 +210,7 @@ fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = 
             verticalAlignment = Alignment.CenterVertically
         ) {
             InteractionButton(count = review.likeCount, modifier = Modifier, onClick = onLikeReviewButtonClick) {
-                if (review.liked == true) {
+                if (review.liked) {
                     LikeHeartFill(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
                 } else {
                     LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
