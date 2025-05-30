@@ -23,32 +23,34 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
 
     var reviews = mutableStateListOf<Review>()
         private set
-    var isFollowing by mutableStateOf(false)
+    var isFullModeList = mutableStateListOf<Boolean>()
+        private set
+    var isFollowingCompany by mutableStateOf(false)
         private set
 
-    fun handleAction(action: Action, id: Int? = null) {
+    fun handleAction(action: Action, index: Int? = null) {
         when (action) {
             Action.DidTapFollowCompanyButton -> {
-                isFollowing = !isFollowing
+                isFollowingCompany = !isFollowingCompany
             }
             Action.DidTapWriteReviewButton -> {
-                reviews
-                Log.d("버튼탭", "리뷰 작성 버튼이 탭 되었음")
+                Log.d("버튼탭", "리뷰 버튼이 탭 되었음")
             }
             Action.DidTapLikeReviewButton -> {
-                val index = reviews.indexOfFirst { it.id == id }
-                if (index == -1) return
-
-                reviews[index] = reviews[index].copy(
-                    liked      = !reviews[index].liked,
-                    likeCount  = (if (reviews[index].liked)
-                        reviews[index].likeCount - 1
-                    else
-                        reviews[index].likeCount + 1).coerceAtLeast(0)
-                )
+                index?.let {
+                    reviews[index] = reviews[index].copy(
+                        liked = !reviews[index].liked,
+                        likeCount = (if (reviews[index].liked)
+                            reviews[index].likeCount - 1
+                        else
+                            reviews[index].likeCount + 1).coerceAtLeast(0)
+                    )
+                }
             }
             Action.DidTapReviewCard -> {
-                Log.d("버튼탭", "리뷰 카드 버튼이 탭 되었음")
+                index?.let {
+                    isFullModeList[index] = !isFullModeList[index]
+                }
             }
             Action.DidTapCommentButton -> {
                 Log.d("버튼탭", "코멘트 보기 버튼이 탭 되었음")
@@ -56,7 +58,10 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    init { reviews.addAll(generateMockReviews()) }
+    init {
+        reviews.addAll(generateMockReviews())
+        repeat(reviews.size) { isFullModeList.add(false) }
+    }
 
     private fun generateMockReviews(): List<Review> = List(15) { idx ->
         val ratings = Ratings(

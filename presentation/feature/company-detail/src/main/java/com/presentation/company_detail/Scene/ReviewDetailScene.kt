@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -68,7 +69,7 @@ fun Content(viewModel: ReviewDetailViewModel) {
         item { StarRating(Modifier.padding(top = 16.dp)) }
         item {
             ProfileActionButtons(
-                isFollowing   = viewModel.isFollowing,
+                isFollowing   = viewModel.isFollowingCompany,
                 onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
                 onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
                 modifier      = Modifier.padding(top = 20.dp)
@@ -76,16 +77,16 @@ fun Content(viewModel: ReviewDetailViewModel) {
         }
         item { CompanyLocationMap(Modifier.padding(top = 20.dp)) }
         item { GraySpacer(Modifier.padding(top = 20.dp)) }
-        items(
+        itemsIndexed(
             items = viewModel.reviews.toList(),
-            key = { it.id }
-        ) { reviewItem ->
-            val id = reviewItem.id
+            key   = { _, item -> item.id }
+        ) { index, reviewItem ->
             ReviewCard(
                 review = reviewItem,
-                onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, id) },
-                onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, id) },
-                onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, id) },
+                isFullMode = viewModel.isFullModeList[index],
+                onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
+                onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
+                onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
                 modifier = Modifier.padding(vertical = 12.dp)
             )
         }

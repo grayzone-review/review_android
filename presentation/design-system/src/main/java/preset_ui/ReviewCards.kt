@@ -43,7 +43,7 @@ import preset_ui.icons.StarOutline
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReviewCard(review: Review, modifier: Modifier, onReviewCardClick: () -> Unit, onLikeReviewButtonClock: () -> Unit, onCommentButtonClick: () -> Unit) {
+fun ReviewCard(review: Review, isFullMode: Boolean, modifier: Modifier, onReviewCardClick: () -> Unit, onLikeReviewButtonClock: () -> Unit, onCommentButtonClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(
@@ -52,8 +52,8 @@ fun ReviewCard(review: Review, modifier: Modifier, onReviewCardClick: () -> Unit
     ) {
         WriterProfile(review, Modifier.padding(top = 20.dp))
         RatingSummary(review, Modifier.padding(vertical = 16.dp))
-        RatingBox(review, Modifier)
-        ReviewTextContent(review, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick)
+        if (isFullMode) RatingBox(review, Modifier)
+        ReviewTextContent(review, isFullMode = isFullMode, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick)
     }
 }
 
@@ -182,7 +182,7 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
 }
 
 @Composable
-fun ReviewTextContent(review: Review, modifier: Modifier = Modifier, onLikeReviewButtonClick: () -> Unit, onCommentButtonClick: () -> Unit ) {
+fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = Modifier, onLikeReviewButtonClick: () -> Unit, onCommentButtonClick: () -> Unit ) {
     val textContentItems: List<Pair<String, String>> = listOf(
         "장점"     to review.advantagePoint,
         "단점"     to review.disadvantagePoint,
@@ -195,8 +195,8 @@ fun ReviewTextContent(review: Review, modifier: Modifier = Modifier, onLikeRevie
     ) {
         ReviewTextContentTitle(title = review.title)
         Spacer(Modifier.height(16.dp))
-        textContentItems.indices.forEach { index ->
-            val sectionItem = textContentItems[index]
+        textContentItems.forEachIndexed { index, sectionItem ->
+            if (!isFullMode && index > 0) return@forEachIndexed
             ReviewSectionRow(sectionItem)
             Spacer(Modifier.height(if (index == 2) 16.dp else 32.dp))
         }
