@@ -1,7 +1,10 @@
 package preset_ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +25,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Review
@@ -38,15 +41,19 @@ import preset_ui.icons.StarFilled
 import preset_ui.icons.StarHalf
 import preset_ui.icons.StarOutline
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReviewCard(review: Review) {
-    Column(
+fun ReviewCard(review: Review, modifier: Modifier, onReviewCardClick: () -> Unit, onLikeReviewButtonClock: () -> Unit, onCommentButtonClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
 
+    Column(
+        modifier = modifier
+            .combinedClickable(interactionSource = interactionSource, indication = null, onClick = onReviewCardClick)
     ) {
         WriterProfile(review, Modifier.padding(top = 20.dp))
         RatingSummary(review, Modifier.padding(vertical = 16.dp))
         RatingBox(review, Modifier)
-        ReviewTextContent(review, Modifier.padding(top = 20.dp))
+        ReviewTextContent(review, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick)
     }
 }
 
@@ -102,7 +109,6 @@ fun RatingSummary(review: Review, modifier: Modifier) {
 fun RatingBox(review: Review, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(8.dp)
     val ratings = review.ratings
-
     val ratingItems: List<Pair<String, Double>> = listOf(
         "조직문화"  to ratings.COMPANY_CULTURE,
         "경영진"   to ratings.MANAGEMENT,
@@ -176,7 +182,7 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
 }
 
 @Composable
-fun ReviewTextContent(review: Review, modifier: Modifier = Modifier) {
+fun ReviewTextContent(review: Review, modifier: Modifier = Modifier, onLikeReviewButtonClick: () -> Unit, onCommentButtonClick: () -> Unit ) {
     val textContentItems: List<Pair<String, String>> = listOf(
         "장점"     to review.advantagePoint,
         "단점"     to review.disadvantagePoint,
@@ -200,10 +206,14 @@ fun ReviewTextContent(review: Review, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            InteractionButton(count = review.likeCount, modifier = Modifier, onClick = { }) {
-                LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+            InteractionButton(count = review.likeCount, modifier = Modifier, onClick = onLikeReviewButtonClick) {
+                if (review.liked == true) {
+                    LikeHeartFill(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+                } else {
+                    LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
+                }
             }
-            InteractionButton(count = review.commentCount, modifier = Modifier, onClick = { }) {
+            InteractionButton(count = review.commentCount, modifier = Modifier, onClick = onCommentButtonClick) {
                 ChatLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
             }
         }

@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Text
@@ -19,9 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.presentation.company_detail.Scene.ReviewDetailViewModel.Action.*
 import colors.CS
-import com.domain.entity.Ratings
-import com.domain.entity.Review
 import com.example.presentation.designsystem.typography.Typography
+import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.AppBarAction
 import com.presentation.design_system.appbar.appbars.AppBarState
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
@@ -53,44 +53,42 @@ fun ReviewDetailScene(
             )
         )
     }
-    ScrollView(viewModel)
-}
-
-@Composable
-fun ScrollView(viewModel: ReviewDetailViewModel) {
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(scrollState)
-    ) {
-        Content(viewModel)
-    }
+    Content(viewModel)
 }
 
 @Composable
 fun Content(viewModel: ReviewDetailViewModel) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp)
+    val listState = rememberLazyListState()
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
     ) {
-        CompanyProfile(modifier = Modifier.padding(top = 16.dp))
-        StarRating(modifier = Modifier.padding(top = 16.dp))
-        ProfileActionButtons(
-            isFollowing = viewModel.isFollowing,
-            onFollowClick = { viewModel.handleAction(DidTapFollowingButton) },
-            onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton)},
-            modifier = Modifier.padding(top = 20.dp)
-        )
-        CompanyLocationMap(modifier = Modifier.padding(top = 20.dp))
-    }
-    GraySpacer(modifier = Modifier.padding(top = 20.dp))
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        ReviewExample()
+        item { CompanyProfile(Modifier.padding(top = 16.dp)) }
+        item { StarRating(Modifier.padding(top = 16.dp)) }
+        item {
+            ProfileActionButtons(
+                isFollowing   = viewModel.isFollowing,
+                onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
+                onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
+                modifier      = Modifier.padding(top = 20.dp)
+            )
+        }
+        item { CompanyLocationMap(Modifier.padding(top = 20.dp)) }
+        item { GraySpacer(Modifier.padding(top = 20.dp)) }
+        items(
+            items = viewModel.reviews.toList(),
+            key = { it.id }
+        ) { reviewItem ->
+            val id = reviewItem.id
+            ReviewCard(
+                review = reviewItem,
+                onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, id) },
+                onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, id) },
+                onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, id) },
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
+        }
     }
 }
 
@@ -137,8 +135,8 @@ fun ProfileActionButtons(
             modifier = Modifier
                 .weight(1f)
                 .height(48.dp),
-            iconEnabled = painterResource(com.presentation.design_system.R.drawable.following_fill),
-            iconDisabled = painterResource(com.presentation.design_system.R.drawable.follow_line),
+            iconEnabled = painterResource(R.drawable.following_fill),
+            iconDisabled = painterResource(R.drawable.follow_line),
             iconSize = 16.dp,
             spaceBetween = 6.dp
         )
@@ -149,7 +147,7 @@ fun ProfileActionButtons(
             modifier = Modifier
                 .weight(1f)
                 .height(48.dp),
-            icon = painterResource(com.presentation.design_system.R.drawable.pen_fill),
+            icon = painterResource(R.drawable.pen_fill),
             iconSize = 16.dp,
             spaceBetween = 6.dp,
             cornerRadius = 8.dp
@@ -182,42 +180,13 @@ fun GraySpacer(modifier: Modifier) {
 
 @Composable
 fun ReviewExample() {
-    val ratings = Ratings(
-        COMPANY_CULTURE    = 2.5,
-        MANAGEMENT         = 2.0,
-        SALARY             = 4.0,
-        WELFARE            = 3.0,
-        WORK_LIFE_BALANCE  = 2.5
-    )
 
-    val totalRating: Double by lazy {
-        with(ratings) {
-            listOf(
-                COMPANY_CULTURE,
-                MANAGEMENT,
-                SALARY,
-                WELFARE,
-                WORK_LIFE_BALANCE
-            ).average().let { "%.1f".format(it).toDouble() }
-        }
-    }
-
-    val review = Review(
-        advantagePoint      = "복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.",
-        commentCount        = 19,
-        createdAt           = "2025-05-23T17:40:33",
-        disadvantagePoint   = "야근이 많아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.",
-        employmentPeriod    = "1년 이상",
-        id                  = 2,
-        jobRole             = "백엔드 개발자",
-        likeCount           = 3,
-        liked               = true,
-        managementFeedback  = "소통이 필요합니다복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요.복지가 좋아요소통이 필요합니다",
-        totalRating         = totalRating,
-        ratings             = ratings,
-        title               = "좋은 회사입니다.",
-        nickName            = "서현웅"
-    )
-
-    ReviewCard(review = review)
+//
+//    ReviewCard(
+//        review = review,
+//        onReviewCardClick = { },
+//        onLikeReviewButtonClock = { },
+//        onCommentButtonClick = { },
+//        modifier = Modifier
+//    )
 }
