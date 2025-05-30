@@ -3,15 +3,18 @@ package preset_ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -38,8 +41,9 @@ fun ReviewCard(review: Review) {
 
     ) {
         WriterProfile(review, Modifier.padding(top = 20.dp))
+        RatingSummary(review, Modifier.padding(vertical = 16.dp))
+        RatingBox(review, Modifier)
         RatingSummary(review, Modifier.padding(top = 16.dp))
-        RatingBox(review, Modifier.padding(top = 8.dp))
     }
 }
 
@@ -92,7 +96,7 @@ fun RatingSummary(review: Review, modifier: Modifier) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun RatingBox(review: Review, modifier: Modifier) {
+fun RatingBox(review: Review, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(8.dp)
     val ratings = review.ratings
 
@@ -104,26 +108,35 @@ fun RatingBox(review: Review, modifier: Modifier) {
         "워라밸"   to ratings.WORK_LIFE_BALANCE
     )
 
-    FlowRow(
-        modifier = Modifier
+    Box(
+        modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 20.dp) // 박스 외부의 패딩
             .clip(shape)
             .background(CS.Gray.G10)
-            .border(1.dp, CS.Gray.G10, shape)
-            .padding(8.dp),                          // 그리드 안쪽 여백
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement   = Arrangement.spacedBy(8.dp)
+            .border(1.dp, CS.Gray.G20, shape)
     ) {
-        ratingItems.forEachIndexed { index, item ->
+        FlowRow(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 20.dp), // 내부의 컨텐츠 패딩
+            horizontalArrangement = Arrangement.spacedBy(59.dp),
+            verticalArrangement   = Arrangement.spacedBy(20.dp)
+        ) {
+            ratingItems.forEachIndexed { index, item ->
+                val isFullLine = (index + 1) % 5 == 0      // 5, 10, 15… 번째면 한 줄 전부
 
-            // 5번째(5·10·15…) 아이템만 한 줄 전체 = 1.0f, 나머지는 반 줄 = 0.5f
-            val widthFraction = if ((index + 1) % 5 == 0) 1f else 0.5f
+                RatingBoxCell(
+                    item = item,
+                    modifier = Modifier.weight(1f)   // 두 칸 중 하나
+                )
 
-            RatingBoxCell(
-                item = item,
-                modifier = Modifier
-                    .fillMaxWidth(fraction = widthFraction)
-            )
+                // ── 마지막 아이템이면서 전체 개수가 홀수(=마지막 줄이 1개) ──
+                val isLast = index == ratingItems.lastIndex
+                if (isLast && ratingItems.size % 2 == 1) {
+                    Spacer(modifier = Modifier.weight(1f))   // 남은 반 칸을 채워 줌
+                }
+            }
         }
     }
 }
@@ -136,11 +149,11 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
 
     Row(
         modifier = modifier
-            .height(18.dp),
+            .width(118.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = category)
+        Text(text = category, color = CS.Gray.G50, style = Typography.captionRegular)
         Row(
             modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically,
