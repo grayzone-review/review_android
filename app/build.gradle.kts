@@ -6,6 +6,13 @@ plugins {
     id("kotlin-kapt")
 }
 
+val localProperties = java.util.Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+    }
+}
+
 android {
     namespace = AppConfig.NameSpace.app
     compileSdk = AppConfig.compileSdk
@@ -46,7 +53,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":presentation:design-system"))
 
-    implementation(Kakao.map)
+    implementation("com.kakao.maps.open:android:2.12.8")
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

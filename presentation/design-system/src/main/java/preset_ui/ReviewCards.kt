@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import kotlin.math.floor
 
 data class Review(
     val nickname: String,
@@ -24,6 +25,10 @@ data class Review(
     val period: String,
     val createAt: String,
     val totalScore: Double,
+    val title: String,
+    val advantage: String,
+    val disadbantage: String,
+    val managementFeedback: String
 )
 
 @Composable
@@ -64,14 +69,21 @@ fun RatingSummary(review: Review, modifier: Modifier) {
             .height(23.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
+        val score: Double = review.totalScore
+        val floored: Double = floor(score * 2.0) / 2.0
+        val fullStars = floored.toInt()
+        val halfStars = if (floored - fullStars >= 0.5) 1 else 0
+        val emptyStars = 5 - fullStars - halfStars
+
         Text(text = "${review.totalScore}", color = CS.Gray.G90, style = Typography.h3)
-        repeat(2) {
+
+        repeat(fullStars) {
             StarFilled(width = 20.dp, height = 20.dp)
         }
-        repeat(1) {
+        repeat(halfStars) {
             StarHalf(width = 20.dp, height = 20.dp)
         }
-        repeat(2) {
+        repeat(emptyStars) {
             StarOutline(width = 20.dp, height = 20.dp)
         }
     }

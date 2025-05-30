@@ -189,7 +189,7 @@ fun ReviewExample() {
         jobDescription = "안녕하세요",
         period = "1년 이상 근무",
         createAt = "2055. 05 작성",
-        totalScore = 3.9
+        totalScore = 3.8
     )
 
     ReviewCard(review = review)
