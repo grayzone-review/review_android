@@ -46,6 +46,7 @@ dependencies {
     implementation(Kakao.map)
     kapt(DaggerHilt.hiltCompiler)
     implementation(Deps.coreKtx)
+    implementation(Deps.navigationCompose)
     implementation(Deps.appcompat)
     implementation(Deps.material3)
 }

@@ -8,7 +8,7 @@ import androidx.navigation.navigation
 import com.presentation.company_detail.Scene.ReviewDetailScene
 import com.presentation.company_detail.Scene.ReviewDetailViewModel
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
-import com.team.common.feature_api.FeatureAPI
+import common_ui.FeatureAPI
 import com.team.common.feature_api.navigation_constant.ReviewDetailFeature
 
 interface ReviewAPI: FeatureAPI { }

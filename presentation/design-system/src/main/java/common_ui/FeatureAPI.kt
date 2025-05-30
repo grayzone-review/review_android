@@ -1,4 +1,4 @@
-package com.team.common.feature_api
+package common_ui
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
