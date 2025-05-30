@@ -195,8 +195,11 @@ fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = 
     ) {
         ReviewTextContentTitle(title = review.title)
         Spacer(Modifier.height(16.dp))
-        textContentItems.forEachIndexed { index, sectionItem ->
-            if (!isFullMode && index > 0) return@forEachIndexed
+        for ((index, sectionItem) in textContentItems.withIndex()) {
+            if (!isFullMode && index > 0) {
+                Text("더보기", color = CS.Gray.G50, style = Typography.body1Regular)
+                break
+            }
             ReviewSectionRow(sectionItem)
             Spacer(Modifier.height(if (index == 2) 16.dp else 32.dp))
         }
