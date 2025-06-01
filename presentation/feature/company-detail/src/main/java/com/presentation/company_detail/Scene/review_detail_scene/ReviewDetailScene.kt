@@ -1,5 +1,6 @@
-package com.presentation.company_detail.Scene
+package com.presentation.company_detail.Scene.review_detail_scene
 
+import BottomSheetHelper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,23 +8,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.presentation.company_detail.Scene.ReviewDetailViewModel.Action.*
+import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.*
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.AppBarAction
 import com.presentation.design_system.appbar.appbars.AppBarState
@@ -57,12 +58,13 @@ fun ReviewDetailScene(
         )
     }
     Content(viewModel)
+    CommentBottomSheet(viewModel)
 }
 
 @Composable
 fun Content(viewModel: ReviewDetailViewModel) {
     val listState = rememberLazyListState()
-
+    val localContext = LocalContext.current
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -183,17 +185,4 @@ fun GraySpacer(modifier: Modifier) {
         height = 6.dp,
         color = CS.Gray.G20
     )
-}
-
-@Composable
-fun ReviewExample() {
-
-//
-//    ReviewCard(
-//        review = review,
-//        onReviewCardClick = { },
-//        onLikeReviewButtonClock = { },
-//        onCommentButtonClick = { },
-//        modifier = Modifier
-//    )
 }

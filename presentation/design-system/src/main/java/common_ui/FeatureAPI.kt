@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 
 interface FeatureAPI {
-
     fun registerGraph(
         navController: NavHostController,
         navGraphBuilder: NavGraphBuilder,

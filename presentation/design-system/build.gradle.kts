@@ -44,9 +44,13 @@ dependencies {
 
     implementation(DaggerHilt.hilt)
     implementation(Kakao.map)
+    implementation("com.google.android.material:material:1.12.0")
     kapt(DaggerHilt.hiltCompiler)
     implementation(Deps.coreKtx)
     implementation(Deps.navigationCompose)
     implementation(Deps.appcompat)
     implementation(Deps.material3)
+
+    // 바텀시트용 제거할때되면 제거하자!
+    implementation("androidx.wear.compose:compose-material:1.4.1")
 }

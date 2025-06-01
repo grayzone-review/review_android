@@ -50,6 +50,7 @@ dependencies {
     implementation("com.kakao.maps.open:android:2.12.8")
 
     implementation(DaggerHilt.hilt)
+    implementation("com.google.android.material:material:1.12.0")
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Retrofit.retrofit)

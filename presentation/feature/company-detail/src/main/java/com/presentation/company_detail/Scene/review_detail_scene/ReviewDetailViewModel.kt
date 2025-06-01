@@ -1,4 +1,4 @@
-package com.presentation.company_detail.Scene
+package com.presentation.company_detail.Scene.review_detail_scene
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -18,14 +18,16 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
         DidTapWriteReviewButton,
         DidTapLikeReviewButton,
         DidTapReviewCard,
-        DidTapCommentButton
+        DidTapCommentButton,
+        DidCloseBottomSheet
     }
-
     var reviews = mutableStateListOf<Review>()
         private set
     var isFullModeList = mutableStateListOf<Boolean>()
         private set
-    var isFollowingCompany by mutableStateOf(false)
+    var isFollowingCompany by mutableStateOf(false) // 제거대상
+        private set
+    var showBottomSheet by mutableStateOf(false)
         private set
 
     fun handleAction(action: Action, index: Int? = null) {
@@ -52,8 +54,8 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
                     isFullModeList[index] = !isFullModeList[index]
                 }
             }
-            Action.DidTapCommentButton -> {
-                Log.d("버튼탭", "코멘트 보기 버튼이 탭 되었음")
+            Action.DidTapCommentButton, Action.DidCloseBottomSheet -> {
+                showBottomSheet = !showBottomSheet
             }
         }
     }

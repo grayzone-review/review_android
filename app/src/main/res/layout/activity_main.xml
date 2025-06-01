@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Compose 기반 메인 화면 -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/composeMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- dim -->
+    <FrameLayout
+        android:id="@+id/dimView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone" />
+
+    <!-- Persistent BottomSheet (ComposeView로 내부 채움 예정) -->
+    <FrameLayout
+        android:id="@+id/bottomSheetContainer"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="@drawable/bottomsheet_background"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:behavior_peekHeight="0dp" />
+
+    <!-- InputBar -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/inputBarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -15,6 +15,7 @@ import javax.inject.Named
 @Module
 object AppModule {
 
+    // 키 빼기
     @Provides
     @Named("NATIVE_APP_KEY")
     fun provideNativeAppKey(@ApplicationContext context: Context): String {

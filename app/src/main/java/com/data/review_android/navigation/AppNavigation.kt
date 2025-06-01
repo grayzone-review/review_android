@@ -21,5 +21,7 @@ fun AppNavGraph(
             navGraphBuilder = this,
             appBarViewModel = appBarViewModel
         )
+
+        // 컴포저블 해서 다 정의해주고 네비게이션 넘기기
     }
 }
