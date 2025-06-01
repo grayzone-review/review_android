@@ -62,7 +62,7 @@ object BottomSheetHelper {
 
     fun setContent(content: @Composable () -> Unit) {
         contentView?.setContent {
-            MaterialTheme {
+            MaterialTheme() {
                 content()
             }
         }

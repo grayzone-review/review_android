@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -35,6 +38,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -112,13 +117,14 @@ fun InputBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(82.dp)
+            .heightIn(min = 82.dp, max = 200.dp) // ← 최소 82, 최대 200 (4줄 기준)
             .background(CS.Gray.White)
+            .imePadding()
     ) {
         CSSpacerHorizontal(height = 1.dp, color = CS.Gray.G20)
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .wrapContentSize()
                 .padding(horizontal = 20.dp, vertical = 20.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -146,11 +152,17 @@ fun CommentInputBar(
         onValueChange = onTextChange,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = 56.dp, max = 56.dp * 2) // 4줄까지 확장
             .clip(shape)
             .border(1.dp, color = CS.Gray.G20, shape = shape)
             .onFocusChanged { isFocused = it.isFocused }
             .padding(horizontal = 16.dp, vertical = 8.dp),
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = false,
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done
+        ),
+        textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
         decorationBox = commentDecorationBox(value = value, isFocused = isFocused),
         singleLine = false,
         maxLines = Int.MAX_VALUE
@@ -169,7 +181,7 @@ fun commentDecorationBox(
         Box(modifier = Modifier.weight(1f)) {
             if (value.isEmpty() && isFocused.not()) {
                 Text(
-                    "000님에게 댓글 추가…",
+                    text = "000님에게 댓글 추가…",
                     color = CS.Gray.G40,
                     style = Typography.body1Regular
                 )
@@ -178,9 +190,9 @@ fun commentDecorationBox(
         }
 
         Spacer(modifier = Modifier.width(8.dp))
-        RockOpen(width = 24.dp, height = 24.dp, modifier = Modifier.padding(vertical = 10.dp))
+        RockOpen(width = 28.dp, height = 28.dp)
         Spacer(modifier = Modifier.width(8.dp))
-        SendAble(width = 24.dp, height = 28.dp)
+        SendAble(width = 28.dp, height = 28.dp)
     }
 }
 
