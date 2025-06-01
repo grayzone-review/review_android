@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +42,8 @@ import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailVie
 import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidCloseBottomSheet
 import preset_ui.CSSpacerHorizontal
 import androidx.hilt.navigation.compose.hiltViewModel
+import preset_ui.icons.RockOpen
+import preset_ui.icons.SendAble
 
 @Composable
 fun CommentBottomSheet(
@@ -140,30 +144,43 @@ fun CommentInputBar(
     BasicTextField(
         value = value,
         onValueChange = onTextChange,
-        singleLine = true,
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .clip(shape)
             .border(1.dp, color = CS.Gray.G20, shape = shape)
-            .padding(horizontal = 16.dp)
-            .onFocusChanged {
-                isFocused = it.isFocused
-            },
-        decorationBox = { inner ->
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                if (value.isEmpty() && !isFocused) {
-                    Text(
-                        "000님에게 댓글 추가…",
-                        color = CS.Gray.G40,
-                        style = Typography.body1Regular
-                    )
-                }
-                inner()
-            }
-        }
+            .onFocusChanged { isFocused = it.isFocused }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        decorationBox = commentDecorationBox(value = value, isFocused = isFocused),
+        singleLine = false,
+        maxLines = Int.MAX_VALUE
     )
 }
+
+@Composable
+fun commentDecorationBox(
+    value: String,
+    isFocused: Boolean
+): @Composable (innerTextField: @Composable () -> Unit) -> Unit = { inner ->
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(modifier = Modifier.weight(1f)) {
+            if (value.isEmpty() && isFocused.not()) {
+                Text(
+                    "000님에게 댓글 추가…",
+                    color = CS.Gray.G40,
+                    style = Typography.body1Regular
+                )
+            }
+            inner()
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+        RockOpen(width = 24.dp, height = 24.dp, modifier = Modifier.padding(vertical = 10.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        SendAble(width = 24.dp, height = 28.dp)
+    }
+}
+
