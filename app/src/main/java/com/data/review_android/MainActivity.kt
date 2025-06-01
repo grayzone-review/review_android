@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity() {
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)
         val dimView = findViewById<FrameLayout>(R.id.dimView)
         val inputBarView = findViewById<ComposeView>(R.id.inputBarView)
-
+        consumeBottomSheetTouchEvent(bottomSheetContainer)
         registerDimViewOnClickListner(dimView)
         val dimController = registerDimController(dimView)
         BottomSheetHelper.init(
@@ -123,6 +123,10 @@ class MainActivity : ComponentActivity() {
         dimView.setOnClickListener {
             BottomSheetHelper.hide()
         }
+    }
+
+    private fun consumeBottomSheetTouchEvent(bottomSheetContainer: FrameLayout) {
+        bottomSheetContainer.setOnClickListener { true }
     }
 
     private fun registerDimController(dimView: FrameLayout): DimController =
