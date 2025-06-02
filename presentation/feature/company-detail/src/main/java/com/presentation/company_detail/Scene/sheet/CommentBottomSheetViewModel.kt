@@ -1,44 +1,66 @@
 package com.presentation.company_detail.Scene.sheet
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+data class CommentInputState(
+    val text: String = "",
+    val isSecret: Boolean = false,
+    val isSendable: Boolean = false
+)
+
 @HiltViewModel
+
 class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
-    private val _commentText = MutableStateFlow("")
-    val commentText: StateFlow<String> = _commentText.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    fun updateCommentText(text: String) {
-        _commentText.value = text
+    enum class Action {
+        DidUpdateCommentText,
+        DidCloseBottomSheet,
+        DidTapSecretButton,
+        DidTapSendButton
     }
 
-    fun submitComment() {
-        if (_commentText.value.isBlank()) return
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                // TODO: Repository를 통한 댓글 제출 로직 구현
-                _commentText.value = ""
-            } catch (e: Exception) {
-                // TODO: 에러 처리
-            } finally {
-                _isLoading.value = false
+    private val _commentInputState = MutableStateFlow(CommentInputState())
+    val commentInputState: StateFlow<CommentInputState> = _commentInputState.asStateFlow()
+
+    fun handleAction(action: Action, text: String? = null) {
+        when (action) {
+            Action.DidUpdateCommentText -> {
+                text?.let { newText ->
+                    _commentInputState.update { it.copy(
+                        text = newText,
+                        isSendable = isValid(newText)
+                    )}
+                }
+            }
+            Action.DidCloseBottomSheet -> {
+
+            }
+            Action.DidTapSecretButton -> {
+                _commentInputState.update { it.copy(isSecret = !it.isSecret) }
+            }
+            Action.DidTapSendButton -> {
+                if (_commentInputState.value.isSendable) {
+                    // TODO: 전송 요청 로직
+                }
             }
         }
     }
 
-    enum class Action {
-        DidUpdateCommentText,
-        DidSubmitComment,
-        DidCloseBottomSheet
+    private fun isValid(text: String): Boolean {
+        if (text.length !in 1..200) return false
+        if (text.firstOrNull()?.isWhitespace() == true || text.firstOrNull() == '\n') return false
+        if (text.contains("\n\n\n")) return false
+        if (text.contains("     ")) return false
+        return true
+    }
+
+    fun reset() {
+        _commentInputState.value = CommentInputState()
+//        _isLoading.value = false
     }
 }

@@ -66,7 +66,7 @@ fun RockOpen(
 }
 
 @Composable
-fun SendAble(
+fun Sendable(
     width: Dp,
     height: Dp,
     modifier: Modifier = Modifier
