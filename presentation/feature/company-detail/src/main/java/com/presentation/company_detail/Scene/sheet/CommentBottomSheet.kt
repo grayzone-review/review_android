@@ -7,20 +7,27 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,7 +39,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import colors.CS
@@ -41,6 +51,8 @@ import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailVie
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.*
 import preset_ui.CSSpacerHorizontal
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.domain.entity.Comment
+import com.domain.entity.Reply
 import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
 import preset_ui.icons.SendDisable
@@ -67,14 +79,18 @@ fun CommentBottomSheet(
                             .fillMaxSize()
                     ) {
                         SheetTitle(modifier = Modifier.padding(top = 24.dp))
-                        // 기타 콘텐츠
+                        CommentList(
+                            viewModel = commentViewModel,
+                            onReplyClick = { },
+                            onShowMoreRepliesClick = { }
+                        )
                     }
                 }
             }
             BottomSheetHelper.setInputBar {
                 InputBar(
                     inputState = inputState,
-                    onTextChange = { commentViewModel.handleAction(DidUpdateCommentText, it)},
+                    onTextChange = { commentViewModel.handleAction(DidUpdateCommentText, it) },
                     onLockClick = { commentViewModel.handleAction(DidTapSecretButton) },
                     onSendClick = { commentViewModel.handleAction(DidTapSendButton) }
                 )
@@ -89,10 +105,130 @@ fun CommentBottomSheet(
 }
 
 @Composable
+fun CommentList(
+    viewModel: CommentBottomSheetViewModel,
+    onReplyClick: (commentId: Long) -> Unit,
+    onShowMoreRepliesClick: (commentId: Long) -> Unit
+) {
+    val nestedScrollConnection = rememberNestedScrollInteropConnection()
+    val comments by viewModel.comments.collectAsState()
+    val repliesMap by viewModel.repliesMap.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(nestedScrollConnection),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        items(comments) { comment ->
+            val replies = repliesMap[comment.id].orEmpty()
+            CommentCard(
+                comment = comment,
+                replies = replies,
+                onReplyClick = { onReplyClick(comment.id) },
+                onShowMoreRepliesClick = { onShowMoreRepliesClick(comment.id) }
+            )
+        }
+    }
+}
+
+@Composable
+fun CommentCard(
+    comment: Comment,
+    replies: List<Reply>,
+    onReplyClick: () -> Unit,
+    onShowMoreRepliesClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 20.dp)
+            .background(CS.Gray.White)
+    ) {
+        CommentContent(comment = comment)
+        Spacer(modifier = Modifier.height(8.dp))
+        CommentActionButtons(
+            comment = comment,
+            replies = replies,
+            onReplyClick = onReplyClick,
+            onShowMoreRepliesClick = onShowMoreRepliesClick
+        )
+    }
+}
+
+@Composable
+fun CommentContent(comment: Comment) {
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(text = comment.authorName, color = CS.Gray.G90, style = Typography.body2Bold)
+        Text(text = comment.comment, color = CS.Gray.G90, style = Typography.body1Regular)
+    }
+}
+
+@Composable
+fun CommentActionButtons(
+    comment: Comment,
+    replies: List<Reply>,
+    onReplyClick: () -> Unit,
+    onShowMoreRepliesClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Button(
+            modifier = Modifier.height(16.dp),
+            onClick = onReplyClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = CS.Gray.G50
+            ),
+            elevation = null,
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text("답글달기", color = CS.Gray.G50, style = Typography.captionBold)
+        }
+        if (comment.replyCount > 0) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .height(18.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 12.dp, height = 1.dp)
+                        .background(CS.Gray.G20)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Button(
+                    onClick = onShowMoreRepliesClick,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = CS.Gray.G50
+                    ),
+                    elevation = null,
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = "답글 ${replies.size}개 더보기",
+                        color = CS.Gray.G50,
+                        style = Typography.captionBold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun SheetTitle(modifier: Modifier) {
     Row(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .height(37.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -161,7 +297,12 @@ fun CommentInputBar(
             keyboardType = KeyboardType.Text
         ),
         textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
-        decorationBox = commentDecorationBox(inputState = inputState, isFocused = isFocused, onLockClick = onLockClick, onSendClick = onSendClick),
+        decorationBox = commentDecorationBox(
+            inputState = inputState,
+            isFocused = isFocused,
+            onLockClick = onLockClick,
+            onSendClick = onSendClick
+        ),
         singleLine = false,
         maxLines = Int.MAX_VALUE
     )
