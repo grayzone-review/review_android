@@ -56,6 +56,7 @@ import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
 import preset_ui.icons.SendDisable
 import preset_ui.icons.Sendable
+import java.time.LocalDateTime
 
 @Composable
 fun CommentBottomSheet(
@@ -142,17 +143,18 @@ fun CommentCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 20.dp)
-            .background(CS.Gray.White)
+//            .background(CS.SemanticBlue.B50)
+            .padding(vertical = 10.dp)
     ) {
         CommentContent(comment = comment)
         Spacer(modifier = Modifier.height(8.dp))
-        AddReplyButton(comment = comment, onReplyClick = onReplyClick)
+        AddReplyButton(onAddReplyClick = onReplyClick)
         if (comment.replyCount > 0 && replies.isEmpty()) {
             Spacer(modifier = Modifier.height(12.dp))
             ShowMoreButton(comment = comment, onShowMoreRepliesClick = onShowMoreRepliesClick)
+        } else {
+            ReplyList(replies = replies)
         }
-        // 리플라이가 있다면 UI를 구성해준다.
     }
 }
 
@@ -168,17 +170,14 @@ fun CommentContent(comment: Comment) {
 }
 
 @Composable
-fun AddReplyButton(
-    comment: Comment,
-    onReplyClick: () -> Unit,
-) {
+fun AddReplyButton(onAddReplyClick: () -> Unit) {
     Column(
         modifier = Modifier.padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Button(
             modifier = Modifier.height(16.dp),
-            onClick = onReplyClick,
+            onClick = onAddReplyClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = CS.Gray.G50
@@ -222,6 +221,43 @@ fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
             )
         }
     }
+}
+
+@Composable
+fun ReplyList(replies: List<Reply>) {
+    val sortedDescReplies = replies.sortedByDescending { it.createdAt }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        sortedDescReplies.forEach { reply ->
+            ReplyCard(reply = reply)
+        }
+    }
+}
+
+@Composable
+fun ReplyCard(reply: Reply) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(all = 20.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(width = 12.dp, height = 1.dp)
+                    .background(CS.Gray.G20)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = reply.authorName, color = CS.Gray.G90, style = Typography.body2Bold)
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = reply.comment, color = CS.Gray.G90, style = Typography.body1Regular, modifier = Modifier.padding(horizontal = 20.dp))
+    }
+}
+
+@Composable
+fun SecretReplyCard() {
+
 }
 
 @Composable
