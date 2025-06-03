@@ -1,5 +1,6 @@
 package com.presentation.company_detail.Scene.sheet
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.domain.entity.Comment
 import com.domain.entity.Reply
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.math.log
 
 data class CommentInputState(
     val text: String = "",
@@ -19,10 +21,13 @@ data class CommentInputState(
 @HiltViewModel
 class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
     enum class Action {
+        DidAppear,
         DidUpdateCommentText,
         DidCloseBottomSheet,
         DidTapSecretButton,
-        DidTapSendButton
+        DidTapSendButton,
+        DidTapWriteReplyButton,
+        DidTapShowMoreRepliesButton
     }
 
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
@@ -34,13 +39,11 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
     private val _commentInputState = MutableStateFlow(CommentInputState())
     val commentInputState: StateFlow<CommentInputState> = _commentInputState.asStateFlow()
 
-    init {
-        _comments.value = generateMockComments()
-        _repliesMap.value = generateMockReplies(_comments.value)
-    }
-
-    fun handleAction(action: Action, text: String? = null) {
+    fun handleAction(action: Action, text: String? = null, commentID: Long? = null) {
         when (action) {
+            Action.DidAppear -> {
+                _comments.value = generateMockComments()
+            }
             Action.DidUpdateCommentText -> {
                 text?.let { newText ->
                     _commentInputState.update { it.copy(
@@ -60,7 +63,22 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                     // TODO: 전송 요청 로직
                 }
             }
+            Action.DidTapWriteReplyButton -> {
+                // TODO: 쓰기 액션 (댓글 대상 답글 달기 활성화)
+            }
+            Action.DidTapShowMoreRepliesButton -> {
+                commentID?.let {
+                    val commentId: Long = it
+                    val currentMap = _repliesMap.value.toMutableMap()
+                    currentMap[commentId] = generateMockReplies(commentID = commentId)
+                    _repliesMap.value = currentMap.toMap()
+                }
+            }
         }
+    }
+
+    fun hasRepliesFor(commentId: Long): Boolean {
+        return _repliesMap.value.containsKey(commentId)
     }
 
     private fun isValid(text: String): Boolean {
@@ -91,21 +109,17 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
         )
     }
 
-    private fun generateMockReplies(comments: List<Comment>): Map<Long, List<Reply>> =
-        comments.associate { comment ->
-            comment.id to if (comment.replyCount > 0) {
-                List(comment.replyCount) { i ->
-                    Reply(
-                        id = comment.id * 100 + i,
-                        comment = "답글 $i for 댓글 ${comment.id}",
-                        authorName = "답글 작성자 $i",
-                        createdAt = "2024-01-01 11:0$i",
-                        secret = i % 2 == 1,
-                        visible = true
-                    )
-                }
-            } else {
-                emptyList()
-            }
+    private fun generateMockReplies(commentID: Long, replyCount: Int = 5): List<Reply> {
+        val replies = List(replyCount) { i ->
+            Reply(
+                id = commentID * 100 + i,
+                comment = "답글 $i for 댓글 ${commentID}",
+                authorName = "답글 작성자 $i",
+                createdAt = "2024-01-01 11:0$i",
+                secret = i % 2 == 1,
+                visible = true
+            )
         }
+        return replies
+    }
 }

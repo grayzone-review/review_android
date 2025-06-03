@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,6 +67,7 @@ fun CommentBottomSheet(
 
     LaunchedEffect(viewModel.showBottomSheet) {
         if (viewModel.showBottomSheet) {
+            commentViewModel.handleAction(DidAppear)
             BottomSheetHelper.setContent {
                 Box(
                     modifier = Modifier
@@ -81,8 +81,8 @@ fun CommentBottomSheet(
                         SheetTitle(modifier = Modifier.padding(top = 24.dp))
                         CommentList(
                             viewModel = commentViewModel,
-                            onReplyClick = { },
-                            onShowMoreRepliesClick = { }
+                            onReplyClick = { commentViewModel.handleAction(DidTapWriteReplyButton) },
+                            onShowMoreRepliesClick = { commentViewModel.handleAction(DidTapShowMoreRepliesButton, commentID = it) }
                         )
                     }
                 }
@@ -147,12 +147,12 @@ fun CommentCard(
     ) {
         CommentContent(comment = comment)
         Spacer(modifier = Modifier.height(8.dp))
-        CommentActionButtons(
-            comment = comment,
-            replies = replies,
-            onReplyClick = onReplyClick,
-            onShowMoreRepliesClick = onShowMoreRepliesClick
-        )
+        AddReplyButton(comment = comment, onReplyClick = onReplyClick)
+        if (comment.replyCount > 0 && replies.isEmpty()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            ShowMoreButton(comment = comment, onShowMoreRepliesClick = onShowMoreRepliesClick)
+        }
+        // 리플라이가 있다면 UI를 구성해준다.
     }
 }
 
@@ -168,11 +168,9 @@ fun CommentContent(comment: Comment) {
 }
 
 @Composable
-fun CommentActionButtons(
+fun AddReplyButton(
     comment: Comment,
-    replies: List<Reply>,
     onReplyClick: () -> Unit,
-    onShowMoreRepliesClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.padding(horizontal = 12.dp),
@@ -190,35 +188,38 @@ fun CommentActionButtons(
         ) {
             Text("답글달기", color = CS.Gray.G50, style = Typography.captionBold)
         }
-        if (comment.replyCount > 0) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .height(18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(width = 12.dp, height = 1.dp)
-                        .background(CS.Gray.G20)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Button(
-                    onClick = onShowMoreRepliesClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = CS.Gray.G50
-                    ),
-                    elevation = null,
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text(
-                        text = "답글 ${replies.size}개 더보기",
-                        color = CS.Gray.G50,
-                        style = Typography.captionBold
-                    )
-                }
-            }
+    }
+}
+
+@Composable
+fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 12.dp)
+            .height(18.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = 12.dp, height = 1.dp)
+                .background(CS.Gray.G20)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        // 만약, 버튼을 탭하면 -> 버튼이 사라지면서 답글을 나타내는 Column을 표시해줌
+        Button(
+            onClick = onShowMoreRepliesClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = CS.Gray.G50
+            ),
+            elevation = null,
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Text(
+                text = "답글 ${comment.replyCount}개 더보기",
+                color = CS.Gray.G50,
+                style = Typography.captionBold
+            )
         }
     }
 }
