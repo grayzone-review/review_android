@@ -82,7 +82,7 @@ fun CommentBottomSheet(
                         SheetTitle(modifier = Modifier.padding(top = 24.dp))
                         CommentList(
                             viewModel = commentViewModel,
-                            onReplyClick = { commentViewModel.handleAction(DidTapWriteReplyButton) },
+                            onAddReplyClick = { commentViewModel.handleAction(DidTapWriteReplyButton, commentID = it) },
                             onShowMoreRepliesClick = { commentViewModel.handleAction(DidTapShowMoreRepliesButton, commentID = it) }
                         )
                     }
@@ -108,7 +108,7 @@ fun CommentBottomSheet(
 @Composable
 fun CommentList(
     viewModel: CommentBottomSheetViewModel,
-    onReplyClick: (commentId: Long) -> Unit,
+    onAddReplyClick: (commentId: Long) -> Unit,
     onShowMoreRepliesClick: (commentId: Long) -> Unit
 ) {
     val nestedScrollConnection = rememberNestedScrollInteropConnection()
@@ -126,7 +126,7 @@ fun CommentList(
             CommentCard(
                 comment = comment,
                 replies = replies,
-                onReplyClick = { onReplyClick(comment.id) },
+                onAddReplyClick = { onAddReplyClick(comment.id) },
                 onShowMoreRepliesClick = { onShowMoreRepliesClick(comment.id) }
             )
         }
@@ -137,7 +137,7 @@ fun CommentList(
 fun CommentCard(
     comment: Comment,
     replies: List<Reply>,
-    onReplyClick: () -> Unit,
+    onAddReplyClick: () -> Unit,
     onShowMoreRepliesClick: () -> Unit
 ) {
     Column(
@@ -148,7 +148,7 @@ fun CommentCard(
     ) {
         CommentContent(comment = comment)
         Spacer(modifier = Modifier.height(8.dp))
-        AddReplyButton(onAddReplyClick = onReplyClick)
+        AddReplyButton(onAddReplyClick = onAddReplyClick)
         if (comment.replyCount > 0 && replies.isEmpty()) {
             Spacer(modifier = Modifier.height(12.dp))
             ShowMoreButton(comment = comment, onShowMoreRepliesClick = onShowMoreRepliesClick)
