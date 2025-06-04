@@ -102,7 +102,8 @@ fun CommentBottomSheet(
                     onTextChange = { commentViewModel.handleAction(DidUpdateCommentText, text = it) },
                     onLockClick = { commentViewModel.handleAction(DidTapSecretButton) },
                     onSendClick = { commentViewModel.handleAction(DidTapSendButton) },
-                    didBeginTextEditing = { commentViewModel.handleAction(DidBeginTextEditing) }
+                    didBeginTextEditing = { commentViewModel.handleAction(DidBeginTextEditing) },
+                    onCancelReplyClick = { commentViewModel.handleAction(DidTapCancelReplyButton) }
                 )
             }
 
@@ -292,7 +293,8 @@ fun InputBar(
     onTextChange: (String) -> Unit,
     onLockClick: () -> Unit,
     onSendClick: () -> Unit,
-    didBeginTextEditing: () -> Unit
+    didBeginTextEditing: () -> Unit,
+    onCancelReplyClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -313,7 +315,8 @@ fun InputBar(
                 onTextChange = onTextChange,
                 onLockClick = onLockClick,
                 onSendClick = onSendClick,
-                didBeginTextEditing = didBeginTextEditing
+                didBeginTextEditing = didBeginTextEditing,
+                onCancelReplyClick = onCancelReplyClick
             )
         }
     }
@@ -326,7 +329,8 @@ fun CommentInputBar(
     modifier: Modifier = Modifier,
     onLockClick: () -> Unit,
     onSendClick: () -> Unit,
-    didBeginTextEditing: () -> Unit
+    didBeginTextEditing: () -> Unit,
+    onCancelReplyClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
     val focusRequester = remember { FocusRequester() }
@@ -364,7 +368,7 @@ fun CommentInputBar(
             isFocused = isFocused,
             onLockClick = onLockClick,
             onSendClick = onSendClick,
-            onCancelReplyClick = { }
+            onCancelReplyClick = onCancelReplyClick
         ),
         singleLine = false,
         maxLines = Int.MAX_VALUE

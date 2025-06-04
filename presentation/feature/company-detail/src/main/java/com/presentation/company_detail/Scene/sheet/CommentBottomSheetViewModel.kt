@@ -34,7 +34,8 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
         DidTapSendButton,
         DidTapWriteReplyButton,
         DidTapShowMoreRepliesButton,
-        DidBeginTextEditing
+        DidBeginTextEditing,
+        DidTapCancelReplyButton,
     }
 
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
@@ -92,6 +93,16 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                     val currentMap = _repliesMap.value.toMutableMap()
                     currentMap[commentId] = generateMockReplies(commentID = commentId)
                     _repliesMap.value = currentMap.toMap()
+                }
+            }
+
+            Action.DidTapCancelReplyButton -> {
+                _commentInputState.update {
+                    it.copy(
+                        isReplying = true,
+                        replyToComment = null,
+                        isSendable = isValid(text = it.text)
+                    )
                 }
             }
         }
