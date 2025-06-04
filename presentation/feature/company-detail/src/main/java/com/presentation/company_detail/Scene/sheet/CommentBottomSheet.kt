@@ -2,6 +2,7 @@ package com.presentation.company_detail.Scene.sheet
 
 import BottomSheetHelper
 import android.graphics.drawable.Icon
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,7 +32,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,15 +42,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -66,6 +75,7 @@ import preset_ui.icons.SendDisable
 import preset_ui.icons.Sendable
 import java.time.LocalDateTime
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CommentBottomSheet(
     viewModel: ReviewDetailViewModel,
@@ -73,6 +83,7 @@ fun CommentBottomSheet(
 ) {
     val context = LocalContext.current
     val inputState by commentViewModel.commentInputState.collectAsState()
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(viewModel.showBottomSheet) {
         if (viewModel.showBottomSheet) {
@@ -81,6 +92,9 @@ fun CommentBottomSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .clickable {
+                            commentViewModel.handleAction(DidTapOutSideOfTextField)
+                        }
                 ) {
                     // 콘텐츠 영역
                     Column(
@@ -90,7 +104,9 @@ fun CommentBottomSheet(
                         SheetTitle(modifier = Modifier.padding(top = 24.dp))
                         CommentList(
                             viewModel = commentViewModel,
-                            onAddReplyClick = { commentViewModel.handleAction(DidTapWriteReplyButton, commentID = it) },
+                            onAddReplyClick = {
+                                focusRequester.requestFocus()
+                                commentViewModel.handleAction(DidTapWriteReplyButton, commentID = it) },
                             onShowMoreRepliesClick = { commentViewModel.handleAction(DidTapShowMoreRepliesButton, commentID = it) }
                         )
                     }
@@ -103,7 +119,9 @@ fun CommentBottomSheet(
                     onLockClick = { commentViewModel.handleAction(DidTapSecretButton) },
                     onSendClick = { commentViewModel.handleAction(DidTapSendButton) },
                     didBeginTextEditing = { commentViewModel.handleAction(DidBeginTextEditing) },
-                    onCancelReplyClick = { commentViewModel.handleAction(DidTapCancelReplyButton) }
+                    onCancelReplyClick = { commentViewModel.handleAction(DidTapCancelReplyButton) },
+                    didClearFocusState = { commentViewModel.handleAction(DidClearFocusState) },
+                    focusRequester = focusRequester
                 )
             }
 
@@ -294,7 +312,9 @@ fun InputBar(
     onLockClick: () -> Unit,
     onSendClick: () -> Unit,
     didBeginTextEditing: () -> Unit,
-    onCancelReplyClick: () -> Unit
+    onCancelReplyClick: () -> Unit,
+    didClearFocusState: () -> Unit,
+    focusRequester: FocusRequester,
 ) {
     Column(
         modifier = Modifier
@@ -316,7 +336,9 @@ fun InputBar(
                 onLockClick = onLockClick,
                 onSendClick = onSendClick,
                 didBeginTextEditing = didBeginTextEditing,
-                onCancelReplyClick = onCancelReplyClick
+                onCancelReplyClick = onCancelReplyClick,
+                didClearFocusState = didClearFocusState,
+                focusRequester = focusRequester
             )
         }
     }
@@ -330,15 +352,19 @@ fun CommentInputBar(
     onLockClick: () -> Unit,
     onSendClick: () -> Unit,
     didBeginTextEditing: () -> Unit,
-    onCancelReplyClick: () -> Unit
+    onCancelReplyClick: () -> Unit,
+    didClearFocusState: () -> Unit,
+    focusRequester: FocusRequester
 ) {
     val shape = RoundedCornerShape(8.dp)
-    val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val shouldClearFocus = inputState.shouldClearFocus
 
-    LaunchedEffect(inputState.isReplying) {
-        if (inputState.isReplying) {
-            focusRequester.requestFocus()
+    LaunchedEffect(shouldClearFocus) {
+        if (shouldClearFocus) {
+            focusManager.clearFocus(force = true)
+            didClearFocusState()
         }
     }
 
@@ -354,10 +380,7 @@ fun CommentInputBar(
             .onFocusChanged {
                 isFocused = it.isFocused
                 if (isFocused) didBeginTextEditing()
-            }
-        // TODO: 수정
-//            .padding(horizontal = 16.dp, vertical = 8.dp)
-        ,
+            },
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
             keyboardType = KeyboardType.Text

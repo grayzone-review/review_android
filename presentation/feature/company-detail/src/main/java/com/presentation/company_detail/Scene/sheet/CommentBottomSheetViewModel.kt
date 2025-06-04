@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.log
 
@@ -21,7 +22,8 @@ data class CommentInputState(
     val isSecret: Boolean = false,
     val isSendable: Boolean = false,
     val replyToComment: Comment? = null,
-    val isReplying: Boolean = false
+    val isReplying: Boolean = false,
+    val shouldClearFocus: Boolean = false
 )
 
 @HiltViewModel
@@ -36,6 +38,8 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
         DidTapShowMoreRepliesButton,
         DidBeginTextEditing,
         DidTapCancelReplyButton,
+        DidTapOutSideOfTextField,
+        DidClearFocusState
     }
 
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
@@ -82,7 +86,7 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                             isReplying = true,
                             replyToComment = targetComment,
                             isSendable = isValid(text = it.text),
-                            isSecret = targetComment.secret,
+                            isSecret = targetComment.secret
                         )
                     }
                 }
@@ -102,6 +106,20 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                         isReplying = true,
                         replyToComment = null,
                         isSendable = isValid(text = it.text)
+                    )
+                }
+            }
+            Action.DidTapOutSideOfTextField -> {
+                _commentInputState.update {
+                    it.copy(
+                        shouldClearFocus = true
+                    )
+                }
+            }
+            Action.DidClearFocusState -> {
+                _commentInputState.update {
+                    it.copy(
+                        shouldClearFocus = false
                     )
                 }
             }
