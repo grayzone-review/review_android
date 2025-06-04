@@ -1,8 +1,6 @@
 package com.presentation.company_detail.Scene.sheet
 
 import BottomSheetHelper
-import android.graphics.drawable.Icon
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,15 +24,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -42,23 +35,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -73,7 +65,6 @@ import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
 import preset_ui.icons.SendDisable
 import preset_ui.icons.Sendable
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -181,7 +172,7 @@ fun CommentCard(
             Spacer(modifier = Modifier.height(12.dp))
             ShowMoreButton(comment = comment, onShowMoreRepliesClick = onShowMoreRepliesClick)
         } else {
-            ReplyList(replies = replies)
+            ReplyList(replies = replies, targetComment = comment)
         }
     }
 }
@@ -232,7 +223,6 @@ fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
                 .background(CS.Gray.G20)
         )
         Spacer(modifier = Modifier.width(4.dp))
-        // 만약, 버튼을 탭하면 -> 버튼이 사라지면서 답글을 나타내는 Column을 표시해줌
         Button(
             onClick = onShowMoreRepliesClick,
             colors = ButtonDefaults.buttonColors(
@@ -252,20 +242,23 @@ fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
 }
 
 @Composable
-fun ReplyList(replies: List<Reply>) {
+fun ReplyList(replies: List<Reply>, targetComment: Comment) {
     val sortedDescReplies = replies.sortedByDescending { it.createdAt }
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         sortedDescReplies.forEach { reply ->
-            ReplyCard(reply = reply)
+            if (reply.secret)
+                ReplyCard(reply = reply, targetComment = targetComment)
+            else
+                SecretCard()
         }
     }
 }
 
 @Composable
-fun ReplyCard(reply: Reply) {
+fun ReplyCard(reply: Reply, targetComment: Comment) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
@@ -279,14 +272,42 @@ fun ReplyCard(reply: Reply) {
             Text(text = reply.authorName, color = CS.Gray.G90, style = Typography.body2Bold)
         }
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = reply.comment, color = CS.Gray.G90, style = Typography.body1Regular, modifier = Modifier.padding(horizontal = 20.dp))
+        Text(
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(color = CS.PrimaryOrange.O40)) {
+                    append("@" + targetComment.authorName)
+                }
+                append(" ") // 공백
+                withStyle(style = SpanStyle(color = CS.Gray.G90)) {
+                    append(reply.comment)
+                }
+            },
+            style = Typography.body1Regular,
+            modifier = Modifier.padding(horizontal = 20.dp)
+        )
     }
 }
 
 @Composable
-fun SecretReplyCard() {
-
+fun SecretCard() {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(all = 20.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(width = 12.dp, height = 1.dp)
+                    .background(CS.Gray.G20)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "비밀댓글입니다.", color = CS.Gray.G50, style = Typography.body2Bold)
+            Spacer(modifier = Modifier.width(2.dp))
+            RockClose(width = 14.dp, height = 14.dp)
+        }
+    }
 }
+
+
 
 @Composable
 fun SheetTitle(modifier: Modifier) {
