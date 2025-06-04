@@ -1,6 +1,7 @@
 package com.presentation.company_detail.Scene.sheet
 
 import BottomSheetHelper
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,8 +25,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -52,6 +59,7 @@ import preset_ui.CSSpacerHorizontal
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.domain.entity.Comment
 import com.domain.entity.Reply
+import preset_ui.icons.CloseLine
 import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
 import preset_ui.icons.SendDisable
@@ -91,9 +99,10 @@ fun CommentBottomSheet(
             BottomSheetHelper.setInputBar {
                 InputBar(
                     inputState = inputState,
-                    onTextChange = { commentViewModel.handleAction(DidUpdateCommentText, it) },
+                    onTextChange = { commentViewModel.handleAction(DidUpdateCommentText, text = it) },
                     onLockClick = { commentViewModel.handleAction(DidTapSecretButton) },
-                    onSendClick = { commentViewModel.handleAction(DidTapSendButton) }
+                    onSendClick = { commentViewModel.handleAction(DidTapSendButton) },
+                    didBeginTextEditing = { commentViewModel.handleAction(DidBeginTextEditing) }
                 )
             }
 
@@ -282,7 +291,8 @@ fun InputBar(
     inputState: CommentInputState,
     onTextChange: (String) -> Unit,
     onLockClick: () -> Unit,
-    onSendClick: () -> Unit
+    onSendClick: () -> Unit,
+    didBeginTextEditing: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -302,7 +312,8 @@ fun InputBar(
                 inputState = inputState,
                 onTextChange = onTextChange,
                 onLockClick = onLockClick,
-                onSendClick = onSendClick
+                onSendClick = onSendClick,
+                didBeginTextEditing = didBeginTextEditing
             )
         }
     }
@@ -314,10 +325,18 @@ fun CommentInputBar(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     onLockClick: () -> Unit,
-    onSendClick: () -> Unit
+    onSendClick: () -> Unit,
+    didBeginTextEditing: () -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
+    val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(inputState.isReplying) {
+        if (inputState.isReplying) {
+            focusRequester.requestFocus()
+        }
+    }
 
     BasicTextField(
         value = inputState.text,
@@ -327,8 +346,14 @@ fun CommentInputBar(
             .heightIn(min = 56.dp, max = 56.dp * 2) // 4줄까지 확장
             .clip(shape)
             .border(1.dp, color = CS.Gray.G20, shape = shape)
-            .onFocusChanged { isFocused = it.isFocused }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .focusRequester(focusRequester)
+            .onFocusChanged {
+                isFocused = it.isFocused
+                if (isFocused) didBeginTextEditing()
+            }
+        // TODO: 수정
+//            .padding(horizontal = 16.dp, vertical = 8.dp)
+        ,
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
             keyboardType = KeyboardType.Text
@@ -338,7 +363,8 @@ fun CommentInputBar(
             inputState = inputState,
             isFocused = isFocused,
             onLockClick = onLockClick,
-            onSendClick = onSendClick
+            onSendClick = onSendClick,
+            onCancelReplyClick = { }
         ),
         singleLine = false,
         maxLines = Int.MAX_VALUE
@@ -350,51 +376,86 @@ fun commentDecorationBox(
     inputState: CommentInputState,
     isFocused: Boolean,
     onLockClick: () -> Unit,
-    onSendClick: () -> Unit
+    onSendClick: () -> Unit,
+    onCancelReplyClick: () -> Unit
 ): @Composable (innerTextField: @Composable () -> Unit) -> Unit = { inner ->
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(modifier = Modifier.weight(1f)) {
-            if (inputState.text.isEmpty() && !isFocused) {
-                Text(
-                    text = "000님에게 댓글 추가…",
-                    color = CS.Gray.G40,
-                    style = Typography.body1Regular
-                )
+    val isReplyMode = inputState.isReplying && (inputState.replyToComment != null)
+
+    Column {
+        if (isReplyMode) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .background(CS.Gray.G10),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "@${inputState.replyToComment?.authorName}에게 답글 남기는 중",
+                        style = Typography.body2Regular.copy(color = CS.Gray.G50)
+                    )
+                    IconButton(
+                        onClick = onCancelReplyClick
+                    ) {
+                        CloseLine(width = 18.dp, height = 18.dp, tint = CS.Gray.G50)
+                    }
+                }
             }
-            inner()
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Box(
+        Row(
             modifier = Modifier
-                .size(28.dp)
-                .clickable { onLockClick() },
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            if (inputState.isSecret) {
-                RockClose(width = 28.dp, height = 28.dp)
-            } else {
-                RockOpen(width = 28.dp, height = 28.dp)
+            Box(modifier = Modifier.weight(1f)) {
+                if (inputState.text.isEmpty() && !isFocused && !isReplyMode) {
+                    Text(
+                        text = "000님에게 댓글 추가…",
+                        color = CS.Gray.G40,
+                        style = Typography.body1Regular
+                    )
+                }
+                inner()
             }
 
-        }
+            Spacer(modifier = Modifier.width(8.dp))
 
-        Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable { onLockClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (inputState.isSecret) {
+                    RockClose(width = 28.dp, height = 28.dp)
+                } else {
+                    RockOpen(width = 28.dp, height = 28.dp)
+                }
 
-        Box(
-            modifier = Modifier
-                .size(28.dp)
-                .clickable { onSendClick() },
-            contentAlignment = Alignment.Center
-        ) {
-            if (inputState.isSendable) {
-                Sendable(width = 28.dp, height = 28.dp)
-            } else {
-                SendDisable(width = 28.dp, height = 28.dp)
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable { onSendClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                if (inputState.isSendable) {
+                    Sendable(width = 28.dp, height = 28.dp)
+                } else {
+                    SendDisable(width = 28.dp, height = 28.dp)
+                }
             }
         }
     }

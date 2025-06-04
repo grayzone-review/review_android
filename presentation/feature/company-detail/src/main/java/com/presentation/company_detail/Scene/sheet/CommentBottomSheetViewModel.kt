@@ -1,6 +1,8 @@
 package com.presentation.company_detail.Scene.sheet
 
 import android.util.Log
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.domain.entity.Comment
 import com.domain.entity.Reply
@@ -8,14 +10,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import kotlin.math.log
 
 data class CommentInputState(
-    val text: String = "",
+    val text: String = "", // prefix + 본문
     val isSecret: Boolean = false,
-    val isSendable: Boolean = false
+    val isSendable: Boolean = false,
+    val replyToComment: Comment? = null,
+    val isReplying: Boolean = false
 )
 
 @HiltViewModel
@@ -27,7 +33,8 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
         DidTapSecretButton,
         DidTapSendButton,
         DidTapWriteReplyButton,
-        DidTapShowMoreRepliesButton
+        DidTapShowMoreRepliesButton,
+        DidBeginTextEditing
     }
 
     private val _comments = MutableStateFlow<List<Comment>>(emptyList())
@@ -44,6 +51,9 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
             Action.DidAppear -> {
                 _comments.value = generateMockComments()
             }
+            Action.DidBeginTextEditing -> {
+                _commentInputState.update { it.copy(isSendable = isValid(it.text)) }
+            }
             Action.DidUpdateCommentText -> {
                 text?.let { newText ->
                     _commentInputState.update { it.copy(
@@ -53,7 +63,7 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                 }
             }
             Action.DidCloseBottomSheet -> {
-                _commentInputState
+                // TODO: 초기화
             }
             Action.DidTapSecretButton -> {
                 _commentInputState.update { it.copy(isSecret = !it.isSecret) }
@@ -64,7 +74,17 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                 }
             }
             Action.DidTapWriteReplyButton -> {
-                // TODO: 쓰기 액션 (댓글 대상 답글 달기 활성화)
+                commentID?.let { targetID ->
+                    val targetComment = _comments.value.first { it.id == targetID }
+                    _commentInputState.update {
+                        it.copy(
+                            isReplying = true,
+                            replyToComment = targetComment,
+                            isSendable = isValid(text = it.text),
+                            isSecret = targetComment.secret,
+                        )
+                    }
+                }
             }
             Action.DidTapShowMoreRepliesButton -> {
                 commentID?.let {
@@ -75,10 +95,6 @@ class CommentBottomSheetViewModel @Inject constructor() : ViewModel() {
                 }
             }
         }
-    }
-
-    fun hasRepliesFor(commentId: Long): Boolean {
-        return _repliesMap.value.containsKey(commentId)
     }
 
     private fun isValid(text: String): Boolean {

@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import colors.CS
 
 @Composable
 fun ChatLine(
@@ -90,5 +91,20 @@ fun SendDisable(
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun CloseLine(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.close_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
     )
 }
