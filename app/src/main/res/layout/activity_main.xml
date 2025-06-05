@@ -24,10 +24,9 @@
     <FrameLayout
         android:id="@+id/bottomSheetContainer"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="match_parent"
         android:background="@drawable/bottomsheet_background"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:behavior_peekHeight="0dp" />
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"/>
 
     <!-- InputBar -->
     <androidx.compose.ui.platform.ComposeView

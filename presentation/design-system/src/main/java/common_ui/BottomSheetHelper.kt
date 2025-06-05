@@ -1,4 +1,5 @@
 import android.content.Context
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -6,10 +7,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.wear.compose.material.MaterialTheme
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlin.math.log
 
 interface DimController {
     fun showDim()
     fun hideDim()
+}
+
+interface BottomSheetStateListener {
+    fun onStateChanged(newState: Int)
 }
 
 object BottomSheetHelper {
@@ -17,6 +23,7 @@ object BottomSheetHelper {
     private var contentView: ComposeView? = null
     private var inputBarView: ComposeView? = null
     private var dimController: DimController? = null
+    private var externalStateListener: BottomSheetStateListener? = null
 
     fun init(
         container: FrameLayout,
@@ -45,19 +52,28 @@ object BottomSheetHelper {
         bottomSheetBehavior = BottomSheetBehavior.from(container).apply {
             isDraggable = true
             isHideable = true
+            isFitToContents = false
+            expandedOffset = 1
+            halfExpandedRatio = 0.7f
             state = BottomSheetBehavior.STATE_HIDDEN
             addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         dimController?.hideDim()
                         inputBarView.visibility = View.GONE
                     }
+                    externalStateListener?.onStateChanged(newState = newState)
                 }
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     // optional
                 }
             })
         }
+    }
+
+    fun setBottomSheetStateListener(listener: BottomSheetStateListener) {
+        externalStateListener = listener
     }
 
     fun setContent(content: @Composable () -> Unit) {
@@ -79,10 +95,9 @@ object BottomSheetHelper {
         }
     }
 
-    fun show(peekHeightDp: Int = 100, context: Context) {
+    fun show(context: Context) {
         bottomSheetBehavior?.apply {
-            peekHeight = peekHeightDp.toPx(context)
-            state = BottomSheetBehavior.STATE_COLLAPSED
+            state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
         dimController?.showDim()
         inputBarView?.visibility = View.VISIBLE

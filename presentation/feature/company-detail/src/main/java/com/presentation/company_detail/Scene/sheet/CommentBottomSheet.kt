@@ -1,6 +1,8 @@
 package com.presentation.company_detail.Scene.sheet
 
 import BottomSheetHelper
+import BottomSheetStateListener
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -116,7 +118,7 @@ fun CommentBottomSheet(
                 )
             }
 
-            BottomSheetHelper.show(peekHeightDp = 500, context)
+            BottomSheetHelper.show(context = context)
         } else {
             commentViewModel.reset()
             BottomSheetHelper.hide()
@@ -400,7 +402,10 @@ fun CommentInputBar(
             .focusRequester(focusRequester)
             .onFocusChanged {
                 isFocused = it.isFocused
-                if (isFocused) didBeginTextEditing()
+                if (isFocused) {
+                    BottomSheetHelper.expand()
+                    didBeginTextEditing()
+                }
             },
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,

@@ -55,8 +55,6 @@ fun Int.toPx(context: Context): Int =
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
-
     @Inject
     lateinit var navigationProvider: NavigationProvider
 
@@ -140,7 +138,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 }
-
 
 @Composable
 fun App(
