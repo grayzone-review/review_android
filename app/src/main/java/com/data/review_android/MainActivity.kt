@@ -38,14 +38,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import colors.CS
 import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
+import com.data.review_android.ui.theme.Typography
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMapSdk
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
+import preset_ui.icons.BackBarButtonIcon
 import javax.inject.Inject
 import javax.inject.Named
 import androidx.compose.material3.IconButton as IconButton1
@@ -92,14 +95,16 @@ class MainActivity : ComponentActivity() {
                             navigationIcon = {
                                 if (appBarState.showBackButton) {
                                     IconButton1(onClick = { navController.navigateUp() }) {
-                                        Icon(Icons.Default.ArrowBack, "뒤로가기")
+                                        BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90)
                                     }
                                 }
                             },
                             actions = {
                                 appBarState.actions.forEach { action ->
-                                    IconButton1(onClick = action.onClick) {
-                                        Icon(action.icon, action.contentDescription)
+                                    action.icon?.let { icon ->
+                                        IconButton1(onClick = action.onClick) {
+                                            Icon(icon, action.contentDescription)
+                                        }
                                     }
                                 }
                             }

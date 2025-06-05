@@ -25,7 +25,7 @@ data class AppBarState(
 )
 
 data class AppBarAction(
-    val icon: ImageVector,
+    val icon: ImageVector? = null,
     val contentDescription: String,
     val onClick: () -> Unit
 )

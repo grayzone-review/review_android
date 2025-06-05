@@ -19,7 +19,7 @@ fun DefaultTopAppBar(
     modifier: Modifier = Modifier
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(text = title, style = Typography.h2) },
+        title = { Text(text = title, color = CS.Gray.G90, style = Typography.h2) },
         navigationIcon = { navigationIcon?.invoke() },
         actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(

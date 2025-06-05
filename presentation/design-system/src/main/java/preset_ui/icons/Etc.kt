@@ -108,3 +108,18 @@ fun CloseLine(
         tint = tint
     )
 }
+
+@Composable
+fun BackBarButtonIcon(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.arrow_left_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}

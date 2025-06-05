@@ -49,7 +49,7 @@ fun ReviewDetailScene(
                 showBackButton = true,
                 actions = listOf(
                     AppBarAction(
-                        icon = Icons.Default.Edit,
+                        icon = null,
                         contentDescription = "수정",
                         onClick = { /* 수정 액션 */ }
                     )
