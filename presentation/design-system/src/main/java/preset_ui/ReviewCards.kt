@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Review
@@ -104,47 +105,71 @@ fun RatingSummary(review: Review, modifier: Modifier) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RatingBox(review: Review, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(8.dp)
     val ratings = review.ratings
     val ratingItems: List<Pair<String, Double>> = listOf(
-        "조직문화"  to ratings.COMPANY_CULTURE,
-        "경영진"   to ratings.MANAGEMENT,
         "급여"    to ratings.SALARY,
+        "사내문화"  to ratings.COMPANY_CULTURE,
         "복지"    to ratings.WELFARE,
+        "경영진"   to ratings.MANAGEMENT,
         "워라밸"   to ratings.WORK_LIFE_BALANCE
     )
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp) // 박스 외부의 패딩
+            .padding(horizontal = 20.dp)
             .clip(shape)
             .background(CS.Gray.G10)
             .border(1.dp, CS.Gray.G20, shape)
     ) {
-        FlowRow(
-            modifier = modifier
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 20.dp), // 내부의 컨텐츠 패딩
-            horizontalArrangement = Arrangement.spacedBy(59.dp),
-            verticalArrangement   = Arrangement.spacedBy(20.dp)
+                .padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            ratingItems.forEachIndexed { index, item ->
-                val isFullLine = (index + 1) % 5 == 0      // 5, 10, 15… 번째면 한 줄 전부
-
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(44.dp)
+            ) {
                 RatingBoxCell(
-                    item = item,
-                    modifier = Modifier.weight(1f)   // 두 칸 중 하나
+                    item = ratingItems[0],
+                    modifier = Modifier.weight(1f)
                 )
+                RatingBoxCell(
+                    item = ratingItems[1],
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
-                // ── 마지막 아이템이면서 전체 개수가 홀수(=마지막 줄이 1개) ──
-                val isLast = index == ratingItems.lastIndex
-                if (isLast && ratingItems.size % 2 == 1) {
-                    Spacer(modifier = Modifier.weight(1f))   // 남은 반 칸을 채워 줌
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(44.dp)
+            ) {
+                RatingBoxCell(
+                    item = ratingItems[2],
+                    modifier = Modifier.weight(1f)
+                )
+                RatingBoxCell(
+                    item = ratingItems[3],
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(44.dp)
+            ) {
+                RatingBoxCell(
+                    item = ratingItems[4],
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
