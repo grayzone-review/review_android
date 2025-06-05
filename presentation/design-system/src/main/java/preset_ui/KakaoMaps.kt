@@ -18,13 +18,18 @@ import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.MapView
 import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.LabelOptions
+import com.kakao.vectormap.label.LabelStyle
+import com.kakao.vectormap.label.LabelStyles
+import com.presentation.design_system.R
 import java.lang.Exception
+import java.util.UUID
 
 @Composable
 fun KakaoMapView(
     modifier: Modifier = Modifier,
-    locationX: Double, // 서버에서 제공하는 X 값 (경도) latitude
-    locationY: Double // 서버에서 제공하는 Y 값 (위도) longitude
+    latitude: Double, // 서버에서 제공하는 X 값 (위도) latitude
+    longitude: Double // 서버에서 제공하는 Y 값 (경도) longitude
 ) {
     val context = LocalContext.current
     val shape = RoundedCornerShape(20.dp)
@@ -51,12 +56,30 @@ fun KakaoMapView(
                     },
                     object : KakaoMapReadyCallback() {
                         override fun onMapReady(kakaoMap: KakaoMap) {
-                            // 카메라를 (locationY, locationX) 위치로 이동시키는 업데이트 생성
-                            val cameraUpdate = CameraUpdateFactory.newCenterPosition(
-                                LatLng.from(locationY, locationX)
-                            )
-                            Log.d("안녕시작되었니?", "시작함?")
-                            kakaoMap.moveCamera(cameraUpdate)
+                            try {
+                                // null 체크와 함께 처리
+                                kakaoMap.labelManager?.let { labelManager ->
+                                    val labelStyle = LabelStyle.from(R.drawable.map_pin)
+                                    val labelStyles = LabelStyles.from(labelStyle)
+                                    val style = labelManager.addLabelStyles(labelStyles)
+
+                                    val options = LabelOptions.from(LatLng.from(latitude, longitude))
+                                        .setStyles(style)
+
+                                    labelManager.layer?.addLabel(options)
+                                }
+
+                                // 카메라 이동
+                                val cameraUpdate = CameraUpdateFactory.newCenterPosition(
+                                    LatLng.from(latitude, longitude)
+                                )
+                                kakaoMap.moveCamera(cameraUpdate)
+                                Log.d("zoomLevel","${zoomLevel}")
+
+                            } catch (e: Exception) {
+                                Log.e("KakaoMap", "Error setting up map: ${e.message}")
+                            }
+
                         }
                     }
                 )

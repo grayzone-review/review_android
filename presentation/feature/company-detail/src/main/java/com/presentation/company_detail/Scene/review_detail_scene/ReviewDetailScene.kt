@@ -1,6 +1,5 @@
 package com.presentation.company_detail.Scene.review_detail_scene
 
-import BottomSheetHelper
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,9 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -165,16 +161,16 @@ fun ProfileActionButtons(
 
 @Composable
 fun CompanyLocationMap(modifier: Modifier) {
-    val latitude  = 37.514
-    val longitude = 127.105
+    val latitude  = 37.51278
+    val longitude = 126.95306
 
     KakaoMapView(
         modifier = modifier
             .height(179.dp)
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        locationX = longitude,
-        locationY = latitude
+        latitude = latitude,
+        longitude = longitude
     )
 }
 
