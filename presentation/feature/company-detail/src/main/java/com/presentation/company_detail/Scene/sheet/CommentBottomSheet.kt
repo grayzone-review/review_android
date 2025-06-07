@@ -85,9 +85,8 @@ fun CommentBottomSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable {
-                            commentViewModel.handleAction(DidTapOutSideOfTextField)
-                        }
+                        .clickable { commentViewModel.handleAction(DidTapOutSideOfTextField) }
+                        .imePadding()
                 ) {
                     // 콘텐츠 영역
                     Column(
@@ -344,7 +343,6 @@ fun InputBar(
             .fillMaxWidth()
             .heightIn(min = 82.dp, max = 200.dp) // ← 최소 82, 최대 200 (4줄 기준)
             .background(CS.Gray.White)
-            .imePadding()
     ) {
         CSSpacerHorizontal(height = 1.dp, color = CS.Gray.G20)
         Box(
