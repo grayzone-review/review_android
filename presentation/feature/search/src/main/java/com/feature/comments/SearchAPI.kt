@@ -1,39 +1,39 @@
-package com.presentation.company_detail
+package com.feature.comments
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailScene
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel
+import com.feature.comments.scene.SearchScene
+import com.feature.comments.scene.SearchViewModel
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
-import common_ui.FeatureAPI
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.FeatureAPI
 
-interface ReviewAPI: FeatureAPI { }
+interface SearchAPI: FeatureAPI { }
 
-internal object InternalReviewAPI: FeatureAPI {
+internal object InternalSearchAPI: FeatureAPI {
     override fun registerGraph(
         navController: NavHostController,
         navGraphBuilder: NavGraphBuilder,
         appBarViewModel: AppBarViewModel
     ) {
         navGraphBuilder.navigation(
-            startDestination = NavigationRouteConstant.reviewDetailSceneRoute,
-            route = NavigationRouteConstant.reviewDetailNestedRoute
+            startDestination = NavigationRouteConstant.searchSceneRoute,
+            route = NavigationRouteConstant.searchNestedRoute
         ) {
-            composable(NavigationRouteConstant.reviewDetailSceneRoute) {
-                val viewModel = hiltViewModel<ReviewDetailViewModel>()
-                ReviewDetailScene(viewModel = viewModel, appBarViewModel = appBarViewModel)
+            composable(NavigationRouteConstant.searchSceneRoute) {
+                val viewModel = hiltViewModel<SearchViewModel>()
+                SearchScene(viewModel = viewModel, appBarViewModel = appBarViewModel)
             }
         }
     }
 }
 
-class ReviewAPIImpl: ReviewAPI {
+class SearchAPIImpl: SearchAPI {
     override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder, appBarViewModel: AppBarViewModel) {
-        InternalReviewAPI.registerGraph(
+        InternalSearchAPI.registerGraph(
             navController, navGraphBuilder, appBarViewModel
         )
     }

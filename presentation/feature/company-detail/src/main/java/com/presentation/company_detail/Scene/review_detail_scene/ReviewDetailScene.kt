@@ -35,7 +35,7 @@ import preset_ui.icons.StarFilled
 @Composable
 fun ReviewDetailScene(
     viewModel: ReviewDetailViewModel,
-    appBarViewModel: AppBarViewModel  // 추가
+    appBarViewModel: AppBarViewModel
 ) {
     // 화면 진입 시 AppBar 상태 변경
     LaunchedEffect(Unit) {
