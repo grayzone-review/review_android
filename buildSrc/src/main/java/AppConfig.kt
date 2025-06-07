@@ -21,7 +21,7 @@ object AppConfig {
         const val usecase = "com.domain.usecase"
 
         const val design_system = "com.presentation.design_system"
-        const val comments = "com.feature.comments"
+        const val search = "com.feature.search"
         const val company_detail = "com.presentation.company_detail"
     }
 }

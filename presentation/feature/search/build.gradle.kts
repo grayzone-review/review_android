@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = AppConfig.NameSpace.comments
+    namespace = AppConfig.NameSpace.search
     compileSdk = AppConfig.compileSdk
 
     defaultConfig {
