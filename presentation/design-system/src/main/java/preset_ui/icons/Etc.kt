@@ -123,3 +123,31 @@ fun BackBarButtonIcon(
         tint = tint
     )
 }
+
+@Composable
+fun SearchLineIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.search_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun CloseFillIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.close_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
