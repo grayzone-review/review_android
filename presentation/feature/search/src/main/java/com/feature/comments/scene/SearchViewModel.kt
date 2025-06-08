@@ -26,7 +26,9 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     enum class Action {
         DidUpdateSearchBarValue,
         DidFocusSearchBar,
-        DidUnfocusSearchBar
+        DidUnfocusSearchBar,
+        DidTapClearButton,
+        DidTapCancelButton
     }
 
     private val _searchUISate = MutableStateFlow<SearchUIState>(value = SearchUIState())
@@ -50,6 +52,17 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             }
             Action.DidUnfocusSearchBar -> {
                 _searchUISate.update { it.copy(hasFocus = false) }
+            }
+            Action.DidTapClearButton -> {
+                _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = "")) }
+            }
+            Action.DidTapCancelButton -> {
+                _searchUISate.update {
+                    it.copy(
+                        hasFocus = false,
+                        phase = SearchPhase.Before
+                    )
+                }
             }
         }
     }

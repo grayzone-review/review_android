@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -61,7 +63,12 @@ fun SearchScene(
         SearchTextField(
             searchUIState = searchUIState,
             onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, text = it) },
-            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnfocusSearchBar) }
+            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnfocusSearchBar) },
+            onClickClearButton = { viewModel.handleAction(DidTapClearButton) },
+            onClickCancelButton = {
+                focusManager.clearFocus()
+                viewModel.handleAction(DidTapCancelButton)
+            }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -98,6 +105,8 @@ fun SearchTextField(
     searchUIState: SearchUIState,
     onTextChange: (String) -> Unit,
     onFocusChange: (FocusState) -> Unit,
+    onClickCancelButton: () -> Unit,
+    onClickClearButton: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -115,22 +124,32 @@ fun SearchTextField(
             value = searchUIState.searchBarValue.text,
             onValueChange = onTextChange,
             modifier = modifier
-                .fillMaxWidth()
+                .weight(1f) // ← 남은 공간 전부 차지
                 .height(52.dp)
                 .clip(shape)
                 .border(1.dp, color = borderColor, shape = shape)
                 .onFocusChanged { onFocusChange(it) },
             textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
-            decorationBox = searchDecorationBox(searchUIState = searchUIState),
+            decorationBox = searchDecorationBox(
+                searchUIState = searchUIState,
+                onClickClearButton = onClickClearButton
+            ),
             singleLine = true,
             maxLines = 1
         )
+
+        if (searchUIState.phase != SearchPhase.Before) {
+            TextButton(onClick = onClickCancelButton) {
+                Text(text = "취소", style = Typography.body1Regular, color = CS.Gray.G90)
+            }
+        }
     }
 }
 
 @Composable
 fun searchDecorationBox(
-    searchUIState: SearchUIState
+    searchUIState: SearchUIState,
+    onClickClearButton: () -> Unit
 ): @Composable (innerTextField: @Composable () -> Unit) -> Unit = { inner ->
     val shape = RoundedCornerShape(8.dp)
     val isEmptyTextFieldValue = searchUIState.searchBarValue.text.isEmpty()
@@ -146,9 +165,7 @@ fun searchDecorationBox(
             verticalAlignment = Alignment.CenterVertically
         ) {
             SearchLineIcon(24.dp, 24.dp)
-
             Spacer(modifier = Modifier.width(8.dp))
-
             Box(modifier = Modifier.weight(1f)) {
                 // 2. Placeholder
                 if (isEmptyTextFieldValue) {
@@ -161,9 +178,10 @@ fun searchDecorationBox(
 
                 inner()
             }
-
             if (!isEmptyTextFieldValue) {
-                CloseFillIcon(24.dp, 24.dp)
+                IconButton(onClick = onClickClearButton) {
+                    CloseFillIcon(width = 24.dp, height = 24.dp)
+                }
             }
         }
     }
