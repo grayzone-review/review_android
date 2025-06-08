@@ -34,7 +34,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     private val _searchUISate = MutableStateFlow<SearchUIState>(value = SearchUIState())
     val searchUIState = _searchUISate.asStateFlow()
 
-
     fun handleAction(action: Action, text: String? = null) {
         when (action) {
             Action.DidUpdateSearchBarValue -> {
@@ -66,5 +65,4 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-
 }

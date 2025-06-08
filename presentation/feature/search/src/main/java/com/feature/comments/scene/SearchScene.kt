@@ -41,6 +41,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import com.feature.comments.scene.contents.AfterContent
+import com.feature.comments.scene.contents.BeforeContent
+import com.feature.comments.scene.contents.SearchingContent
 import com.presentation.design_system.appbar.appbars.AppBarState
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.extension.addFocusCleaner
@@ -70,6 +73,7 @@ fun SearchScene(
                 viewModel.handleAction(DidTapCancelButton)
             }
         )
+        Content(searchUIState = searchUIState)
 
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -184,5 +188,14 @@ fun searchDecorationBox(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun Content(searchUIState: SearchUIState) {
+    when (searchUIState.phase) {
+        SearchPhase.Before -> { BeforeContent() }
+        SearchPhase.Searching -> { SearchingContent() }
+        SearchPhase.After -> { AfterContent() }
     }
 }
