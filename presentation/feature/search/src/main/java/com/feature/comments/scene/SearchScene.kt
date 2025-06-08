@@ -2,6 +2,7 @@ package com.feature.comments.scene
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,11 +26,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusState
 import com.feature.comments.scene.SearchViewModel.Action.*
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -37,6 +41,7 @@ import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.AppBarState
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
+import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.SearchLineIcon
 
@@ -45,28 +50,46 @@ fun SearchScene(
     viewModel: SearchViewModel,
     appBarViewModel: AppBarViewModel
 ) {
+    val focusManager = LocalFocusManager.current
     val searchUIState by viewModel.searchUIState.collectAsState()
 
-    LaunchedEffect(Unit) {
-        appBarViewModel.updateAppBarState(
-            AppBarState(
-                title = "업체 검색",
-                showBackButton = true,
-                actions = emptyList()
-            )
-        )
-    }
-
+    Appbar(appBarViewModel = appBarViewModel, searchUIState = searchUIState)
     Column(Modifier
         .fillMaxSize()
+        .addFocusCleaner(focusManager = focusManager)
     ) {
         SearchTextField(
             searchUIState = searchUIState,
             onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, text = it) },
-            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) }
+            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnfocusSearchBar) }
         )
 
         Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+fun Appbar(appBarViewModel: AppBarViewModel, searchUIState: SearchUIState) {
+    val phase = searchUIState.phase
+
+    LaunchedEffect(phase) {
+        when (phase) {
+            SearchPhase.Before -> {
+                appBarViewModel.updateAppBarState(
+                    AppBarState(
+                        title = "업체 검색",
+                        showBackButton = true,
+                        actions = emptyList(),
+                        isVisible = true
+                    )
+                )
+            }
+            SearchPhase.Searching, SearchPhase.After -> {
+                appBarViewModel.updateAppBarState(
+                    AppBarState(isVisible = false)
+                )
+            }
+        }
     }
 }
 
@@ -84,8 +107,7 @@ fun SearchTextField(
         modifier = Modifier
             .height(84.dp)
             .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .background(Color.Blue),
+            .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {

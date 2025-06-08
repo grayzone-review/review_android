@@ -13,6 +13,9 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -86,29 +89,39 @@ class MainActivity : ComponentActivity() {
             ReviewAndroidTheme {
                 val navController = rememberNavController()
                 val appBarViewModel: AppBarViewModel = hiltViewModel()
+                val appBarState by appBarViewModel.appBarState.collectAsState()
 
                 Scaffold(
                     topBar = {
-                        val appBarState by appBarViewModel.appBarState.collectAsState()
-                        DefaultTopAppBar(
-                            title = appBarState.title,
-                            navigationIcon = {
-                                if (appBarState.showBackButton) {
-                                    IconButton1(onClick = { navController.navigateUp() }) {
-                                        BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90)
+                        AnimatedVisibility(
+                            visible = appBarState.isVisible,
+                            enter = slideInVertically(
+                                initialOffsetY = { -it }, // 위에서 아래로 슬라이드 인
+                            ),
+                            exit = slideOutVertically(
+                                targetOffsetY = { -it }, // 아래에서 위로 슬라이드 아웃
+                            )
+                        ) {
+                            DefaultTopAppBar(
+                                title = appBarState.title,
+                                navigationIcon = {
+                                    if (appBarState.showBackButton) {
+                                        IconButton1(onClick = { navController.navigateUp() }) {
+                                            BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90)
+                                        }
                                     }
-                                }
-                            },
-                            actions = {
-                                appBarState.actions.forEach { action ->
-                                    action.icon?.let { icon ->
-                                        IconButton1(onClick = action.onClick) {
-                                            Icon(icon, action.contentDescription)
+                                },
+                                actions = {
+                                    appBarState.actions.forEach { action ->
+                                        action.icon?.let { icon ->
+                                            IconButton1(onClick = action.onClick) {
+                                                Icon(icon, action.contentDescription)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 ) { paddingValues ->
                     App(

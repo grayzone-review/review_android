@@ -8,6 +8,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
+
+data class AppBarState(
+    val title: String = "",
+    val showBackButton: Boolean = false,
+    val actions: List<AppBarAction> = emptyList(),
+    val isVisible: Boolean = true
+)
+
 @HiltViewModel
 class AppBarViewModel @Inject constructor() : ViewModel() {
     private val _appBarState = MutableStateFlow(AppBarState())
@@ -17,12 +25,6 @@ class AppBarViewModel @Inject constructor() : ViewModel() {
         _appBarState.value = newState
     }
 }
-
-data class AppBarState(
-    val title: String = "",
-    val showBackButton: Boolean = false,
-    val actions: List<AppBarAction> = emptyList()
-)
 
 data class AppBarAction(
     val icon: ImageVector? = null,
