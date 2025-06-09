@@ -14,11 +14,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -97,9 +101,11 @@ class MainActivity : ComponentActivity() {
                             visible = appBarState.isVisible,
                             enter = slideInVertically(
                                 initialOffsetY = { -it }, // 위에서 아래로 슬라이드 인
+                                animationSpec = tween(durationMillis = 300)
                             ),
                             exit = slideOutVertically(
                                 targetOffsetY = { -it }, // 아래에서 위로 슬라이드 아웃
+                                animationSpec = tween(durationMillis = 300)
                             )
                         ) {
                             DefaultTopAppBar(
@@ -173,7 +179,7 @@ fun App(
         AppNavGraph(
             navController = navHostController,
             navigationProvider = navigationProvider,
-            appBarViewModel = appBarViewModel // 업데이트
+            appBarViewModel = appBarViewModel
         )
     }
 }
