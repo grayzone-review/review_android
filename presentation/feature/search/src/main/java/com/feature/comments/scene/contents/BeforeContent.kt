@@ -3,6 +3,7 @@ package com.feature.comments.scene.contents
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,16 +29,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import preset_ui.icons.AroundIcon
 import preset_ui.icons.CloseFillIcon
+import preset_ui.icons.InterestIcon
+import preset_ui.icons.MytownIcon
 
 @Composable
 fun BeforeContent() {
     Spacer(Modifier.height(20.dp))
     TagRowWithTitle(title = "최근 검색어", tags = listOf("스타벅스 석촌점", "브로우레시피 잠실새내점", "호식이 두마리치킨 사가정점", "교촌치킨 서울점"))
+    Spacer(Modifier.height(40.dp))
+    TagWithButtons(
+        title = "모아보기",
+        buttons = listOf(
+            TagButtonData("내 근처 업체") { AroundIcon(isOn = true, 18.dp, 18.dp) },
+            TagButtonData("우리동네 업체") { MytownIcon(isOn = true, 18.dp, 18.dp) },
+            TagButtonData("관심동네 업체") { InterestIcon(isOn = true, 18.dp, 18.dp) }
+        ),
+        onClick = { button ->
+            when (button.label) {
+                "내 근처 업체" -> {
+                    // TODO: 내 근처 업체 처리 로직
+                }
+
+                "우리동네 업체" -> {
+                    // TODO: 우리동네 업체 처리 로직
+                }
+
+                "관심동네 업체" -> {
+                    // TODO: 관심동네 업체 처리 로직
+                }
+            }
+        }
+    )
 }
 
 @Composable
-fun TagRowWithTitle(title: String, tags: List<String>) {
+private fun TagRowWithTitle(title: String, tags: List<String>) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(start = 20.dp)
@@ -55,7 +83,7 @@ fun TagRowWithTitle(title: String, tags: List<String>) {
 }
 
 @Composable
-fun TagView(text: String) {
+private fun TagView(text: String) {
     val shape = RoundedCornerShape(8.dp)
     Box(
         modifier = Modifier
@@ -86,5 +114,52 @@ fun TagView(text: String) {
                 CloseFillIcon(width = 18.dp, height = 18.dp)
             }
         }
+    }
+}
+
+@Composable
+fun TagWithButtons(
+    title: String,
+    buttons: List<TagButtonData>,
+    onClick: (TagButtonData) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp)
+    ) {
+        Text(text = title, style = Typography.body1Bold, color = CS.Gray.G90)
+        Spacer(modifier = Modifier.height(16.dp))
+        LazyRow(
+            contentPadding = PaddingValues(end = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items(buttons.take(3)) { button ->
+                TagButtonItem(button, onClick)
+            }
+        }
+    }
+}
+
+
+data class TagButtonData(val label: String, val icon: @Composable () -> Unit)
+@Composable
+fun TagButtonItem(data: TagButtonData, onClick: (TagButtonData) -> Unit) {
+    val shape = RoundedCornerShape(8.dp)
+    Row(
+        modifier = Modifier
+            .background(color = CS.Gray.G10, shape = shape)
+            .clickable { onClick(data) }
+            .padding(horizontal = 8.dp, vertical = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        data.icon()
+        Text(
+            text = data.label,
+            style = Typography.captionSemiBold,
+            color = CS.Gray.G70
+        )
     }
 }

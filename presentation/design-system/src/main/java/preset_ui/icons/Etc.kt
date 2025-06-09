@@ -151,3 +151,59 @@ fun CloseFillIcon(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun AroundIcon(
+    isOn: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (isOn) com.presentation.design_system.R.drawable.around_on else com.presentation.design_system.R.drawable.around_off
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun InterestIcon(
+    isOn: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (isOn)
+        com.presentation.design_system.R.drawable.interest_on
+    else
+        com.presentation.design_system.R.drawable.interest_off
+
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun MytownIcon(
+    isOn: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (isOn)
+        com.presentation.design_system.R.drawable.mytown_on
+    else
+        com.presentation.design_system.R.drawable.mytown_off
+
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
