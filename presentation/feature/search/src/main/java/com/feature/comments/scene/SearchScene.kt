@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -36,6 +37,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -71,6 +73,10 @@ fun SearchScene(
             onClickCancelButton = {
                 focusManager.clearFocus()
                 viewModel.handleAction(DidTapCancelButton)
+            },
+            onClickIMEDone = {
+                focusManager.clearFocus()
+                viewModel.handleAction(DidTapIMEDone)
             }
         )
         Content(searchUIState = searchUIState)
@@ -111,6 +117,7 @@ fun SearchTextField(
     onFocusChange: (FocusState) -> Unit,
     onClickCancelButton: () -> Unit,
     onClickClearButton: () -> Unit,
+    onClickIMEDone: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -128,12 +135,14 @@ fun SearchTextField(
             value = searchUIState.searchBarValue.text,
             onValueChange = onTextChange,
             modifier = modifier
-                .weight(1f) // ← 남은 공간 전부 차지
+                .weight(1f)
                 .height(52.dp)
                 .clip(shape)
                 .border(1.dp, color = borderColor, shape = shape)
                 .onFocusChanged { onFocusChange(it) },
             textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onClickIMEDone() }),
             decorationBox = searchDecorationBox(
                 searchUIState = searchUIState,
                 onClickClearButton = onClickClearButton
@@ -141,6 +150,7 @@ fun SearchTextField(
             singleLine = true,
             maxLines = 1
         )
+
 
         if (searchUIState.phase != SearchPhase.Before) {
             TextButton(onClick = onClickCancelButton) {

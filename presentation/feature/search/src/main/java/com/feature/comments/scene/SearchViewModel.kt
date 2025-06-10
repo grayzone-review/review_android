@@ -28,7 +28,8 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         DidFocusSearchBar,
         DidUnfocusSearchBar,
         DidTapClearButton,
-        DidTapCancelButton
+        DidTapCancelButton,
+        DidTapIMEDone
     }
 
     private val _searchUISate = MutableStateFlow<SearchUIState>(value = SearchUIState())
@@ -60,6 +61,14 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                     it.copy(
                         hasFocus = false,
                         phase = SearchPhase.Before
+                    )
+                }
+            }
+            Action.DidTapIMEDone -> {
+                _searchUISate.update {
+                    it.copy(
+                        hasFocus = false,
+                        phase = SearchPhase.After
                     )
                 }
             }
