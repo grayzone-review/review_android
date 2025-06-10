@@ -195,7 +195,7 @@ fun searchDecorationBox(
 fun Content(searchUIState: SearchUIState) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { BeforeContent() }
-        SearchPhase.Searching -> { SearchingContent() }
+        SearchPhase.Searching -> { SearchingContent(searchUIState = searchUIState) }
         SearchPhase.After -> { AfterContent() }
     }
 }
