@@ -168,7 +168,7 @@ fun searchDecorationBox(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SearchLineIcon(24.dp, 24.dp)
+            SearchLineIcon(24.dp, 24.dp, tint = CS.Gray.G90)
             Spacer(modifier = Modifier.width(8.dp))
             Box(modifier = Modifier.weight(1f)) {
                 // 2. Placeholder

@@ -129,12 +129,13 @@ fun SearchLineIcon(
     width: Dp,
     height: Dp,
     modifier: Modifier = Modifier,
+    tint: Color
 ) {
     Icon(
         painter = painterResource(com.presentation.design_system.R.drawable.search_line),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 
