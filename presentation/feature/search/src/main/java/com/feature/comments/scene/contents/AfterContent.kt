@@ -119,8 +119,8 @@ private fun SearchResultList() {
             ) { company ->
                 SearchedResultItem(
                     company = company,
-                    onClick = {  },
-                    onFollowClick = {  }
+                    onClick = { },
+                    onFollowClick = { }
                 )
             }
         }
