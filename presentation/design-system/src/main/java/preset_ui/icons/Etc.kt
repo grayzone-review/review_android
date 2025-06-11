@@ -237,3 +237,31 @@ fun ClockIcon(
         tint = tint
     )
 }
+
+@Composable
+fun FollowPersonOnIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.follow_person_on),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun FollowAddOffIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.follow_add_off),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}

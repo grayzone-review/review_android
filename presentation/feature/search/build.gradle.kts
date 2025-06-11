@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":presentation:design-system"))
 
     implementation(DaggerHilt.hilt)
+    implementation("androidx.compose.foundation:foundation-android:1.7.2")
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Deps.coreKtx)
