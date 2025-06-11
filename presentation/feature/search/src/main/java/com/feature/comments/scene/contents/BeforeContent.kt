@@ -22,6 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,11 +35,17 @@ import preset_ui.icons.AroundIcon
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.InterestIcon
 import preset_ui.icons.MytownIcon
+import javax.inject.Inject
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun BeforeContent() {
+fun BeforeContent(
+    viewModel: BeforeContentViewModel = hiltViewModel()
+) {
+    val recentCompanies by viewModel.recentCompanies.collectAsState()
+    
     Spacer(Modifier.height(20.dp))
-    TagRowWithTitle(title = "최근 검색어", tags = listOf("스타벅스 석촌점", "브로우레시피 잠실새내점", "호식이 두마리치킨 사가정점", "교촌치킨 서울점"))
+    TagRowWithTitle(title = "최근 검색어", tags = recentCompanies.map { it.companyName })
     Spacer(Modifier.height(40.dp))
     TagWithButtons(
         title = "모아보기",

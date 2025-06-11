@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
@@ -32,9 +34,16 @@ import preset_ui.icons.CloseLine
 import preset_ui.icons.InfoIcon
 import preset_ui.icons.SearchLineIcon
 import preset_ui.icons.StarFilled
+import javax.inject.Inject
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
-fun SearchingContent(searchUIState: SearchUIState) {
+fun SearchingContent(
+    viewModel: SearchingContentViewModel = hiltViewModel(),
+    searchUIState: SearchUIState
+) {
+    val autocompletedCompanies by viewModel.autocompletedCompanies.collectAsState()
+
     val recentCompanies = listOf(
         RecentCompany(
             id = 1,

@@ -20,7 +20,6 @@ data class SearchUIState(
     val phase: SearchPhase = SearchPhase.Before
 )
 
-
 @HiltViewModel
 class SearchViewModel @Inject constructor() : ViewModel() {
     enum class Action {

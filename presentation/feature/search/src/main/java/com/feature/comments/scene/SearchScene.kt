@@ -2,7 +2,6 @@ package com.feature.comments.scene
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,23 +21,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusState
 import com.feature.comments.scene.SearchViewModel.Action.*
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -51,6 +43,10 @@ import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.SearchLineIcon
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.feature.comments.scene.contents.AfterContentViewModel
+import com.feature.comments.scene.contents.BeforeContentViewModel
+import com.feature.comments.scene.contents.SearchingContentViewModel
 
 @Composable
 fun SearchScene(
@@ -200,8 +196,20 @@ fun searchDecorationBox(
 @Composable
 fun Content(searchUIState: SearchUIState) {
     when (searchUIState.phase) {
-        SearchPhase.Before -> { BeforeContent() }
-        SearchPhase.Searching -> { SearchingContent(searchUIState = searchUIState) }
-        SearchPhase.After -> { AfterContent() }
+        SearchPhase.Before -> { 
+            val viewModel: BeforeContentViewModel = hiltViewModel()
+            BeforeContent(viewModel = viewModel) 
+        }
+        SearchPhase.Searching -> { 
+            val viewModel: SearchingContentViewModel = hiltViewModel()
+            SearchingContent(
+                viewModel = viewModel,
+                searchUIState = searchUIState
+            ) 
+        }
+        SearchPhase.After -> { 
+            val viewModel: AfterContentViewModel = hiltViewModel()
+            AfterContent(viewModel = viewModel) 
+        }
     }
 }
