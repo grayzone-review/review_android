@@ -183,11 +183,7 @@ fun searchDecorationBox(
             Box(modifier = Modifier.weight(1f)) {
                 // 2. Placeholder
                 if (isEmptyTextFieldValue) {
-                    Text(
-                        text = "상호명으로 검색하기",
-                        style = Typography.body1Regular,
-                        color = CS.Gray.G50
-                    )
+                    Text(text = "상호명으로 검색하기", style = Typography.body1Regular, color = CS.Gray.G50)
                 }
 
                 inner()
