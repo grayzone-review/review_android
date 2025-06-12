@@ -75,7 +75,10 @@ fun SearchScene(
                 viewModel.handleAction(DidTapIMEDone)
             }
         )
-        Content(searchUIState = searchUIState)
+        Content(
+            searchUIState = searchUIState,
+            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, it) }
+        )
 
         Spacer(modifier = Modifier.weight(1f))
     }
@@ -194,11 +197,14 @@ fun searchDecorationBox(
 }
 
 @Composable
-fun Content(searchUIState: SearchUIState) {
+fun Content(
+    searchUIState: SearchUIState,
+    onClickRecentQuery: (String) -> Unit
+) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 
             val viewModel: BeforeContentViewModel = hiltViewModel()
-            BeforeContent(viewModel = viewModel, onClickTag = { it })
+            BeforeContent(viewModel = viewModel, onClickTag = { onClickRecentQuery(it) })
         }
         SearchPhase.Searching -> { 
             val viewModel: SearchingContentViewModel = hiltViewModel()
