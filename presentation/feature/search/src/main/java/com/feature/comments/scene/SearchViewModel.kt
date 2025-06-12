@@ -2,6 +2,7 @@ package com.feature.comments.scene
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.data.storage.datastore.UpDataStoreService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,6 +65,9 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 }
             }
             Action.DidTapIMEDone -> {
+                val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
+                queries.add(index = 0, element = searchUIState.value.searchBarValue.text)
+                UpDataStoreService.recentQueries = queries.joinToString(",")
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,

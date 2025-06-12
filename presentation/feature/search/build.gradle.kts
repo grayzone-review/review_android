@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":domain:entity"))
     implementation(project(":presentation:design-system"))
+    implementation(project(":data:storage"))
 
     implementation(DaggerHilt.hilt)
     implementation("androidx.compose.foundation:foundation-android:1.7.2")

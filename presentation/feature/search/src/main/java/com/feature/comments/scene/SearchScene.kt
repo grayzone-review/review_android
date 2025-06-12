@@ -198,7 +198,7 @@ fun Content(searchUIState: SearchUIState) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 
             val viewModel: BeforeContentViewModel = hiltViewModel()
-            BeforeContent(viewModel = viewModel) 
+            BeforeContent(viewModel = viewModel, onClickTag = { it })
         }
         SearchPhase.Searching -> { 
             val viewModel: SearchingContentViewModel = hiltViewModel()
