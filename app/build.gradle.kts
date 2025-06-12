@@ -50,6 +50,8 @@ dependencies {
 
     implementation("com.kakao.maps.open:android:2.12.8")
 
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
     implementation(DaggerHilt.hilt)
     implementation("com.google.android.material:material:1.12.0")
     kapt(DaggerHilt.hiltCompiler)

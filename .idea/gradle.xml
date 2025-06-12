@@ -28,6 +28,7 @@
             <option value="$PROJECT_DIR$/data/dto" />
             <option value="$PROJECT_DIR$/data/network" />
             <option value="$PROJECT_DIR$/data/repository-implementation" />
+            <option value="$PROJECT_DIR$/data/storage" />
             <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/domain/entity" />
             <option value="$PROJECT_DIR$/domain/repository-interface" />
