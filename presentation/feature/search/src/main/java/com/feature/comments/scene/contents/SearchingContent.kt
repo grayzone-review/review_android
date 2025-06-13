@@ -20,6 +20,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -139,12 +141,30 @@ fun RecentCompanyItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                val yTop = 0f
+                val yBottom = size.height
+
+                drawLine(
+                    color = CS.Gray.G20,
+                    start = Offset(0f, yTop),
+                    end = Offset(size.width, yTop),
+                    strokeWidth = strokeWidth
+                )
+                drawLine(
+                    color = CS.Gray.G20,
+                    start = Offset(0f, yBottom),
+                    end = Offset(size.width, yBottom),
+                    strokeWidth = strokeWidth
+                )
+            }
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier
-                .weight(1f) // ← 나머지 공간 모두 사용
+                .weight(1f)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -209,6 +229,24 @@ private fun SearchedCompanyItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                val yTop = 0f
+                val yBottom = size.height
+
+                drawLine(
+                    color = CS.Gray.G20,
+                    start = Offset(0f, yTop),
+                    end = Offset(size.width, yTop),
+                    strokeWidth = strokeWidth
+                )
+                drawLine(
+                    color = CS.Gray.G20,
+                    start = Offset(0f, yBottom),
+                    end = Offset(size.width, yBottom),
+                    strokeWidth = strokeWidth
+                )
+            }
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -223,7 +261,7 @@ private fun SearchedCompanyItem(
                 SearchLineIcon(width = 20.dp, height = 20.dp, tint = CS.Gray.G50)
                 HighlightedCompanyName(companyName = company.companyName, keyword = searchUIState.searchBarValue.text)
                 StarFilled(20.dp, 20.dp)
-                Text(text = company.totalRating.toString(), style = Typography.body1Bold, color = CS.Gray.G90)
+                Text(text = "${company.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90)
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = company.companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
