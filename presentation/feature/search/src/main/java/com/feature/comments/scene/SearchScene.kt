@@ -27,7 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
-import com.feature.comments.scene.SearchViewModel.Action.*
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.*
+import com.feature.comments.scene.SearchViewModel.ContentAction.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
@@ -47,6 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.feature.comments.scene.contents.AfterContentViewModel
 import com.feature.comments.scene.contents.BeforeContentViewModel
 import com.feature.comments.scene.contents.SearchingContentViewModel
+import com.feature.comments.scene.contents.TagButtonData
+import com.feature.comments.scene.contents.TagButtonType
 
 @Composable
 fun SearchScene(
@@ -77,7 +80,8 @@ fun SearchScene(
         )
         Content(
             searchUIState = searchUIState,
-            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, it) }
+            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, text = it) },
+            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -199,12 +203,17 @@ fun searchDecorationBox(
 @Composable
 fun Content(
     searchUIState: SearchUIState,
-    onClickRecentQuery: (String) -> Unit
+    onClickRecentQuery: (String) -> Unit,
+    onClickFilterButton: (TagButtonData) -> Unit
 ) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 
             val viewModel: BeforeContentViewModel = hiltViewModel()
-            BeforeContent(viewModel = viewModel, onClickTag = { onClickRecentQuery(it) })
+            BeforeContent(
+                viewModel = viewModel,
+                onClickTag = { onClickRecentQuery(it) },
+                onClickFilterButton = { onClickFilterButton(it) }
+            )
         }
         SearchPhase.Searching -> { 
             val viewModel: SearchingContentViewModel = hiltViewModel()

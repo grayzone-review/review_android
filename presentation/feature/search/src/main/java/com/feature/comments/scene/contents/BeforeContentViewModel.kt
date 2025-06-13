@@ -36,10 +36,4 @@ class BeforeContentViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-
-    private fun removeRecentCompany(companyId: Long) {
-//        _recentQueries.update { companies ->
-//
-//        }
-    }
 } 

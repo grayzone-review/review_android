@@ -40,7 +40,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun BeforeContent(
     viewModel: BeforeContentViewModel = hiltViewModel(),
-    onClickTag: (String) -> Unit
+    onClickTag: (String) -> Unit,
+    onClickFilterButton: (TagButtonData) -> Unit
 ) {
     val recentQueries by viewModel.recentQueries.collectAsState()
 
@@ -58,26 +59,7 @@ fun BeforeContent(
     Spacer(Modifier.height(40.dp))
     FilterButtons(
         title = "모아보기",
-        buttons = listOf(
-            TagButtonData("내 근처 업체") { AroundIcon(isOn = true, 18.dp, 18.dp) },
-            TagButtonData("우리동네 업체") { MytownIcon(isOn = true, 18.dp, 18.dp) },
-            TagButtonData("관심동네 업체") { InterestIcon(isOn = true, 18.dp, 18.dp) }
-        ),
-        onClick = { button ->
-            when (button.label) {
-                "내 근처 업체" -> {
-                    // TODO: 내 근처 업체 처리 로직
-                }
-
-                "우리동네 업체" -> {
-                    // TODO: 우리동네 업체 처리 로직
-                }
-
-                "관심동네 업체" -> {
-                    // TODO: 관심동네 업체 처리 로직
-                }
-            }
-        }
+        onClick = { onClickFilterButton(it) }
     )
 }
 
@@ -143,35 +125,56 @@ private fun TagView(text: String, onClickTag: () -> Unit, onClickDelete: () -> U
     }
 }
 
+enum class TagButtonType(val label: String, val icon: @Composable () -> Unit) {
+    Around("내 근처 업체", { AroundIcon(isOn = true, 18.dp, 18.dp) }),
+    MyTown("우리동네 업체", { MytownIcon(isOn = true, 18.dp, 18.dp) }),
+    Interest("관심동네 업체", { InterestIcon(isOn = true, 18.dp, 18.dp) });
+
+    fun toData(): TagButtonData = TagButtonData(this, label, icon)
+}
+
+data class TagButtonData(
+    val type: TagButtonType,
+    val label: String,
+    val icon: @Composable () -> Unit
+)
+
 @Composable
 fun FilterButtons(
     title: String,
-    buttons: List<TagButtonData>,
     onClick: (TagButtonData) -> Unit
 ) {
+    val buttons = remember { TagButtonType.values().map { it.toData() } }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 20.dp)
     ) {
-        Text(text = title, style = Typography.body1Bold, color = CS.Gray.G90)
+        Text(
+            text = title,
+            style = Typography.body1Bold,
+            color = CS.Gray.G90
+        )
         Spacer(modifier = Modifier.height(16.dp))
+
         LazyRow(
             contentPadding = PaddingValues(end = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            items(buttons.take(3)) { button ->
-                TagButtonItem(button, onClick)
+            items(buttons) { button ->
+                TagButtonItem(data = button, onClick = onClick)
             }
         }
     }
 }
 
-
-data class TagButtonData(val label: String, val icon: @Composable () -> Unit)
 @Composable
-fun TagButtonItem(data: TagButtonData, onClick: (TagButtonData) -> Unit) {
+fun TagButtonItem(
+    data: TagButtonData,
+    onClick: (TagButtonData) -> Unit
+) {
     val shape = RoundedCornerShape(8.dp)
     Row(
         modifier = Modifier
@@ -182,10 +185,6 @@ fun TagButtonItem(data: TagButtonData, onClick: (TagButtonData) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         data.icon()
-        Text(
-            text = data.label,
-            style = Typography.captionSemiBold,
-            color = CS.Gray.G70
-        )
+        Text(text = data.label, style = Typography.captionSemiBold, color = CS.Gray.G70)
     }
 }

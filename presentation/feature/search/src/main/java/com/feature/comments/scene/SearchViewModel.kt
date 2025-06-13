@@ -3,6 +3,8 @@ package com.feature.comments.scene
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.data.storage.datastore.UpDataStoreService
+import com.feature.comments.scene.contents.TagButtonData
+import com.feature.comments.scene.contents.TagButtonType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,27 +25,30 @@ data class SearchUIState(
 
 @HiltViewModel
 class SearchViewModel @Inject constructor() : ViewModel() {
-    enum class Action {
+    enum class SearchInterfaceAction {
         DidUpdateSearchBarValue,
         DidFocusSearchBar,
         DidUnfocusSearchBar,
         DidTapClearButton,
         DidTapCancelButton,
-        DidTapIMEDone,
-        DidTapRecentQueryButton
+        DidTapIMEDone
+    }
+    enum class ContentAction {
+        DidTapRecentQueryButton,
+        DidTapFilterButtons
     }
 
     private val _searchUISate = MutableStateFlow<SearchUIState>(value = SearchUIState())
     val searchUIState = _searchUISate.asStateFlow()
 
-    fun handleAction(action: Action, text: String? = null) {
-        when (action) {
-            Action.DidUpdateSearchBarValue -> {
+    fun handleAction(searchInterfaceAction: SearchInterfaceAction, text: String? = null) {
+        when (searchInterfaceAction) {
+            SearchInterfaceAction.DidUpdateSearchBarValue -> {
                 text?.let { newText ->
                     _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = newText)) }
                 }
             }
-            Action.DidFocusSearchBar -> {
+            SearchInterfaceAction.DidFocusSearchBar -> {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = true,
@@ -51,13 +56,13 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                     )
                 }
             }
-            Action.DidUnfocusSearchBar -> {
+            SearchInterfaceAction.DidUnfocusSearchBar -> {
                 _searchUISate.update { it.copy(hasFocus = false) }
             }
-            Action.DidTapClearButton -> {
+            SearchInterfaceAction.DidTapClearButton -> {
                 _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = "")) }
             }
-            Action.DidTapCancelButton -> {
+            SearchInterfaceAction.DidTapCancelButton -> {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
@@ -65,7 +70,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                     )
                 }
             }
-            Action.DidTapIMEDone -> {
+            SearchInterfaceAction.DidTapIMEDone -> {
                 val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
                 queries.add(index = 0, element = searchUIState.value.searchBarValue.text)
                 UpDataStoreService.recentQueries = queries.joinToString(",")
@@ -76,14 +81,32 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                     )
                 }
             }
-            Action.DidTapRecentQueryButton -> {
+        }
+    }
+
+    fun handleAction(contentAction: ContentAction, text: String? = null, tagButtonData: TagButtonData? = null) {
+        when (contentAction) {
+            ContentAction.DidTapRecentQueryButton -> {
                 text?.let { query ->
-                    _searchUISate.update { it.copy(
-                        searchBarValue = TextFieldValue(text = query),
-                        phase = SearchPhase.After
-                    ) }
+                    _searchUISate.update {
+                        it.copy(
+                            searchBarValue = TextFieldValue(text = query),
+                            phase = SearchPhase.Searching
+                        )
+                    }
+                }
+            }
+            ContentAction.DidTapFilterButtons -> {
+                tagButtonData?.let { buttonData ->
+                    _searchUISate.update {
+                        it.copy(
+                            searchBarValue = TextFieldValue(text = "#${buttonData.label}"),
+                            phase = SearchPhase.After
+                        )
+                    }
                 }
             }
         }
     }
+
 }
