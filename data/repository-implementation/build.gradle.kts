@@ -36,6 +36,9 @@ android {
 
 dependencies {
     implementation(project(":data:network"))
+    implementation(project(":domain:entity"))
+    implementation(project(":domain:repository-interface"))
+    implementation(project(":data:dto"))
 
     implementation(Deps.coreKtx)
 

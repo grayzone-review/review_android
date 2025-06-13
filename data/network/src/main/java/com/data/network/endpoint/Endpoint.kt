@@ -2,7 +2,7 @@ package com.data.network.endpoint
 
 object Endpoint {
     object Host {
-        const val baseURL = "http://localhost:8080"
+        const val baseURL = "http://60.196.157.199:8080"
     }
 
     object Path {
@@ -10,8 +10,8 @@ object Endpoint {
     }
 
     object Query {
-        const val KEYWORD       = "api_key"
-        const val LATITUDE      = "query"
+        const val KEYWORD       = "keyword"
+        const val LATITUDE      = "latitude"
         const val LONGITUDE     = "longitude"
         const val SIZE          = "size"
         const val PAGE          = "page"

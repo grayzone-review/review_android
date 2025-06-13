@@ -5,3 +5,10 @@ data class APIResponse<T>(
     val message: String,
     val data: T
 )
+
+inline fun <T, R> APIResponse<T>.mapOrThrow(
+    transform: (T) -> R
+): R {
+    if (!success) throw IllegalStateException(message)
+    return transform(data)
+}

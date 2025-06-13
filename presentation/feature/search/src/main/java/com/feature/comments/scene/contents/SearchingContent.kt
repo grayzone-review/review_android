@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +28,7 @@ import colors.CS
 import com.domain.entity.RecentCompany
 import com.domain.entity.SearchedCompany
 import com.example.presentation.designsystem.typography.Typography
+import com.feature.comments.scene.contents.SearchingContentViewModel.Action.*
 import com.feature.comments.scene.SearchUIState
 import com.feature.comments.scene.contents.SearchingContent.*
 import preset_ui.icons.ClockIcon
@@ -43,6 +45,11 @@ fun SearchingContent(
     searchUIState: SearchUIState
 ) {
     val autocompletedCompanies by viewModel.autocompletedCompanies.collectAsState()
+    val currentQuery = searchUIState.searchBarValue
+
+    LaunchedEffect(currentQuery) {
+        viewModel.handleAction(DidUpdateSearchBarValue, text = currentQuery.text)
+    }
 
     val recentCompanies = listOf(
         RecentCompany(
@@ -61,35 +68,6 @@ fun SearchingContent(
             companyAddress = "서울특별시 광진구 아차산로 200"
         )
     )
-    val searchedCompanies = listOf(
-        SearchedCompany(
-            id = 1L,
-            companyName = "븕앉클린더버거조인트 청계천점",
-            companyAddress = "서울특별시 중구 무교동 77",
-            totalRating = 4.5,
-            reviewTitle = "버거가 진짜 미쳤음",
-            distance = 0.26,
-            following = true
-        ),
-        SearchedCompany(
-            id = 2L,
-            companyName = "바스버거 광화문점",
-            companyAddress = "서울특별시 중구 무교동 11 광일빌딩 지하1층",
-            totalRating = 3.3,
-            reviewTitle = null,
-            distance = 0.23,
-            following = false
-        ),
-        SearchedCompany(
-            id = 3L,
-            companyName = "버거운 녀석들",
-            companyAddress = "서울특별시 중구 남대문로5가 21-1",
-            totalRating = 0.0,
-            reviewTitle = null,
-            distance = 0.88,
-            following = false
-        )
-    )
 
     if (searchUIState.searchBarValue.text.isEmpty()) {
         if (recentCompanies.isEmpty()) {
@@ -101,12 +79,12 @@ fun SearchingContent(
             )
         }
     } else {
-        if (searchedCompanies.isEmpty()) {
+        if (autocompletedCompanies.isEmpty()) {
             EmptyView(searchingContent = Searched)
         } else {
             SearchedCompanyList(
                 searchUIState = searchUIState,
-                searchedCompanies = searchedCompanies,
+                searchedCompanies = autocompletedCompanies,
                 onClickSearchedCompanyItem = { }
             )
         }

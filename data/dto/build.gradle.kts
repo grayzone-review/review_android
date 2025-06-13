@@ -33,5 +33,6 @@ android {
 }
 
 dependencies {
+    implementation(project(":domain:entity"))
     implementation(Deps.coreKtx)
 }
