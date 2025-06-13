@@ -14,8 +14,8 @@ val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = "up
 
 internal sealed class UpDataStoreKey<T>(val key: Preferences.Key<T>) {
     object RecentQueries : UpDataStoreKey<String>(stringPreferencesKey("recent_queries"))
+    object RecentCompanyIDs: UpDataStoreKey<String>(stringPreferencesKey("recent_company"))
 }
-
 
 internal object UpDataStore {
     suspend fun <T> write(context: Context, key: UpDataStoreKey<T>, value: T) {

@@ -18,4 +18,13 @@ object UpDataStoreService {
         set(value) = runBlocking {
             UpDataStore.write(appContext, UpDataStoreKey.RecentQueries, value)
         }
+
+    var recentCompanyIDs: String
+        get() = runBlocking {
+            UpDataStore.read(appContext, UpDataStoreKey.RecentCompanyIDs, "").first()
+        }
+        set(value) = runBlocking {
+            UpDataStore.write(appContext, UpDataStoreKey.RecentCompanyIDs, value)
+        }
+
 }
