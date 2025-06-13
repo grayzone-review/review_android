@@ -7,9 +7,12 @@ import retrofit2.http.Query
 
 interface APIService {
 
-    @GET(Endpoint.Path.SEARCH_MOVIE)
-    suspend fun getTestData(
-        @Query(Endpoint.Query.api_key) apikey: String,
-        @Query(Endpoint.Query.query) keyword: String
+    @GET(Endpoint.Path.SEARCH)
+    suspend fun searchCompanies(
+        @Query(Endpoint.Query.KEYWORD) apikey: String,
+        @Query(Endpoint.Query.LATITUDE) keyword: Double,
+        @Query(Endpoint.Query.LONGITUDE) longitude: Double,
+        @Query(Endpoint.Query.SIZE) size: Int,
+        @Query(Endpoint.Query.PAGE) page: Int
     ): APIResponse<String>
 }
