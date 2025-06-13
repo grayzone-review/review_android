@@ -27,7 +27,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import colors.CS
-import com.domain.entity.RecentCompany
 import com.domain.entity.SearchedCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.contents.SearchingContentViewModel.Action.*
@@ -38,8 +37,8 @@ import preset_ui.icons.CloseLine
 import preset_ui.icons.InfoIcon
 import preset_ui.icons.SearchLineIcon
 import preset_ui.icons.StarFilled
-import javax.inject.Inject
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.domain.entity.Company
 
 @Composable
 fun SearchingContent(
@@ -47,29 +46,13 @@ fun SearchingContent(
     searchUIState: SearchUIState
 ) {
     val autocompletedCompanies by viewModel.autocompletedCompanies.collectAsState()
+    val recentCompanies by viewModel.recentCompany.collectAsState()
     val currentQuery = searchUIState.searchBarValue
 
     LaunchedEffect(currentQuery) {
         viewModel.handleAction(DidUpdateSearchBarValue, text = currentQuery.text)
+        viewModel.handleAction(LoadRecentCompanies)
     }
-
-    val recentCompanies = listOf(
-        RecentCompany(
-            id = 1,
-            companyName = "스타벅스 석촌역점",
-            companyAddress = "서울특별시 송파구 백제고분로 358 1층"
-        ),
-        RecentCompany(
-            id = 2,
-            companyName = "버거킹 강남역점",
-            companyAddress = "서울특별시 강남구 테헤란로 101"
-        ),
-        RecentCompany(
-            id = 3,
-            companyName = "투썸플레이스 건대입구점",
-            companyAddress = "서울특별시 광진구 아차산로 200"
-        )
-    )
 
     if (searchUIState.searchBarValue.text.isEmpty()) {
         if (recentCompanies.isEmpty()) {
@@ -77,7 +60,7 @@ fun SearchingContent(
         } else {
             RecentViewedCompanyList(
                 recentCompanies = recentCompanies,
-                onRemoveClick = { }
+                onRemoveClick = { viewModel.handleAction(DidTapRemoveRecentCompanyButton, recentCompany = it) }
             )
         }
     } else {
@@ -87,7 +70,7 @@ fun SearchingContent(
             SearchedCompanyList(
                 searchUIState = searchUIState,
                 searchedCompanies = autocompletedCompanies,
-                onClickSearchedCompanyItem = { }
+                onClickSearchedCompanyItem = { viewModel.handleAction(DidTapSearchedCompanyItem, searchedCompany = it) }
             )
         }
     }
@@ -115,8 +98,8 @@ private fun EmptyView(searchingContent: SearchingContent) {
 
 @Composable
 private fun RecentViewedCompanyList(
-    recentCompanies: List<RecentCompany>,
-    onRemoveClick: (RecentCompany) -> Unit
+    recentCompanies: List<Company>,
+    onRemoveClick: (Company) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -134,7 +117,7 @@ private fun RecentViewedCompanyList(
 
 @Composable
 fun RecentCompanyItem(
-    company: RecentCompany,
+    company: Company,
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -177,16 +160,13 @@ fun RecentCompanyItem(
                     color = CS.Gray.G90
                 )
             }
-
             Spacer(modifier = Modifier.height(4.dp))
-
             Text(
-                text = company.companyAddress,
+                text = if (company.siteFullAddress.isNotEmpty()) company.siteFullAddress else company.roadNameAddress,
                 style = Typography.body2Regular,
                 color = CS.Gray.G50
             )
         }
-
         CloseLine(
             width = 20.dp,
             height = 20.dp,
@@ -209,11 +189,11 @@ private fun SearchedCompanyList(
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
     ) {
-        items(searchedCompanies) { company ->
+        items(searchedCompanies) { searchedCompany ->
             SearchedCompanyItem(
                 searchUIState = searchUIState,
-                company = company,
-                onClickSearchedCompanyItem = { onClickSearchedCompanyItem(company) }
+                searchedCompany = searchedCompany,
+                onClickSearchedCompanyItem = { onClickSearchedCompanyItem(searchedCompany) }
             )
         }
     }
@@ -222,7 +202,7 @@ private fun SearchedCompanyList(
 @Composable
 private fun SearchedCompanyItem(
     searchUIState: SearchUIState,
-    company: SearchedCompany,
+    searchedCompany: SearchedCompany,
     onClickSearchedCompanyItem: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -247,7 +227,8 @@ private fun SearchedCompanyItem(
                     strokeWidth = strokeWidth
                 )
             }
-            .padding(vertical = 20.dp),
+            .padding(vertical = 20.dp)
+            .clickable { onClickSearchedCompanyItem() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
@@ -259,12 +240,12 @@ private fun SearchedCompanyItem(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 SearchLineIcon(width = 20.dp, height = 20.dp, tint = CS.Gray.G50)
-                HighlightedCompanyName(companyName = company.companyName, keyword = searchUIState.searchBarValue.text)
+                HighlightedCompanyName(companyName = searchedCompany.companyName, keyword = searchUIState.searchBarValue.text)
                 StarFilled(20.dp, 20.dp)
-                Text(text = "${company.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90)
+                Text(text = "${searchedCompany.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90)
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = company.companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
+            Text(text = searchedCompany.companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
         }
     }
 }
