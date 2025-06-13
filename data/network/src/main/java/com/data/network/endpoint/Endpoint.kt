@@ -7,6 +7,7 @@ object Endpoint {
 
     object Path {
         const val SEARCH = "/api/companies/search"
+        const val COMPANY_INFO = "/api/companies/{companyID}"
     }
 
     object Query {

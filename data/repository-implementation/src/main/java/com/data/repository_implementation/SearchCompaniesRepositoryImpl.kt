@@ -6,7 +6,7 @@ import com.data.network.APIService
 import com.data.network.mapper.SearchCompaniesRequestMapper
 import com.data.network.response.mapOrThrow
 import com.domain.entity.SearchedCompanies
-import com.domain.repository.SearchCompaniesRepository
+import com.domain.repository_interface.SearchCompaniesRepository
 import javax.inject.Inject
 
 class SearchCompaniesRepositoryImpl @Inject constructor(

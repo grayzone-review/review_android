@@ -1,4 +1,4 @@
-package com.domain.repository
+package com.domain.repository_interface
 
 import com.domain.entity.SearchedCompanies
 

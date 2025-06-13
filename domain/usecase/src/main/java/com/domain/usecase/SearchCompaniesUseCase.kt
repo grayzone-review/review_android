@@ -1,7 +1,7 @@
 package com.domain.usecase
 
 import com.domain.entity.SearchedCompanies
-import com.domain.repository.SearchCompaniesRepository
+import com.domain.repository_interface.SearchCompaniesRepository
 import javax.inject.Inject
 
 interface SearchCompaniesUseCase {
