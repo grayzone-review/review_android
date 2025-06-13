@@ -224,7 +224,10 @@ fun Content(
         }
         SearchPhase.After -> { 
             val viewModel: AfterContentViewModel = hiltViewModel()
-            AfterContent(viewModel = viewModel) 
+            AfterContent(
+                viewModel = viewModel,
+                searchUIState = searchUIState
+            )
         }
     }
 }
