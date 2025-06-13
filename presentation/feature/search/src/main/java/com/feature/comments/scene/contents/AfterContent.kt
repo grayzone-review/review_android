@@ -63,14 +63,16 @@ import preset_ui.icons.StarFilled
 @Composable
 fun AfterContent(
     viewModel: AfterContentViewModel = hiltViewModel(),
-    searchUIState: SearchUIState
+    searchUIState: SearchUIState,
+    onClickSearchResult: (SearchedCompany) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currntQuery = searchUIState.searchBarValue.text
 
     SearchResultList(
         uiState = uiState,
-        onLoadMore = { viewModel.handleAction(AfterContentViewModel.Action.DidRequestLoadMore, query = currntQuery) }
+        onLoadMore = { viewModel.handleAction(AfterContentViewModel.Action.DidRequestLoadMore, query = currntQuery) },
+        onClickSearchResult = { onClickSearchResult(it) }
     )
 
     LaunchedEffect(searchUIState.searchBarValue.text) {
@@ -81,7 +83,8 @@ fun AfterContent(
 @Composable
 private fun SearchResultList(
     uiState: AfterContentUIState,
-    onLoadMore: () -> Unit
+    onLoadMore: () -> Unit,
+    onClickSearchResult: (SearchedCompany) -> Unit
 ) {
     var selected by remember { mutableStateOf("우리 동네 업체") }
     val searchedCompanies = uiState.searchedCompanies
@@ -105,7 +108,7 @@ private fun SearchResultList(
             ) { company ->
                 SearchedResultItem(
                     company = company,
-                    onClick = { },
+                    onClickSearchResult = { onClickSearchResult(company) },
                     onFollowClick = { }
                 )
             }
@@ -138,7 +141,7 @@ private fun ResultCountText(totalCount: Int) {
 @Composable
 private fun SearchedResultItem(
     company: SearchedCompany,
-    onClick: () -> Unit = {},
+    onClickSearchResult: () -> Unit,
     onFollowClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(8.dp)
@@ -147,7 +150,7 @@ private fun SearchedResultItem(
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, CS.Gray.G20, shape)
-            .clickable { onClick() },
+            .clickable { onClickSearchResult() },
         colors = CardDefaults.cardColors(containerColor = CS.Gray.White),
         shape = shape
     ) {

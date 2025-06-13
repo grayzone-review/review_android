@@ -53,6 +53,7 @@ import com.feature.comments.scene.contents.BeforeContentViewModel
 import com.feature.comments.scene.contents.SearchingContentViewModel
 import com.feature.comments.scene.contents.TagButtonData
 import com.feature.comments.scene.contents.TagButtonType
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 
 @Composable
 fun SearchScene(
@@ -86,8 +87,15 @@ fun SearchScene(
             searchUIState = searchUIState,
             onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, text = it) },
             onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) },
-            onClickRecentCompany = { },
-            onClickSearchedCompany = { }
+            onClickRecentCompany = { company -> 
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+            },
+            onClickSearchedCompany = { company -> 
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+            },
+            onClickSearchResultCompany = { company ->
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+            }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -212,7 +220,8 @@ fun Content(
     onClickRecentQuery: (String) -> Unit,
     onClickFilterButton: (TagButtonData) -> Unit,
     onClickRecentCompany: (Company) -> Unit,
-    onClickSearchedCompany: (SearchedCompany) -> Unit
+    onClickSearchedCompany: (SearchedCompany) -> Unit,
+    onClickSearchResultCompany: (SearchedCompany) -> Unit
 ) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 
@@ -236,7 +245,8 @@ fun Content(
             val viewModel: AfterContentViewModel = hiltViewModel()
             AfterContent(
                 viewModel = viewModel,
-                searchUIState = searchUIState
+                searchUIState = searchUIState,
+                onClickSearchResult = onClickSearchResultCompany
             )
         }
     }
