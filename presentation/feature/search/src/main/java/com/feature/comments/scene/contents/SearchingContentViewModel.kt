@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.Company
-import com.domain.entity.RecentCompany
 import com.domain.entity.SearchedCompany
 import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.SearchCompaniesUseCase
@@ -63,10 +62,8 @@ class SearchingContentViewModel @Inject constructor(
                         .split(",")
                         .filter { it.isNotBlank() }
                         .toMutableList()
-
-                    ids.remove(idToAdd) // 중복 제거
-                    ids.add(idToAdd) // 맨 뒤에 추가
-
+                    ids.remove(idToAdd)
+                    ids.add(idToAdd)
                     UpDataStoreService.recentCompanyIDs = ids.joinToString(",")
                 }
             }

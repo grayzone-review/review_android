@@ -25,7 +25,7 @@ internal object InternalSearchAPI: FeatureAPI {
         ) {
             composable(NavigationRouteConstant.searchSceneRoute) {
                 val viewModel = hiltViewModel<SearchViewModel>()
-                SearchScene(viewModel = viewModel, appBarViewModel = appBarViewModel)
+                SearchScene(viewModel = viewModel, appBarViewModel = appBarViewModel, navController = navController)
             }
         }
     }

@@ -43,7 +43,9 @@ import com.domain.entity.Company
 @Composable
 fun SearchingContent(
     viewModel: SearchingContentViewModel = hiltViewModel(),
-    searchUIState: SearchUIState
+    searchUIState: SearchUIState,
+    onRecentCompanyClick: (Company) -> Unit,
+    onSearchedCompanyClick: (SearchedCompany) -> Unit
 ) {
     val autocompletedCompanies by viewModel.autocompletedCompanies.collectAsState()
     val recentCompanies by viewModel.recentCompany.collectAsState()
@@ -60,6 +62,7 @@ fun SearchingContent(
         } else {
             RecentViewedCompanyList(
                 recentCompanies = recentCompanies,
+                onRecentCompanyClick = { onRecentCompanyClick(it) },
                 onRemoveClick = { viewModel.handleAction(DidTapRemoveRecentCompanyButton, recentCompany = it) }
             )
         }
@@ -70,7 +73,10 @@ fun SearchingContent(
             SearchedCompanyList(
                 searchUIState = searchUIState,
                 searchedCompanies = autocompletedCompanies,
-                onClickSearchedCompanyItem = { viewModel.handleAction(DidTapSearchedCompanyItem, searchedCompany = it) }
+                onSearchedCompanyClick = {
+                    viewModel.handleAction(DidTapSearchedCompanyItem, searchedCompany = it)
+                    onSearchedCompanyClick(it)
+                }
             )
         }
     }
@@ -99,6 +105,7 @@ private fun EmptyView(searchingContent: SearchingContent) {
 @Composable
 private fun RecentViewedCompanyList(
     recentCompanies: List<Company>,
+    onRecentCompanyClick: (Company) -> Unit,
     onRemoveClick: (Company) -> Unit
 ) {
     LazyColumn(
@@ -109,6 +116,7 @@ private fun RecentViewedCompanyList(
         items(recentCompanies) { recentCompany ->
             RecentCompanyItem(
                 company = recentCompany,
+                onRecentCompanyClick = { onRecentCompanyClick(recentCompany) },
                 onRemoveClick = { onRemoveClick(recentCompany) }
             )
         }
@@ -118,12 +126,14 @@ private fun RecentViewedCompanyList(
 @Composable
 fun RecentCompanyItem(
     company: Company,
+    onRecentCompanyClick: () -> Unit,
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .clickable { onRecentCompanyClick() }
             .drawBehind {
                 val strokeWidth = 1.dp.toPx()
                 val yTop = 0f
@@ -182,7 +192,7 @@ fun RecentCompanyItem(
 private fun SearchedCompanyList(
     searchUIState: SearchUIState,
     searchedCompanies: List<SearchedCompany>,
-    onClickSearchedCompanyItem: (SearchedCompany) -> Unit
+    onSearchedCompanyClick: (SearchedCompany) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -193,7 +203,7 @@ private fun SearchedCompanyList(
             SearchedCompanyItem(
                 searchUIState = searchUIState,
                 searchedCompany = searchedCompany,
-                onClickSearchedCompanyItem = { onClickSearchedCompanyItem(searchedCompany) }
+                onSearchedCompanyClick = { onSearchedCompanyClick(searchedCompany) }
             )
         }
     }
@@ -203,12 +213,13 @@ private fun SearchedCompanyList(
 private fun SearchedCompanyItem(
     searchUIState: SearchUIState,
     searchedCompany: SearchedCompany,
-    onClickSearchedCompanyItem: () -> Unit,
+    onSearchedCompanyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .clickable { onSearchedCompanyClick() }
             .drawBehind {
                 val strokeWidth = 1.dp.toPx()
                 val yTop = 0f
@@ -227,8 +238,7 @@ private fun SearchedCompanyItem(
                     strokeWidth = strokeWidth
                 )
             }
-            .padding(vertical = 20.dp)
-            .clickable { onClickSearchedCompanyItem() },
+            .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(

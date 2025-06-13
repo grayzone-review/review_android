@@ -45,6 +45,9 @@ import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.SearchLineIcon
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.domain.entity.Company
+import com.domain.entity.SearchedCompany
 import com.feature.comments.scene.contents.AfterContentViewModel
 import com.feature.comments.scene.contents.BeforeContentViewModel
 import com.feature.comments.scene.contents.SearchingContentViewModel
@@ -54,7 +57,8 @@ import com.feature.comments.scene.contents.TagButtonType
 @Composable
 fun SearchScene(
     viewModel: SearchViewModel,
-    appBarViewModel: AppBarViewModel
+    appBarViewModel: AppBarViewModel,
+    navController: NavController
 ) {
     val focusManager = LocalFocusManager.current
     val searchUIState by viewModel.searchUIState.collectAsState()
@@ -81,7 +85,9 @@ fun SearchScene(
         Content(
             searchUIState = searchUIState,
             onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, text = it) },
-            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) }
+            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) },
+            onClickRecentCompany = { },
+            onClickSearchedCompany = { }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -204,7 +210,9 @@ fun searchDecorationBox(
 fun Content(
     searchUIState: SearchUIState,
     onClickRecentQuery: (String) -> Unit,
-    onClickFilterButton: (TagButtonData) -> Unit
+    onClickFilterButton: (TagButtonData) -> Unit,
+    onClickRecentCompany: (Company) -> Unit,
+    onClickSearchedCompany: (SearchedCompany) -> Unit
 ) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 
@@ -219,7 +227,9 @@ fun Content(
             val viewModel: SearchingContentViewModel = hiltViewModel()
             SearchingContent(
                 viewModel = viewModel,
-                searchUIState = searchUIState
+                searchUIState = searchUIState,
+                onRecentCompanyClick = { onClickRecentCompany(it) },
+                onSearchedCompanyClick = { onClickSearchedCompany(it) }
             ) 
         }
         SearchPhase.After -> { 
