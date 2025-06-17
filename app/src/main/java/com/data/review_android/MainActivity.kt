@@ -13,9 +13,15 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -34,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -43,6 +50,7 @@ import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
 import com.data.review_android.ui.theme.Typography
+import com.data.storage.datastore.UpDataStoreService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.vectormap.KakaoMapSdk
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
@@ -69,6 +77,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         KakaoMapSdk.init(this, nativeAppKey)
+        UpDataStoreService.init(context = applicationContext)
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)
         val dimView = findViewById<FrameLayout>(R.id.dimView)
@@ -86,29 +95,41 @@ class MainActivity : ComponentActivity() {
             ReviewAndroidTheme {
                 val navController = rememberNavController()
                 val appBarViewModel: AppBarViewModel = hiltViewModel()
+                val appBarState by appBarViewModel.appBarState.collectAsState()
 
                 Scaffold(
                     topBar = {
-                        val appBarState by appBarViewModel.appBarState.collectAsState()
-                        DefaultTopAppBar(
-                            title = appBarState.title,
-                            navigationIcon = {
-                                if (appBarState.showBackButton) {
-                                    IconButton1(onClick = { navController.navigateUp() }) {
-                                        BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90)
+                        AnimatedVisibility(
+                            visible = appBarState.isVisible,
+                            enter = slideInVertically(
+                                initialOffsetY = { -it }, // 위에서 아래로 슬라이드 인
+                                animationSpec = tween(durationMillis = 300)
+                            ),
+                            exit = slideOutVertically(
+                                targetOffsetY = { -it }, // 아래에서 위로 슬라이드 아웃
+                                animationSpec = tween(durationMillis = 300)
+                            )
+                        ) {
+                            DefaultTopAppBar(
+                                title = appBarState.title,
+                                navigationIcon = {
+                                    if (appBarState.showBackButton) {
+                                        IconButton1(onClick = { navController.navigateUp() }) {
+                                            BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90)
+                                        }
                                     }
-                                }
-                            },
-                            actions = {
-                                appBarState.actions.forEach { action ->
-                                    action.icon?.let { icon ->
-                                        IconButton1(onClick = action.onClick) {
-                                            Icon(icon, action.contentDescription)
+                                },
+                                actions = {
+                                    appBarState.actions.forEach { action ->
+                                        action.icon?.let { icon ->
+                                            IconButton1(onClick = action.onClick) {
+                                                Icon(icon, action.contentDescription)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 ) { paddingValues ->
                     App(
@@ -160,7 +181,7 @@ fun App(
         AppNavGraph(
             navController = navHostController,
             navigationProvider = navigationProvider,
-            appBarViewModel = appBarViewModel // 업데이트
+            appBarViewModel = appBarViewModel
         )
     }
 }

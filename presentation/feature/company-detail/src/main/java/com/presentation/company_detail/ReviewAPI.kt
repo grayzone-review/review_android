@@ -9,7 +9,7 @@ import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailSce
 import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import common_ui.FeatureAPI
-import com.team.common.feature_api.navigation_constant.ReviewDetailFeature
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 
 interface ReviewAPI: FeatureAPI { }
 
@@ -20,10 +20,10 @@ internal object InternalReviewAPI: FeatureAPI {
         appBarViewModel: AppBarViewModel
     ) {
         navGraphBuilder.navigation(
-            startDestination = ReviewDetailFeature.reviewDetailSceneRoute,
-            route = ReviewDetailFeature.nestedRoute
+            startDestination = NavigationRouteConstant.reviewDetailSceneRoute,
+            route = NavigationRouteConstant.reviewDetailNestedRoute
         ) {
-            composable(ReviewDetailFeature.reviewDetailSceneRoute) {
+            composable(NavigationRouteConstant.reviewDetailSceneRoute) {
                 val viewModel = hiltViewModel<ReviewDetailViewModel>()
                 ReviewDetailScene(viewModel = viewModel, appBarViewModel = appBarViewModel)
             }
@@ -37,5 +37,4 @@ class ReviewAPIImpl: ReviewAPI {
             navController, navGraphBuilder, appBarViewModel
         )
     }
-
 }

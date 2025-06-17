@@ -35,8 +35,9 @@ import preset_ui.icons.StarFilled
 @Composable
 fun ReviewDetailScene(
     viewModel: ReviewDetailViewModel,
-    appBarViewModel: AppBarViewModel  // 추가
+    appBarViewModel: AppBarViewModel
 ) {
+    val uiState = viewModel.uiState
     // 화면 진입 시 AppBar 상태 변경
     LaunchedEffect(Unit) {
         appBarViewModel.updateAppBarState(
@@ -53,14 +54,15 @@ fun ReviewDetailScene(
             )
         )
     }
-    Content(viewModel)
-    CommentBottomSheet(viewModel)
+    Content(viewModel = viewModel, detailUIState = uiState)
+    CommentBottomSheet(detailUIState = uiState)
 }
 
 @Composable
-fun Content(viewModel: ReviewDetailViewModel) {
+fun Content(viewModel: ReviewDetailViewModel, detailUIState: DetailUIState) {
     val listState = rememberLazyListState()
     val localContext = LocalContext.current
+    
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -69,7 +71,7 @@ fun Content(viewModel: ReviewDetailViewModel) {
         item { StarRating(Modifier.padding(top = 16.dp)) }
         item {
             ProfileActionButtons(
-                isFollowing   = viewModel.isFollowingCompany,
+                isFollowing   = detailUIState.isFollowingCompany,
                 onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
                 onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
                 modifier      = Modifier.padding(top = 20.dp)
@@ -78,12 +80,12 @@ fun Content(viewModel: ReviewDetailViewModel) {
         item { CompanyLocationMap(Modifier.padding(top = 20.dp)) }
         item { GraySpacer(Modifier.padding(top = 20.dp)) }
         itemsIndexed(
-            items = viewModel.reviews.toList(),
+            items = detailUIState.reviews,
             key   = { _, item -> item.id }
         ) { index, reviewItem ->
             ReviewCard(
                 review = reviewItem,
-                isFullMode = viewModel.isFullModeList[index],
+                isFullMode = detailUIState.isFullModeList[index],
                 onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
                 onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
                 onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },

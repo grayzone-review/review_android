@@ -62,6 +62,7 @@ import preset_ui.CSSpacerHorizontal
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.domain.entity.Comment
 import com.domain.entity.Reply
+import com.presentation.company_detail.Scene.review_detail_scene.DetailUIState
 import preset_ui.icons.CloseLine
 import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
@@ -71,15 +72,15 @@ import preset_ui.icons.Sendable
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CommentBottomSheet(
-    viewModel: ReviewDetailViewModel,
+    detailUIState: DetailUIState,
     commentViewModel: CommentBottomSheetViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val inputState by commentViewModel.commentInputState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(viewModel.showBottomSheet) {
-        if (viewModel.showBottomSheet) {
+    LaunchedEffect(detailUIState.showBottomSheet) {
+        if (detailUIState.showBottomSheet) {
             commentViewModel.handleAction(DidAppear)
             BottomSheetHelper.setContent {
                 Box(

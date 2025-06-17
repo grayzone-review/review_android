@@ -2,7 +2,7 @@ package com.data.review_android.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import com.team.common.feature_api.navigation_constant.ReviewDetailFeature
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import androidx.navigation.compose.NavHost
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 
@@ -14,7 +14,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = ReviewDetailFeature.nestedRoute
+        startDestination = NavigationRouteConstant.searchNestedRoute
     ) {
         navigationProvider.reviewAPI.registerGraph(
             navController = navController,
@@ -22,6 +22,10 @@ fun AppNavGraph(
             appBarViewModel = appBarViewModel
         )
 
-        // 컴포저블 해서 다 정의해주고 네비게이션 넘기기
+        navigationProvider.searchAPI.registerGraph(
+            navController = navController,
+            navGraphBuilder = this,
+            appBarViewModel = appBarViewModel
+        )
     }
 }

@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":data:dto"))
     implementation(Deps.coreKtx)
 
     implementation(DaggerHilt.hilt)

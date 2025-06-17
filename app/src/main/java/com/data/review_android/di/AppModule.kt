@@ -3,6 +3,7 @@ package com.data.review_android.di
 import android.content.Context
 import com.data.review_android.R
 import com.data.review_android.navigation.NavigationProvider
+import com.feature.comments.SearchAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,8 +24,13 @@ object AppModule {
     }
 
     @Provides
-    fun provideNavigationProvider(reviewAPI: ReviewAPI): NavigationProvider {
-        return NavigationProvider(reviewAPI)
+    fun provideNavigationProvider(
+        reviewAPI: ReviewAPI,
+        searchAPI: SearchAPI
+    ): NavigationProvider {
+        return NavigationProvider(
+            reviewAPI = reviewAPI,
+            searchAPI = searchAPI
+        )
     }
-
 }

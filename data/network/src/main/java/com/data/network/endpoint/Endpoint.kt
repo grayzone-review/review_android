@@ -2,15 +2,19 @@ package com.data.network.endpoint
 
 object Endpoint {
     object Host {
-        const val baseURL           = "https://api.themoviedb.org/3/"
+        const val baseURL = "http://10.0.2.2:8080"
     }
 
     object Path {
-        const val SEARCH_MOVIE      = "3/search/movie"
+        const val SEARCH = "/api/companies/search"
+        const val COMPANY_INFO = "/api/companies/{companyID}"
     }
 
     object Query {
-        const val api_key       = "api_key"
-        const val query         = "query"
+        const val KEYWORD       = "keyword"
+        const val LATITUDE      = "latitude"
+        const val LONGITUDE     = "longitude"
+        const val SIZE          = "size"
+        const val PAGE          = "page"
     }
 }

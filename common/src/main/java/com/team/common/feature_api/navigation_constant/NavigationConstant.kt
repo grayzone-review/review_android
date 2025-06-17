@@ -1,6 +1,9 @@
 package com.team.common.feature_api.navigation_constant
 
-object ReviewDetailFeature {
-    const val nestedRoute = "reviewdetail_nested_route"
-    const val reviewDetailSceneRoute = "reviewdetail_scene_route"
+object NavigationRouteConstant {
+    const val reviewDetailNestedRoute = "reviewdetail_nested_route"
+    const val reviewDetailSceneRoute = "reviewdetail_scene_route/{companyId}"
+
+    const val searchNestedRoute = "search_nested_route"
+    const val searchSceneRoute = "search_scene_route"
 }

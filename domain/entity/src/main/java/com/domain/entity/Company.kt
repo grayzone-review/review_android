@@ -1,13 +1,14 @@
 package com.domain.entity
 
 data class Company(
-    val companyName: String,
-    val following: Boolean,
     val id: Int,
+    val companyName: String,
     val permissionDate: String,
-    val roadNameAddress: String,
     val siteFullAddress: String,
+    val roadNameAddress: String,
+    val latitude: Double,
+    val longitude: Double,
     val totalRating: Double,
-    val xCoordinate: Double,
-    val yCoordinate: Double
+    val following: Boolean
 )
+

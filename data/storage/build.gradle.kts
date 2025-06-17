@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = AppConfig.NameSpace.comments
-    compileSdk = AppConfig.compileSdk
+    namespace = "com.data.storage"
+    compileSdk = 35
 
     defaultConfig {
-        minSdk = AppConfig.minSdk
+        minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -24,16 +24,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = AppConfig.javaVersion
-        targetCompatibility = AppConfig.javaVersion
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = AppConfig.jvmTarget
+        jvmTarget = "11"
     }
 }
 
 dependencies {
+
     implementation(Deps.coreKtx)
-    implementation(Deps.appcompat)
-    implementation(Deps.material3)
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 }

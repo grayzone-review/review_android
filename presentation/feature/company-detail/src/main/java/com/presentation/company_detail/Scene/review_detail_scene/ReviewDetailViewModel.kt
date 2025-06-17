@@ -11,6 +11,13 @@ import com.domain.entity.Review
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+data class DetailUIState(
+    val reviews: List<Review> = emptyList(),
+    val isFullModeList: List<Boolean> = emptyList(),
+    val isFollowingCompany: Boolean = false,
+    val showBottomSheet: Boolean = false
+)
+
 @HiltViewModel
 class ReviewDetailViewModel @Inject constructor() : ViewModel() {
     enum class Action {
@@ -21,48 +28,52 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
         DidTapCommentButton,
         DidCloseBottomSheet
     }
-    var reviews = mutableStateListOf<Review>()
-        private set
-    var isFullModeList = mutableStateListOf<Boolean>()
-        private set
-    var isFollowingCompany by mutableStateOf(false) // 제거대상
-        private set
-    var showBottomSheet by mutableStateOf(false)
-        private set
+
+    private var _uiState by mutableStateOf(DetailUIState())
+    val uiState: DetailUIState get() = _uiState
 
     fun handleAction(action: Action, index: Int? = null) {
         when (action) {
             Action.DidTapFollowCompanyButton -> {
-                isFollowingCompany = !isFollowingCompany
+                _uiState = _uiState.copy(
+                    isFollowingCompany = !_uiState.isFollowingCompany
+                )
             }
             Action.DidTapWriteReviewButton -> {
                 Log.d("버튼탭", "리뷰 버튼이 탭 되었음")
             }
             Action.DidTapLikeReviewButton -> {
                 index?.let {
-                    reviews[index] = reviews[index].copy(
-                        liked = !reviews[index].liked,
-                        likeCount = (if (reviews[index].liked)
-                            reviews[index].likeCount - 1
+                    val updatedReviews = _uiState.reviews.toMutableList()
+                    updatedReviews[index] = updatedReviews[index].copy(
+                        liked = !updatedReviews[index].liked,
+                        likeCount = (if (updatedReviews[index].liked)
+                            updatedReviews[index].likeCount - 1
                         else
-                            reviews[index].likeCount + 1).coerceAtLeast(0)
+                            updatedReviews[index].likeCount + 1).coerceAtLeast(0)
                     )
+                    _uiState = _uiState.copy(reviews = updatedReviews)
                 }
             }
             Action.DidTapReviewCard -> {
                 index?.let {
-                    isFullModeList[index] = !isFullModeList[index]
+                    val updatedFullModeList = _uiState.isFullModeList.toMutableList()
+                    updatedFullModeList[index] = !updatedFullModeList[index]
+                    _uiState = _uiState.copy(isFullModeList = updatedFullModeList)
                 }
             }
             Action.DidTapCommentButton, Action.DidCloseBottomSheet -> {
-                showBottomSheet = !showBottomSheet
+                _uiState = _uiState.copy(showBottomSheet = !_uiState.showBottomSheet)
             }
         }
     }
 
     init {
-        reviews.addAll(generateMockReviews())
-        repeat(reviews.size) { isFullModeList.add(false) }
+        val mockReviews = generateMockReviews()
+        _uiState = DetailUIState(
+            reviews = mockReviews,
+            isFullModeList = List(mockReviews.size) { false }
+        )
     }
 
     private fun generateMockReviews(): List<Review> = List(15) { idx ->

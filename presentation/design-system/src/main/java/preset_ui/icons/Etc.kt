@@ -123,3 +123,145 @@ fun BackBarButtonIcon(
         tint = tint
     )
 }
+
+@Composable
+fun SearchLineIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    tint: Color
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.search_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+@Composable
+fun CloseFillIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.close_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun AroundIcon(
+    isOn: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (isOn) com.presentation.design_system.R.drawable.around_on else com.presentation.design_system.R.drawable.around_off
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun InterestIcon(
+    isOn: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (isOn)
+        com.presentation.design_system.R.drawable.interest_on
+    else
+        com.presentation.design_system.R.drawable.interest_off
+
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun MytownIcon(
+    isOn: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (isOn)
+        com.presentation.design_system.R.drawable.mytown_on
+    else
+        com.presentation.design_system.R.drawable.mytown_off
+
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun InfoIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.info_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun ClockIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    tint: Color
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.clock_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+@Composable
+fun FollowPersonOnIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.follow_person_on),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun FollowAddOffIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.follow_add_off),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
