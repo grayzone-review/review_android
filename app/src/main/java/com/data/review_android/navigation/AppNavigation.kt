@@ -16,22 +16,8 @@ fun AppNavGraph(
         navController = navController,
         startDestination = NavigationRouteConstant.mainNestedRoute
     ) {
-        navigationProvider.mainAPI.registerGraph(
-            navController = navController,
-            navGraphBuilder = this,
-            appBarViewModel = appBarViewModel
-        )
-
-        navigationProvider.reviewAPI.registerGraph(
-            navController = navController,
-            navGraphBuilder = this,
-            appBarViewModel = appBarViewModel
-        )
-
-        navigationProvider.searchAPI.registerGraph(
-            navController = navController,
-            navGraphBuilder = this,
-            appBarViewModel = appBarViewModel
-        )
+        navigationProvider.mainAPI.registerGraph(navController, this, appBarViewModel)
+        navigationProvider.reviewAPI.registerGraph(navController, this, appBarViewModel)
+        navigationProvider.searchAPI.registerGraph(navController, this, appBarViewModel)
     }
 }
