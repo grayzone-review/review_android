@@ -6,4 +6,7 @@ object NavigationRouteConstant {
 
     const val searchNestedRoute = "search_nested_route"
     const val searchSceneRoute = "search_scene_route"
+
+    const val mainNestedRoute = "main_nested_route"
+    const val mainSceneRoute = "main_scene_route"
 }
