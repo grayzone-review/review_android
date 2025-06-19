@@ -1,5 +1,7 @@
 package create_review_dialog
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,7 +13,10 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,6 +25,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
+import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import create_review_dialog.contents.FirstContent
 import create_review_dialog.contents.SecondContent
@@ -63,6 +69,8 @@ private fun content(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 20.dp)
         ) {
+            StepProgressBar(currentStep = uiState.phase.step, totalStep = 3)
+
             when (uiState.phase) {
                 CreateReviewPhase.First -> {
                     FirstContent(
@@ -72,8 +80,14 @@ private fun content(
                         updateJobRole = { viewModel.handleAction(UpdateJobRole, value = it) }
                     )
                 }
-                CreateReviewPhase.Second -> { SecondContent() }
-                CreateReviewPhase.Third -> { ThirdContent() }
+
+                CreateReviewPhase.Second -> {
+                    SecondContent()
+                }
+
+                CreateReviewPhase.Third -> {
+                    ThirdContent()
+                }
             }
         }
         ReviewDialogButtons(
@@ -149,3 +163,60 @@ private fun ReviewDialogButtons(
     }
 }
 
+
+@Composable
+fun StepProgressBar(
+    currentStep: Int,
+    totalStep: Int,
+    modifier: Modifier = Modifier
+) {
+    val progress = (currentStep.coerceAtLeast(0)
+        .coerceAtMost(totalStep))
+        .toFloat() / totalStep.coerceAtLeast(1)
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(durationMillis = 300),
+        label = "stepProgress"
+    )
+
+    val barHeight = 6.dp
+    val startColor = Color(0xFFFF9573)
+    val endColor   = Color(0xFFFF6E40)
+    val background = CS.Gray.G10
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.height(12.dp))
+        /* ─── 프로그레스 바 ─────────────────────── */
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(barHeight)
+                .clip(RoundedCornerShape(barHeight / 2))
+                .background(background)
+        ) {
+            // 프로그레스 내부
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(animatedProgress)   // 0f‒1f
+                    .clip(RoundedCornerShape(barHeight / 2))
+                    .background(
+                        Brush
+                            .horizontalGradient(listOf(startColor, endColor))
+                    )
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment     = Alignment.CenterVertically
+        ) {
+            Text(text = currentStep.toString(), style = Typography.captionBold, color = CS.PrimaryOrange.O40)
+            Text(text = "/",                    style = Typography.captionBold, color = CS.Gray.G50)
+            Text(text = totalStep.toString(),   style = Typography.captionBold, color = CS.Gray.G50)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}

@@ -18,6 +18,13 @@ enum class CreateReviewPhase {
     Third
 }
 
+val CreateReviewPhase.step: Int
+    get() = when (this) {
+        CreateReviewPhase.First -> 1
+        CreateReviewPhase.Second -> 2
+        CreateReviewPhase.Third -> 3
+    }
+
 data class CreateReviewUIState(
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     val company: Company? = null,
