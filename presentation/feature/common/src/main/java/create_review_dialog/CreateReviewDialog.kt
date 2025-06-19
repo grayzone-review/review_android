@@ -27,9 +27,10 @@ import create_review_dialog.contents.SecondContent
 import create_review_dialog.contents.ThirdContent
 import create_review_dialog.CreateReviewDialogViewModel.Action.*
 import create_review_dialog.sheet_contents.InputContainer
-import create_review_dialog.sheet_contents.InputField
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
+import create_review_dialog.type.InputField
+import create_review_dialog.type.sheetPartially
 import create_review_dialog.type.step
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -288,7 +289,9 @@ fun InputBottomSheet(
 ) {
     if (bottomSheetState !is BottomSheetState.Visible) return
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = bottomSheetState.field.inputType.sheetPartially
+    )
     val scope = rememberCoroutineScope()
 
     ModalBottomSheet(

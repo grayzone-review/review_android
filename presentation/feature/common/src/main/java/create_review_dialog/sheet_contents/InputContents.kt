@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,31 +19,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import create_review_dialog.BottomSheetState
 import create_review_dialog.CreateReviewUIState
+import create_review_dialog.type.InputContentType
+import create_review_dialog.type.InputField
+import create_review_dialog.type.minMax
+import create_review_dialog.type.title
 import preset_ui.icons.ReviewCheckLine
-
-enum class InputContentType {
-    Company, Text, Period
-}
-
-sealed class InputField(val inputType: InputContentType) {
-    data object Company: InputField(inputType = InputContentType.Company)
-    data object JobRole: InputField(InputContentType.Text)
-    data object EmploymentPeriod: InputField(InputContentType.Period)
-    data object Advantage: InputField(InputContentType.Text)
-    data object Disadvantage: InputField(InputContentType.Text)
-    data object ManagementFeedback: InputField(InputContentType.Text)
-}
-
-val InputField.title: String
-    get() = when (this) {
-        InputField.Company            -> "상호명"
-        InputField.JobRole            -> "업무 내용"
-        InputField.EmploymentPeriod   -> "근무 기간"
-        InputField.Advantage          -> "기업의 장점"
-        InputField.Disadvantage       -> "기업의 단점"
-        InputField.ManagementFeedback -> "경영진에게 한마디"
-    }
 
 enum class WorkPeriod(val label: String) {
     UNDER_1_YEAR("1년 미만"),
@@ -51,7 +35,6 @@ enum class WorkPeriod(val label: String) {
     MORE_4_YEARS("4년 이상"),
     MORE_5_YEARS("5년 이상")
 }
-
 
 @Composable
 fun InputContainer(
@@ -70,8 +53,23 @@ fun InputContainer(
             InputContentType.Company -> {
                 CompanyContent()
             }
+
             InputContentType.Text -> {
-                TextContent()
+                val text = when (inputField) {
+                    InputField.JobRole -> uiState.jobRole
+                    InputField.Advantage -> uiState.advantagePoint
+                    InputField.Disadvantage -> uiState.disadvantagePoint
+                    InputField.ManagementFeedback -> uiState.managementFeedBack
+                    else -> ""
+                }
+
+                TextContent(
+                    text = text,
+                    onTextChange = { },
+                    onSave = { },
+                    minChars = inputField.minMax.first,
+                    maxChars = inputField.minMax.last
+                )
             }
             InputContentType.Period -> {
                 PeriodContent(
@@ -102,9 +100,61 @@ fun CompanyContent() {
 }
 
 @Composable
-fun TextContent() {
+fun TextContent(
+    text: String,
+    onTextChange: (String) -> Unit,
+    onSave: () -> Unit,
+    minChars: Int,
+    maxChars: Int
+) {
+    val savable = text.length in minChars..maxChars
 
+    Column(
+
+    ) {
+        // ── 입력 영역 ────────────────────────────
+        BasicTextField(
+            value = text,
+            onValueChange = { if (it.length <= maxChars) onTextChange(it) },
+            textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .padding(top = 20.dp),
+            decorationBox = { inner ->
+                if (text.isEmpty()) {
+                    Text(
+                        text = "담당하신 역할을 입력해주세요 ex) 서빙",
+                        style = Typography.body1Regular,
+                        color = CS.Gray.G50
+                    )
+                } else inner()
+            }
+        )
+
+        // ── 하단 정보 + 저장 ─────────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp, horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${text.length}/${minChars}자 - ${maxChars}자",
+                style = Typography.captionRegular,
+                color = CS.Gray.G70
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "저장",
+                style = Typography.body1Bold,
+                color = if (savable) CS.PrimaryOrange.O40 else CS.PrimaryOrange.O20,
+                modifier = Modifier.clickable(enabled = savable) { onSave() }
+            )
+        }
+    }
 }
+
 
 @Composable
 fun PeriodContent(

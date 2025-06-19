@@ -7,9 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.Company
 import com.domain.entity.Ratings
-import create_review_dialog.sheet_contents.InputField
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
+import create_review_dialog.type.InputField
 import create_review_dialog.type.next
 import create_review_dialog.type.prev
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +36,9 @@ data class CreateReviewUIState(
     val advantagePoint: String = "",
     val disadvantagePoint: String = "",
     val managementFeedBack: String = ""
-)
+) {
+
+}
 
 @HiltViewModel
 class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
