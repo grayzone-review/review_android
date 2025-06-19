@@ -4,16 +4,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.domain.entity.Company
 import com.domain.entity.Ratings
 import create_review_dialog.sheet_contents.InputField
+import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
 import create_review_dialog.type.next
 import create_review_dialog.type.prev
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -27,7 +31,7 @@ data class CreateReviewUIState(
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     val company: Company? = null,
     val jobRole: String = "",
-    val employmentPeriod: String = "",
+    val employmentPeriod: WorkPeriod? = null,
     val rating: Ratings? = null,
     val advantagePoint: String = "",
     val disadvantagePoint: String = "",
@@ -42,7 +46,8 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
         DidTapPreviousButton,
         DidTapSubmitButton,
         DidTapTextField,
-        SheetDismissed
+        SheetDismissed,
+        UpdateEmploymentPeriod
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -76,6 +81,14 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
             Action.SheetDismissed -> {
                 _uiState.update { state ->
                     state.copy(bottomSheetState = BottomSheetState.Hidden)
+                }
+            }
+            Action.UpdateEmploymentPeriod -> {
+                val field = value as? WorkPeriod ?: return
+                viewModelScope.launch {
+                    _uiState.update { state -> state.copy(employmentPeriod = field) }
+                    delay(300)
+                    _uiState.update { state -> state.copy(bottomSheetState = BottomSheetState.Hidden) }
                 }
             }
         }

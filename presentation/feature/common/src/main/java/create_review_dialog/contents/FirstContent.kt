@@ -1,6 +1,7 @@
 package create_review_dialog.contents
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -79,14 +81,13 @@ fun TextFields(
     ) {
         Text("근무 기간", style = Typography.h3, color = CS.Gray.G90)
         SimpleTextFieldButton(
-            value = uiState.employmentPeriod,
+            value = uiState.employmentPeriod?.label ?: "",
             placeholder = "근무 기간을 선택해주세요",
             selectableMark = true,
             onClick = { onPeriodClick() }
         )
     }
 }
-
 
 @Composable
 fun SimpleTextFieldButton(
@@ -102,7 +103,6 @@ fun SimpleTextFieldButton(
             .fillMaxWidth()
             .heightIn(min = 52.dp)
             .clickable(onClick = onClick)
-            // 하단 1 dp 라인
             .drawBehind {
                 val y = size.height - 1.dp.toPx()
                 drawLine(
@@ -127,6 +127,8 @@ fun SimpleTextFieldButton(
                 ) {
                     if (value.isEmpty()) {
                         Text(text = placeholder, style = textStyle, color = CS.Gray.G50)
+                    } else {
+                        innerTextField()
                     }
 
                     if (selectableMark) {

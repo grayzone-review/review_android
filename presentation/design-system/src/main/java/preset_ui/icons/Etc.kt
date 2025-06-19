@@ -280,3 +280,18 @@ fun ArrowDownIcon(
         tint = tint
     )
 }
+
+@Composable
+fun ReviewCheckLine(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.review_check_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}

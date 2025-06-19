@@ -28,6 +28,7 @@ import create_review_dialog.contents.ThirdContent
 import create_review_dialog.CreateReviewDialogViewModel.Action.*
 import create_review_dialog.sheet_contents.InputContainer
 import create_review_dialog.sheet_contents.InputField
+import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
 import create_review_dialog.type.step
 
@@ -56,8 +57,10 @@ private fun content(
     val scrollState = rememberScrollState()
 
     InputBottomSheet(
+        uiState = uiState,
         bottomSheetState = uiState.bottomSheetState,
-        onDismissRequest = { viewModel.handleAction(SheetDismissed) }
+        onDismissRequest = { viewModel.handleAction(SheetDismissed) },
+        onSelectPeriodItem = { viewModel.handleAction(UpdateEmploymentPeriod, it) }
     )
     Column(
         modifier = Modifier
@@ -77,9 +80,7 @@ private fun content(
                 CreateReviewPhase.First -> {
                     FirstContent(
                         uiState = uiState,
-                        onCompanyClick = {
-                            viewModel.handleAction(DidTapTextField, InputField.Company)
-                                         },
+                        onCompanyClick = { viewModel.handleAction(DidTapTextField, InputField.Company) },
                         onJobRoleClick = { viewModel.handleAction(DidTapTextField, InputField.JobRole)},
                         onPeriodClick = { viewModel.handleAction(DidTapTextField, InputField.EmploymentPeriod) },
                     )
@@ -278,8 +279,10 @@ fun StepProgressBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputBottomSheet(
+    uiState: CreateReviewUIState,
     bottomSheetState: BottomSheetState,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    onSelectPeriodItem: (WorkPeriod) -> Unit
 ) {
     when (bottomSheetState) {
         BottomSheetState.Hidden -> return
@@ -287,7 +290,7 @@ fun InputBottomSheet(
         is BottomSheetState.Visible -> {
             val field = bottomSheetState.field
             val sheetState = rememberModalBottomSheetState(
-                skipPartiallyExpanded = false
+                skipPartiallyExpanded = true
             )
 
             ModalBottomSheet(
@@ -296,7 +299,10 @@ fun InputBottomSheet(
                 dragHandle = { BottomSheetDefaults.HiddenShape }
             ) {
                 InputContainer(
-                    inputField = field
+                    uiState = uiState,
+                    inputField = field,
+                    onSelectPeriodItem =  { onSelectPeriodItem(it) },
+                    onCloseButtonClick = { onDismissRequest }
                 )
             }
         }
