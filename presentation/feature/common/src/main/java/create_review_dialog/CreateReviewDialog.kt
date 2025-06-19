@@ -3,6 +3,7 @@ package create_review_dialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -18,10 +19,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import colors.CS
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import create_review_dialog.contents.FirstContent
 import create_review_dialog.contents.SecondContent
 import create_review_dialog.contents.ThirdContent
+import create_review_dialog.CreateReviewDialogViewModel.Action.*
 
 @Composable
 fun CreateReviewDialog(
@@ -51,18 +54,33 @@ private fun content(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(color = CS.Gray.White)
     ) {
         DefaultTopAppBar(title = "리뷰작성")
-        when (uiState.phase) {
-            CreateReviewPhase.First -> { FirstContent() }
-            CreateReviewPhase.Second -> { SecondContent() }
-            CreateReviewPhase.Third -> { ThirdContent() }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp)
+        ) {
+            when (uiState.phase) {
+                CreateReviewPhase.First -> {
+                    FirstContent(
+                        uiState = uiState,
+                        onCompanyClick = { },
+                        onPeriodClick = { },
+                        updateJobRole = { viewModel.handleAction(UpdateJobRole, value = it) }
+                    )
+                }
+                CreateReviewPhase.Second -> { SecondContent() }
+                CreateReviewPhase.Third -> { ThirdContent() }
+            }
         }
-
         ReviewDialogButtons(
             phase = uiState.phase, onNext = { }, onBack = { }, onSubmit = { }
         )
     }
+
 }
 
 @Composable
@@ -76,12 +94,28 @@ private fun ReviewDialogButtons(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 20.dp, top = 5.dp),
         horizontalArrangement = Arrangement.End
     ) {
+        val shape = RoundedCornerShape(8.dp)
+        val nextAndSubmitColor = ButtonDefaults.buttonColors(
+            containerColor = CS.PrimaryOrange.O40,
+            contentColor = CS.Gray.White,
+            disabledContainerColor = CS.PrimaryOrange.O20,
+            disabledContentColor = CS.Gray.White
+        )
+
         when (phase) {
             CreateReviewPhase.First -> {
-                Button(onClick = onNext) {
+                Button(
+                    onClick = onNext,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = shape,
+                    colors = nextAndSubmitColor
+                ) {
                     Text("다음")
                 }
             }
@@ -91,7 +125,13 @@ private fun ReviewDialogButtons(
                     Text("이전")
                 }
                 Spacer(Modifier.width(12.dp))
-                Button(onClick = onNext) {
+                Button(
+                    onClick = onNext,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    shape = shape,
+                    colors = nextAndSubmitColor
+                ) {
                     Text("다음")
                 }
             }
