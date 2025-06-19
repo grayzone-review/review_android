@@ -26,6 +26,10 @@ import create_review_dialog.contents.FirstContent
 import create_review_dialog.contents.SecondContent
 import create_review_dialog.contents.ThirdContent
 import create_review_dialog.CreateReviewDialogViewModel.Action.*
+import create_review_dialog.sheet_contents.InputContainer
+import create_review_dialog.sheet_contents.InputField
+import create_review_dialog.type.CreateReviewPhase
+import create_review_dialog.type.step
 
 @Composable
 fun CreateReviewDialog(
@@ -51,6 +55,10 @@ private fun content(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
+    InputBottomSheet(
+        bottomSheetState = uiState.bottomSheetState,
+        onDismissRequest = { viewModel.handleAction(SheetDismissed) }
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -69,9 +77,11 @@ private fun content(
                 CreateReviewPhase.First -> {
                     FirstContent(
                         uiState = uiState,
-                        onCompanyClick = { },
-                        onPeriodClick = { },
-                        updateJobRole = { viewModel.handleAction(UpdateJobRole, value = it) }
+                        onCompanyClick = {
+                            viewModel.handleAction(DidTapTextField, InputField.Company)
+                                         },
+                        onJobRoleClick = { viewModel.handleAction(DidTapTextField, InputField.JobRole)},
+                        onPeriodClick = { viewModel.handleAction(DidTapTextField, InputField.EmploymentPeriod) },
                     )
                 }
 
@@ -80,7 +90,12 @@ private fun content(
                 }
 
                 CreateReviewPhase.Third -> {
-                    ThirdContent()
+                    ThirdContent(
+                        uiState = uiState,
+                        onAdvantagePointClick = { viewModel.handleAction(DidTapTextField, InputField.Advantage)},
+                        onDisadvantagePointClick = { viewModel.handleAction(DidTapTextField, InputField.Disadvantage) },
+                        onManagementFeedBackClick = { viewModel.handleAction(DidTapTextField, InputField.ManagementFeedback) }
+                    )
                 }
             }
         }
@@ -257,5 +272,33 @@ fun StepProgressBar(
             Text(text = totalStep.toString(),   style = Typography.captionBold, color = CS.Gray.G50)
         }
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InputBottomSheet(
+    bottomSheetState: BottomSheetState,
+    onDismissRequest: () -> Unit
+) {
+    when (bottomSheetState) {
+        BottomSheetState.Hidden -> return
+
+        is BottomSheetState.Visible -> {
+            val field = bottomSheetState.field
+            val sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = false
+            )
+
+            ModalBottomSheet(
+                onDismissRequest = onDismissRequest,
+                sheetState = sheetState,
+                dragHandle = { BottomSheetDefaults.HiddenShape }
+            ) {
+                InputContainer(
+                    inputField = field
+                )
+            }
+        }
     }
 }

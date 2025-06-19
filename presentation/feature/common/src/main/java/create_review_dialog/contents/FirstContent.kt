@@ -1,37 +1,23 @@
 package create_review_dialog.contents
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
-import com.example.presentation.designsystem.typography.Typography.body1Regular
 import create_review_dialog.CreateReviewUIState
 import preset_ui.icons.ArrowDownIcon
 
@@ -39,8 +25,8 @@ import preset_ui.icons.ArrowDownIcon
 fun FirstContent(
     uiState: CreateReviewUIState,
     onCompanyClick: () -> Unit,
-    onPeriodClick: () -> Unit,
-    updateJobRole: (String) -> Unit,
+    onJobRoleClick: () -> Unit,
+    onPeriodClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -50,7 +36,9 @@ fun FirstContent(
     ) {
         TextFields(
             uiState = uiState,
-            updateJobRole = { updateJobRole(it) }
+            onCompanyClick = onCompanyClick,
+            onJobRoleClick = onJobRoleClick,
+            onPeriodClick = onPeriodClick
         )
     }
 }
@@ -58,17 +46,19 @@ fun FirstContent(
 @Composable
 fun TextFields(
     uiState: CreateReviewUIState,
-    updateJobRole: (String) -> Unit,
+    onCompanyClick: () -> Unit,
+    onJobRoleClick: () -> Unit,
+    onPeriodClick: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text("상호명", style = Typography.h3, color = CS.Gray.G90)
-        SimpleField(
+        SimpleTextFieldButton(
             value = uiState.company?.companyName ?: "",
-            onValueChange = {},
             placeholder = "상호명을 입력해주세요",
-            selectableMark = true
+            selectableMark = true,
+            onClick = { onCompanyClick() }
         )
     }
 
@@ -76,11 +66,11 @@ fun TextFields(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text("업무 내용", style = Typography.h3, color = CS.Gray.G90)
-        SimpleField(
+        SimpleTextFieldButton(
             value = uiState.jobRole,
-            onValueChange = updateJobRole,
             placeholder = "담당하신 역할을 입력해주세요 (ex. 서빙)",
-            selectableMark = false
+            selectableMark = false,
+            onClick = { onJobRoleClick() }
         )
     }
 
@@ -88,69 +78,63 @@ fun TextFields(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text("근무 기간", style = Typography.h3, color = CS.Gray.G90)
-        SimpleField(
+        SimpleTextFieldButton(
             value = uiState.employmentPeriod,
-            onValueChange = {},
             placeholder = "근무 기간을 선택해주세요",
-            modifier   = Modifier.clickable {  },
-            selectableMark = true
+            selectableMark = true,
+            onClick = { onPeriodClick() }
         )
     }
 }
 
 
 @Composable
-private fun SimpleField(
+fun SimpleTextFieldButton(
     value: String,
-    onValueChange: (String) -> Unit,
     placeholder: String,
     selectableMark: Boolean,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-    val focusModifier = Modifier.onFocusChanged { isFocused = it.isFocused }
-    val strokeColor by animateColorAsState(
-        targetValue = if (isFocused) CS.Gray.G90 else CS.Gray.G20,
-        label = "underlineColor"
-    )
     val textStyle = Typography.body1Regular
 
-    BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        readOnly = true,
-        textStyle = textStyle,
-        modifier = modifier
-            .then(focusModifier)
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 52.dp)
+            .clickable(onClick = onClick)
+            // 하단 1 dp 라인
             .drawBehind {
                 val y = size.height - 1.dp.toPx()
                 drawLine(
-                    color = strokeColor,
+                    color = CS.Gray.G20,
                     start = Offset(0f, y),
-                    end   = Offset(size.width, y),
+                    end = Offset(size.width, y),
                     strokeWidth = 1.dp.toPx()
                 )
             },
-        decorationBox = { innerTextField ->
-            Box(
-                Modifier
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                if (value.isEmpty()) {
-                    Text(
-                        text = placeholder,
-                        style = textStyle,
-                        color = CS.Gray.G50
-                    )
-                }
-                innerTextField()
-                if (selectableMark) {
-                    ArrowDownIcon(24.dp, 24.dp, tint = CS.Gray.G50, modifier = Modifier.align(Alignment.CenterEnd))
+        contentAlignment = Alignment.CenterStart
+    ) {
+        BasicTextField(
+            value = value,
+            onValueChange = {},
+            enabled = false,
+            textStyle = textStyle,
+            modifier = Modifier.fillMaxWidth(),
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (value.isEmpty()) {
+                        Text(text = placeholder, style = textStyle, color = CS.Gray.G50)
+                    }
+
+                    if (selectableMark) {
+                        ArrowDownIcon(24.dp, 24.dp, tint = CS.Gray.G50, modifier = Modifier.align(Alignment.CenterEnd))
+                    }
                 }
             }
-        }
-    )
+        )
+    }
 }
+

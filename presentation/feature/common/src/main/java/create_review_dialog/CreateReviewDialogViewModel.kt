@@ -6,38 +6,24 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.domain.entity.Company
 import com.domain.entity.Ratings
+import create_review_dialog.sheet_contents.InputField
+import create_review_dialog.type.CreateReviewPhase
+import create_review_dialog.type.next
+import create_review_dialog.type.prev
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-enum class CreateReviewPhase {
-    First,
-    Second,
-    Third
-}
 
-val CreateReviewPhase.step: Int
-    get() = when (this) {
-        CreateReviewPhase.First -> 1
-        CreateReviewPhase.Second -> 2
-        CreateReviewPhase.Third -> 3
-    }
-
-fun CreateReviewPhase.next(): CreateReviewPhase? = when (this) {
-    CreateReviewPhase.First  -> CreateReviewPhase.Second
-    CreateReviewPhase.Second -> CreateReviewPhase.Third
-    CreateReviewPhase.Third  -> null
-}
-
-fun CreateReviewPhase.prev(): CreateReviewPhase? = when (this) {
-    CreateReviewPhase.First  -> null
-    CreateReviewPhase.Second -> CreateReviewPhase.First
-    CreateReviewPhase.Third  -> CreateReviewPhase.Second
+sealed class BottomSheetState {
+    data object Hidden: BottomSheetState()
+    data class Visible(val field: InputField): BottomSheetState()
 }
 
 data class CreateReviewUIState(
+    val bottomSheetState: BottomSheetState = BottomSheetState.Hidden,
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     val company: Company? = null,
     val jobRole: String = "",
@@ -54,7 +40,9 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
         UpdateJobRole,
         DidTapNextButton,
         DidTapPreviousButton,
-        DidTapSubmitButton
+        DidTapSubmitButton,
+        DidTapTextField,
+        SheetDismissed
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -78,6 +66,17 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
             }
             Action.DidTapSubmitButton -> {
 
+            }
+            Action.DidTapTextField -> {
+                val field = value as? InputField ?: return
+                _uiState.update { state ->
+                    state.copy(bottomSheetState = BottomSheetState.Visible(field))
+                }
+            }
+            Action.SheetDismissed -> {
+                _uiState.update { state ->
+                    state.copy(bottomSheetState = BottomSheetState.Hidden)
+                }
             }
         }
     }
