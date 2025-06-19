@@ -2,15 +2,12 @@ package create_review_dialog
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,9 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,7 +43,6 @@ fun CreateReviewDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun content(
     onDismiss: () -> Unit,
@@ -91,7 +85,10 @@ private fun content(
             }
         }
         ReviewDialogButtons(
-            phase = uiState.phase, onNext = { }, onBack = { }, onSubmit = { }
+            phase = uiState.phase,
+            onClickNextButton = { viewModel.handleAction(DidTapNextButton) },
+            onClickBackButton = { viewModel.handleAction(DidTapPreviousButton) },
+            onClickSubmitButton = { viewModel.handleAction(DidTapSubmitButton) }
         )
     }
 
@@ -100,17 +97,15 @@ private fun content(
 @Composable
 private fun ReviewDialogButtons(
     phase: CreateReviewPhase,
-    onNext: () -> Unit,
-    onBack: () -> Unit,
-    onSubmit: () -> Unit,
-    modifier: Modifier = Modifier
+    onClickNextButton: () -> Unit,
+    onClickBackButton: () -> Unit,
+    onClickSubmitButton: () -> Unit,
 ) {
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .padding(bottom = 20.dp, top = 5.dp),
-        horizontalArrangement = Arrangement.End
     ) {
         val shape = RoundedCornerShape(8.dp)
         val nextAndSubmitColor = ButtonDefaults.buttonColors(
@@ -123,7 +118,7 @@ private fun ReviewDialogButtons(
         when (phase) {
             CreateReviewPhase.First -> {
                 Button(
-                    onClick = onNext,
+                    onClick = onClickNextButton,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -135,33 +130,77 @@ private fun ReviewDialogButtons(
             }
 
             CreateReviewPhase.Second -> {
-                OutlinedButton(onClick = onBack) {
-                    Text("이전")
-                }
-                Spacer(Modifier.width(12.dp))
-                Button(
-                    onClick = onNext,
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    shape = shape,
-                    colors = nextAndSubmitColor
-                ) {
-                    Text("다음")
-                }
+                TwoButtonRow(
+                    leftText = "이전",
+                    rightText = "다음",
+                    onClickLeft = onClickBackButton,
+                    onClickRight = onClickNextButton,
+                    rightEnabled = true
+                )
             }
 
             CreateReviewPhase.Third -> {
-                OutlinedButton(onClick = onBack) {
-                    Text("이전")
-                }
-                Spacer(Modifier.width(12.dp))
-                Button(onClick = onSubmit) {
-                    Text("작성 완료")
-                }
+                TwoButtonRow(
+                    leftText = "이전",
+                    rightText = "작성완료",
+                    onClickLeft = onClickBackButton,
+                    onClickRight = onClickSubmitButton,
+                    rightEnabled = true
+                )
             }
         }
     }
 }
+
+@Composable
+fun TwoButtonRow(
+    leftText: String,
+    rightText: String,
+    onClickLeft: () -> Unit,
+    onClickRight: () -> Unit,
+    rightEnabled: Boolean = true
+) {
+    val shape = RoundedCornerShape(8.dp)
+    val buttonHeight = 52.dp
+    val nextAndSubmitColor = ButtonDefaults.buttonColors(
+        containerColor = CS.PrimaryOrange.O40,
+        contentColor = CS.Gray.White,
+        disabledContainerColor = CS.PrimaryOrange.O20,
+        disabledContentColor = CS.Gray.White
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = onClickLeft,
+            modifier = Modifier
+                .weight(1f)
+                .height(buttonHeight),
+            shape   = shape,
+            border  = BorderStroke(1.dp, CS.PrimaryOrange.O40),
+            colors  = ButtonDefaults.buttonColors(containerColor = CS.Gray.White),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
+        ) {
+            Text(text = leftText, style = Typography.body1Bold, color = CS.PrimaryOrange.O40)
+        }
+
+        Button(
+            onClick = onClickRight,
+            enabled = rightEnabled,
+            modifier = Modifier
+                .weight(1f)
+                .height(buttonHeight),
+            shape  = shape,
+            colors = nextAndSubmitColor // disabled enabled 컬러 따르게함
+        ) {
+            Text(rightText, style = Typography.body1Bold)
+        }
+    }
+}
+
 
 
 @Composable

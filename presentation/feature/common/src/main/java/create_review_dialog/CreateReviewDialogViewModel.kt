@@ -25,6 +25,18 @@ val CreateReviewPhase.step: Int
         CreateReviewPhase.Third -> 3
     }
 
+fun CreateReviewPhase.next(): CreateReviewPhase? = when (this) {
+    CreateReviewPhase.First  -> CreateReviewPhase.Second
+    CreateReviewPhase.Second -> CreateReviewPhase.Third
+    CreateReviewPhase.Third  -> null
+}
+
+fun CreateReviewPhase.prev(): CreateReviewPhase? = when (this) {
+    CreateReviewPhase.First  -> null
+    CreateReviewPhase.Second -> CreateReviewPhase.First
+    CreateReviewPhase.Third  -> CreateReviewPhase.Second
+}
+
 data class CreateReviewUIState(
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     val company: Company? = null,
@@ -39,7 +51,10 @@ data class CreateReviewUIState(
 @HiltViewModel
 class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
     enum class Action {
-        UpdateJobRole
+        UpdateJobRole,
+        DidTapNextButton,
+        DidTapPreviousButton,
+        DidTapSubmitButton
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -50,6 +65,19 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
             Action.UpdateJobRole -> {
                 val newJobRole = value as? String ?: return
                 _uiState.update { it.copy(jobRole = newJobRole) }
+            }
+            Action.DidTapNextButton -> {
+                _uiState.update { state ->
+                    state.phase.next()?.let { next -> state.copy(phase = next) } ?: state
+                }
+            }
+            Action.DidTapPreviousButton -> {
+                _uiState.update { state ->
+                    state.phase.prev()?.let { prv -> state.copy(phase = prv) } ?: state
+                }
+            }
+            Action.DidTapSubmitButton -> {
+
             }
         }
     }
