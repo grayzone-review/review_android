@@ -61,7 +61,7 @@ private fun content(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp)
         ) {
             when (uiState.phase) {
                 CreateReviewPhase.First -> {

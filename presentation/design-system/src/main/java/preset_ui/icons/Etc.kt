@@ -265,3 +265,18 @@ fun FollowAddOffIcon(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun ArrowDownIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    tint: Color
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.arrow_down),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}

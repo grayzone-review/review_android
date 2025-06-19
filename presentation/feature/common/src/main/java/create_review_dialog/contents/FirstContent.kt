@@ -33,6 +33,7 @@ import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import com.example.presentation.designsystem.typography.Typography.body1Regular
 import create_review_dialog.CreateReviewUIState
+import preset_ui.icons.ArrowDownIcon
 
 @Composable
 fun FirstContent(
@@ -44,7 +45,7 @@ fun FirstContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         TextFields(
@@ -59,31 +60,42 @@ fun TextFields(
     uiState: CreateReviewUIState,
     updateJobRole: (String) -> Unit,
 ) {
-    Text("상호명", style = Typography.h3, color = CS.Gray.G90)
-    SimpleField(
-        value = uiState.company?.companyName ?: "",
-        onValueChange = {},
-        placeholder = "상호명을 입력해주세요"
-    )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("상호명", style = Typography.h3, color = CS.Gray.G90)
+        SimpleField(
+            value = uiState.company?.companyName ?: "",
+            onValueChange = {},
+            placeholder = "상호명을 입력해주세요",
+            selectableMark = true
+        )
+    }
 
-    /* ── ② 업무 내용 ─────────────────────── */
-    Text("업무 내용", style = Typography.h3, color = CS.Gray.G90)
-    SimpleField(
-        value = uiState.jobRole,
-        onValueChange = updateJobRole,
-        placeholder = "담당하신 역할을 입력해주세요 (ex. 서빙)"
-    )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("업무 내용", style = Typography.h3, color = CS.Gray.G90)
+        SimpleField(
+            value = uiState.jobRole,
+            onValueChange = updateJobRole,
+            placeholder = "담당하신 역할을 입력해주세요 (ex. 서빙)",
+            selectableMark = false
+        )
+    }
 
-    /* ── ③ 근무 기간 ─────────────────────── */
-    Text("근무 기간", style = Typography.h3, color = CS.Gray.G90)
-    SimpleField(
-        value = uiState.employmentPeriod,
-        onValueChange = {},
-        placeholder = "근무 기간을 선택해주세요",
-        readOnly   = true,
-        trailing   = {  },
-        modifier   = Modifier.clickable {  }
-    )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text("근무 기간", style = Typography.h3, color = CS.Gray.G90)
+        SimpleField(
+            value = uiState.employmentPeriod,
+            onValueChange = {},
+            placeholder = "근무 기간을 선택해주세요",
+            modifier   = Modifier.clickable {  },
+            selectableMark = true
+        )
+    }
 }
 
 
@@ -92,8 +104,7 @@ private fun SimpleField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    readOnly: Boolean = false,
-    trailing: (@Composable () -> Unit)? = null,
+    selectableMark: Boolean,
     modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -107,13 +118,12 @@ private fun SimpleField(
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
-        readOnly = readOnly,
+        readOnly = true,
         textStyle = textStyle,
         modifier = modifier
             .then(focusModifier)
             .fillMaxWidth()
             .heightIn(min = 52.dp)
-            .padding(horizontal = 16.dp, vertical = 14.dp)
             .drawBehind {
                 val y = size.height - 1.dp.toPx()
                 drawLine(
@@ -124,7 +134,11 @@ private fun SimpleField(
                 )
             },
         decorationBox = { innerTextField ->
-            Box(Modifier.fillMaxWidth()) {
+            Box(
+                Modifier
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart
+            ) {
                 if (value.isEmpty()) {
                     Text(
                         text = placeholder,
@@ -133,6 +147,9 @@ private fun SimpleField(
                     )
                 }
                 innerTextField()
+                if (selectableMark) {
+                    ArrowDownIcon(24.dp, 24.dp, tint = CS.Gray.G50, modifier = Modifier.align(Alignment.CenterEnd))
+                }
             }
         }
     )
