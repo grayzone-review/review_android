@@ -99,7 +99,6 @@ fun TitleBar(text: String) {
 
 @Composable
 fun CompanyContent() {
-
 }
 
 @Composable

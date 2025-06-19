@@ -31,6 +31,8 @@ import create_review_dialog.sheet_contents.InputField
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
 import create_review_dialog.type.step
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CreateReviewDialog(
@@ -59,7 +61,7 @@ private fun content(
     InputBottomSheet(
         uiState = uiState,
         bottomSheetState = uiState.bottomSheetState,
-        onDismissRequest = { viewModel.handleAction(SheetDismissed) },
+        onDismissedSheet = { viewModel.handleAction(SheetDismissed) },
         onSelectPeriodItem = { viewModel.handleAction(UpdateEmploymentPeriod, it) }
     )
     Column(
@@ -279,32 +281,43 @@ fun StepProgressBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputBottomSheet(
-    uiState: CreateReviewUIState,
     bottomSheetState: BottomSheetState,
-    onDismissRequest: () -> Unit,
+    uiState: CreateReviewUIState,
+    onDismissedSheet: () -> Unit,
     onSelectPeriodItem: (WorkPeriod) -> Unit
 ) {
-    when (bottomSheetState) {
-        BottomSheetState.Hidden -> return
+    if (bottomSheetState !is BottomSheetState.Visible) return
 
-        is BottomSheetState.Visible -> {
-            val field = bottomSheetState.field
-            val sheetState = rememberModalBottomSheetState(
-                skipPartiallyExpanded = true
-            )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
-            ModalBottomSheet(
-                onDismissRequest = onDismissRequest,
-                sheetState = sheetState,
-                dragHandle = { BottomSheetDefaults.HiddenShape }
-            ) {
-                InputContainer(
-                    uiState = uiState,
-                    inputField = field,
-                    onSelectPeriodItem =  { onSelectPeriodItem(it) },
-                    onCloseButtonClick = { onDismissRequest }
-                )
+    ModalBottomSheet(
+        onDismissRequest = {
+            scope.launch {
+                sheetState.hide()
+                onDismissedSheet()
             }
-        }
+        },
+        sheetState = sheetState,
+        dragHandle = { BottomSheetDefaults.HiddenShape }
+    ) {
+        InputContainer(
+            uiState = uiState,
+            inputField = bottomSheetState.field,
+            onSelectPeriodItem = {
+                scope.launch {
+                    onSelectPeriodItem(it)
+                    delay(300)
+                    sheetState.hide()
+                    onDismissedSheet()
+                }
+            },
+            onCloseButtonClick = {
+                scope.launch {
+                    sheetState.hide()
+                    onDismissedSheet()
+                }
+            }
+        )
     }
 }

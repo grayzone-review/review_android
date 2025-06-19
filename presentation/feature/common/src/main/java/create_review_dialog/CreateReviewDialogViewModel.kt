@@ -86,9 +86,9 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
             Action.UpdateEmploymentPeriod -> {
                 val field = value as? WorkPeriod ?: return
                 viewModelScope.launch {
-                    _uiState.update { state -> state.copy(employmentPeriod = field) }
-                    delay(300)
-                    _uiState.update { state -> state.copy(bottomSheetState = BottomSheetState.Hidden) }
+                    _uiState.update { state ->
+                        state.copy(employmentPeriod = field)
+                    }
                 }
             }
         }
