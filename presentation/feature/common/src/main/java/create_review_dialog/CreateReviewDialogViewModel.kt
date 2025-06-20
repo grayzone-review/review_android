@@ -49,7 +49,8 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
         DidTapSubmitButton,
         DidTapTextField,
         SheetDismissed,
-        UpdateEmploymentPeriod
+        UpdateEmploymentPeriod,
+        UpdateTextFieldValue
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -90,6 +91,18 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
                 viewModelScope.launch {
                     _uiState.update { state ->
                         state.copy(employmentPeriod = field)
+                    }
+                }
+            }
+            Action.UpdateTextFieldValue -> {
+                val (field, text) = value as? Pair<InputField,String> ?: return
+                _uiState.update { state ->
+                    when (field) {
+                        InputField.JobRole -> state.copy(jobRole = text)
+                        InputField.Advantage -> state.copy(advantagePoint = text)
+                        InputField.Disadvantage -> state.copy(disadvantagePoint = text)
+                        InputField.ManagementFeedback -> state.copy(managementFeedBack = text)
+                        else -> state
                     }
                 }
             }

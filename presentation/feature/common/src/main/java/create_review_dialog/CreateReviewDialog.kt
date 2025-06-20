@@ -63,7 +63,8 @@ private fun content(
         uiState = uiState,
         bottomSheetState = uiState.bottomSheetState,
         onDismissedSheet = { viewModel.handleAction(SheetDismissed) },
-        onSelectPeriodItem = { viewModel.handleAction(UpdateEmploymentPeriod, it) }
+        onSelectPeriodItem = { viewModel.handleAction(UpdateEmploymentPeriod, it) },
+        onChangeTextFieldValue = { field, text -> viewModel.handleAction(UpdateTextFieldValue, field to text) }
     )
     Column(
         modifier = Modifier
@@ -285,7 +286,8 @@ fun InputBottomSheet(
     bottomSheetState: BottomSheetState,
     uiState: CreateReviewUIState,
     onDismissedSheet: () -> Unit,
-    onSelectPeriodItem: (WorkPeriod) -> Unit
+    onSelectPeriodItem: (WorkPeriod) -> Unit,
+    onChangeTextFieldValue: (InputField, String) -> Unit
 ) {
     if (bottomSheetState !is BottomSheetState.Visible) return
 
@@ -320,7 +322,8 @@ fun InputBottomSheet(
                     sheetState.hide()
                     onDismissedSheet()
                 }
-            }
+            },
+            onChangeTextFieldValue = { field, text -> onChangeTextFieldValue(field, text) }
         )
     }
 }

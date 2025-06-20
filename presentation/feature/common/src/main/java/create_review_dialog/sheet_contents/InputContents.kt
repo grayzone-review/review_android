@@ -24,6 +24,7 @@ import create_review_dialog.CreateReviewUIState
 import create_review_dialog.type.InputContentType
 import create_review_dialog.type.InputField
 import create_review_dialog.type.minMax
+import create_review_dialog.type.placeholder
 import create_review_dialog.type.title
 import preset_ui.icons.ReviewCheckLine
 
@@ -41,7 +42,8 @@ fun InputContainer(
     uiState: CreateReviewUIState,
     inputField: InputField,
     onSelectPeriodItem: (WorkPeriod) -> Unit,
-    onCloseButtonClick: () -> Unit
+    onCloseButtonClick: () -> Unit,
+    onChangeTextFieldValue: (InputField, String) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -55,6 +57,7 @@ fun InputContainer(
             }
 
             InputContentType.Text -> {
+                // InputField 별로 TextField 와 바인딩 할 uiState 결정
                 val text = when (inputField) {
                     InputField.JobRole -> uiState.jobRole
                     InputField.Advantage -> uiState.advantagePoint
@@ -65,7 +68,8 @@ fun InputContainer(
 
                 TextContent(
                     text = text,
-                    onTextChange = { },
+                    placeholder = inputField.placeholder,
+                    onTextChange = { onChangeTextFieldValue(inputField, it) },
                     onSave = { },
                     minChars = inputField.minMax.first,
                     maxChars = inputField.minMax.last
@@ -102,6 +106,7 @@ fun CompanyContent() {
 @Composable
 fun TextContent(
     text: String,
+    placeholder: String,
     onTextChange: (String) -> Unit,
     onSave: () -> Unit,
     minChars: Int,
@@ -110,33 +115,26 @@ fun TextContent(
     val savable = text.length in minChars..maxChars
 
     Column(
-
+        modifier = Modifier
+            .padding(horizontal = 20.dp, vertical = 20.dp)
     ) {
-        // ── 입력 영역 ────────────────────────────
         BasicTextField(
             value = text,
             onValueChange = { if (it.length <= maxChars) onTextChange(it) },
             textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(top = 20.dp),
-            decorationBox = { inner ->
+                .height(230.dp),
+            decorationBox = { innerTextField ->
+                innerTextField()
                 if (text.isEmpty()) {
-                    Text(
-                        text = "담당하신 역할을 입력해주세요 ex) 서빙",
-                        style = Typography.body1Regular,
-                        color = CS.Gray.G50
-                    )
-                } else inner()
+                    Text(text = placeholder, style = Typography.body1Regular, color = CS.Gray.G50)
+                }
             }
         )
 
-        // ── 하단 정보 + 저장 ─────────────────────
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 24.dp, horizontal = 4.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

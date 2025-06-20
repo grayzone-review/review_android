@@ -5,7 +5,7 @@ enum class InputContentType { Company, Text, Period }
 val InputContentType.sheetPartially: Boolean
     get() = when (this) {
         InputContentType.Company -> true
-        InputContentType.Text -> false
+        InputContentType.Text -> true
         InputContentType.Period -> true
     }
 
