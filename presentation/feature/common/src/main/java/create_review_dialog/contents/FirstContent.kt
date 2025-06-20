@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import create_review_dialog.CreateReviewUIState
+import preset_ui.SimpleTextFieldButton
 import preset_ui.icons.ArrowDownIcon
 
 @Composable
@@ -33,8 +34,8 @@ fun FirstContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+            .padding(vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(40.dp)
     ) {
         TextFields(
             uiState = uiState,
@@ -46,7 +47,7 @@ fun FirstContent(
 }
 
 @Composable
-fun TextFields(
+private fun TextFields(
     uiState: CreateReviewUIState,
     onCompanyClick: () -> Unit,
     onJobRoleClick: () -> Unit,
@@ -85,57 +86,6 @@ fun TextFields(
             placeholder = "근무 기간을 선택해주세요",
             selectableMark = true,
             onClick = { onPeriodClick() }
-        )
-    }
-}
-
-@Composable
-fun SimpleTextFieldButton(
-    value: String,
-    placeholder: String,
-    selectableMark: Boolean,
-    onClick: () -> Unit
-) {
-    val textStyle = Typography.body1Regular
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 52.dp)
-            .clickable(onClick = onClick)
-            .drawBehind {
-                val y = size.height - 1.dp.toPx()
-                drawLine(
-                    color = CS.Gray.G20,
-                    start = Offset(0f, y),
-                    end = Offset(size.width, y),
-                    strokeWidth = 1.dp.toPx()
-                )
-            },
-        contentAlignment = Alignment.CenterStart
-    ) {
-        BasicTextField(
-            value = value,
-            onValueChange = {},
-            enabled = false,
-            textStyle = textStyle,
-            modifier = Modifier.fillMaxWidth(),
-            decorationBox = { innerTextField ->
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    if (value.isEmpty()) {
-                        Text(text = placeholder, style = textStyle, color = CS.Gray.G50)
-                    } else {
-                        innerTextField()
-                    }
-
-                    if (selectableMark) {
-                        ArrowDownIcon(24.dp, 24.dp, tint = CS.Gray.G50, modifier = Modifier.align(Alignment.CenterEnd))
-                    }
-                }
-            }
         )
     }
 }

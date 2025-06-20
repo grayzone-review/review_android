@@ -153,7 +153,6 @@ fun TextContent(
     }
 }
 
-
 @Composable
 fun PeriodContent(
     selected: WorkPeriod?,
