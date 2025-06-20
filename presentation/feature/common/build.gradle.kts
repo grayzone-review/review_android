@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":common"))
     implementation(project(":domain:entity"))
     implementation(project(":presentation:design-system"))
+    implementation(project(":domain:usecase"))
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

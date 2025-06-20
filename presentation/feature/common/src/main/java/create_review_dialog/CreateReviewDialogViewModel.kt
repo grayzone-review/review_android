@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.Company
 import com.domain.entity.Ratings
+import com.domain.entity.SearchedCompany
+import com.domain.usecase.SearchCompaniesUseCase
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
 import create_review_dialog.type.InputField
@@ -30,11 +32,11 @@ data class CreateReviewUIState(
     // 바텀 시트
     val bottomSheetState: BottomSheetState = BottomSheetState.Hidden,
     val searchTextFieldValue: String = "",
-    val searchedCompanies: List<Company> = emptyList(),
+    val searchedCompanies: List<SearchedCompany> = emptyList(),
     // 페이지 관리
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     // 사용자 입력 값
-    val company: Company? = null,
+    val company: SearchedCompany? = null,
     val jobRole: String = "",
     val employmentPeriod: WorkPeriod? = null,
     val rating: Ratings = Ratings(),
@@ -45,7 +47,7 @@ data class CreateReviewUIState(
 
 @HiltViewModel
 class CreateReviewDialogViewModel @Inject constructor(
-    
+    private val searchCompaniesUseCase: SearchCompaniesUseCase
 ) : ViewModel() {
     enum class Action {
         UpdateJobRole,
@@ -56,7 +58,10 @@ class CreateReviewDialogViewModel @Inject constructor(
         SheetDismissed,
         UpdateEmploymentPeriod,
         UpdateTextFieldValue,
-        UpdateRatings
+        UpdateRatings,
+        UpdateCompany,
+        UpdateSearchQuery,
+        DidTapClearButton
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -118,6 +123,57 @@ class CreateReviewDialogViewModel @Inject constructor(
                     state.copy(rating = newRatings)
                 }
             }
+            Action.UpdateSearchQuery -> {
+                val query = value as? String ?: return
+                _uiState.update {
+                    it.copy(searchTextFieldValue = query)
+                }
+                searchCompanies(query = query)
+            }
+            Action.UpdateCompany -> {
+                val newCompany = value as? SearchedCompany ?: return
+                _uiState.update { state ->
+                    state.copy(company = newCompany)
+                }
+            }
+            Action.DidTapClearButton -> {
+                _uiState.update { state ->
+                    state.copy(
+                        searchTextFieldValue = "",
+                        searchedCompanies = emptyList()
+                    )
+                }
+            }
         }
     }
+
+    private fun searchCompanies(query: String) {
+        if (query.isBlank()) {
+            clearSearchResults()
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val result = searchCompaniesUseCase.searchCompanies(
+                    keyword = query,
+                    latitude = 37.5665,
+                    longitude = 126.9780,
+                    size = 20,
+                    page = 0
+                )
+
+                _uiState.update { it.copy(searchedCompanies = result.companies) }
+            } catch (e: Exception) {
+
+            } finally {
+                // 로딩 처리
+            }
+        }
+    }
+
+    private fun clearSearchResults() {
+        _uiState.update { it.copy(searchedCompanies = emptyList()) }
+    }
+
 }

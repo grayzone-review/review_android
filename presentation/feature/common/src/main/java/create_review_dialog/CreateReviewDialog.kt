@@ -20,6 +20,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
+import com.domain.entity.SearchedCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import create_review_dialog.contents.FirstContent
@@ -64,7 +65,10 @@ private fun content(
         bottomSheetState = uiState.bottomSheetState,
         onDismissedSheet = { viewModel.handleAction(SheetDismissed) },
         onSelectPeriodItem = { viewModel.handleAction(UpdateEmploymentPeriod, it) },
-        onChangeTextFieldValue = { field, text -> viewModel.handleAction(UpdateTextFieldValue, field to text) }
+        onChangeTextFieldValue = { field, text -> viewModel.handleAction(UpdateTextFieldValue, field to text) },
+        onChangeSearchCompaniesQuery = { viewModel.handleAction(UpdateSearchQuery, it) },
+        onCompanyItemClick = { viewModel.handleAction(UpdateCompany, it) },
+        onClickClearButton = { viewModel.handleAction(DidTapClearButton) }
     )
     Column(
         modifier = Modifier
@@ -113,7 +117,6 @@ private fun content(
             onClickSubmitButton = { viewModel.handleAction(DidTapSubmitButton) }
         )
     }
-
 }
 
 @Composable
@@ -223,8 +226,6 @@ fun TwoButtonRow(
     }
 }
 
-
-
 @Composable
 fun StepProgressBar(
     currentStep: Int,
@@ -293,7 +294,10 @@ fun InputBottomSheet(
     uiState: CreateReviewUIState,
     onDismissedSheet: () -> Unit,
     onSelectPeriodItem: (WorkPeriod) -> Unit,
-    onChangeTextFieldValue: (InputField, String) -> Unit
+    onChangeTextFieldValue: (InputField, String) -> Unit,
+    onChangeSearchCompaniesQuery: (String) -> Unit,
+    onCompanyItemClick: (SearchedCompany) -> Unit,
+    onClickClearButton: () -> Unit
 ) {
     if (bottomSheetState !is BottomSheetState.Visible) return
 
@@ -329,7 +333,18 @@ fun InputBottomSheet(
                     onDismissedSheet()
                 }
             },
-            onChangeTextFieldValue = { field, text -> onChangeTextFieldValue(field, text) }
+            onChangeTextFieldValue = { field, text -> onChangeTextFieldValue(field, text) },
+            onChangeSearchCompaniesQuery = { onChangeSearchCompaniesQuery(it) },
+            onCompanyItemClick = {
+                scope.launch {
+                    onCompanyItemClick(it)
+                    delay(300)
+                    sheetState.hide()
+                    onClickClearButton()
+                    onDismissedSheet()
+                }
+            },
+            onClickClearButton = { onClickClearButton() }
         )
     }
 }

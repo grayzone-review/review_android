@@ -307,6 +307,6 @@ fun CheckCircleFill(
         painter = painterResource(com.presentation.design_system.R.drawable.check_circle_fill),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
-        tint = tint
+        tint = Color.Unspecified
     )
 }

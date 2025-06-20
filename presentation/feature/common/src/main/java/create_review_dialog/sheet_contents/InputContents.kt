@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Company
+import com.domain.entity.SearchedCompany
 import com.example.presentation.designsystem.typography.Typography
 import create_review_dialog.BottomSheetState
 import create_review_dialog.CreateReviewUIState
@@ -48,6 +49,7 @@ import create_review_dialog.type.placeholder
 import create_review_dialog.type.title
 import preset_ui.icons.CheckCircleFill
 import preset_ui.icons.CloseFillIcon
+import preset_ui.icons.InfoIcon
 import preset_ui.icons.ReviewCheckLine
 import preset_ui.icons.SearchLineIcon
 
@@ -67,6 +69,9 @@ fun InputContainer(
     onSelectPeriodItem: (WorkPeriod) -> Unit,
     onCloseButtonClick: () -> Unit,
     onChangeTextFieldValue: (InputField, String) -> Unit,
+    onChangeSearchCompaniesQuery: (String) -> Unit,
+    onCompanyItemClick: (SearchedCompany) -> Unit,
+    onClickClearButton: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -79,8 +84,9 @@ fun InputContainer(
             InputContentType.Company -> {
                 CompanyContent(
                     uiState = uiState,
-                    onTextChange = { },
-                    onCompanyItemClick = { }
+                    onTextChange = { onChangeSearchCompaniesQuery(it) },
+                    onCompanyItemClick = { onCompanyItemClick(it) },
+                    onClearButtonClick = { onClickClearButton() }
                 )
             }
 
@@ -130,17 +136,22 @@ fun TitleBar(text: String) {
 fun CompanyContent(
     uiState: CreateReviewUIState,
     onTextChange: (String) -> Unit,
-    onCompanyItemClick: (Company) -> Unit
+    onCompanyItemClick: (SearchedCompany) -> Unit,
+    onClearButtonClick: () -> Unit,
 ) {
     SearchTextField(
         text = uiState.searchTextFieldValue,
         onTextChange = { onTextChange(it) },
-        onClickClearButton = { }
+        onClickClearButton = { onClearButtonClick() }
     )
-    SearchResultList(
-        companies = uiState.searchedCompanies,
-        onSelect = { onCompanyItemClick(it) }
-    )
+    if (uiState.searchedCompanies.isEmpty()) {
+        EmptyView()
+    } else {
+        SearchResultList(
+            companies = uiState.searchedCompanies,
+            onSelect = { onCompanyItemClick(it) }
+        )
+    }
 }
 
 @Composable
@@ -286,10 +297,13 @@ private fun SearchTextField(
 
 @Composable
 fun SearchResultList(
-    companies: List<Company>,
-    onSelect: (Company) -> Unit,
+    companies: List<SearchedCompany>,
+    onSelect: (SearchedCompany) -> Unit,
 ) {
-   LazyColumn() {
+   LazyColumn(
+       modifier = Modifier
+           .height(580.dp)
+   ) {
        items(
            items = companies,
            key = { it.id }
@@ -304,12 +318,9 @@ fun SearchResultList(
 
 @Composable
 private fun SearchResultItem(
-    company: Company,
+    company: SearchedCompany,
     onClick: () -> Unit
 ) {
-    val address = if (company.siteFullAddress.isNotEmpty())
-        company.siteFullAddress else company.roadNameAddress
-
     /* ─ 선택 여부를 내부에서만 기억 ─ */
     var selected by remember { mutableStateOf(false) }
     val backgroundColor = if (selected) CS.Gray.G20 else Color.Transparent
@@ -317,7 +328,7 @@ private fun SearchResultItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = backgroundColor)
+            .background(backgroundColor)
             .clickable {
                 selected = !selected
                 onClick()
@@ -328,12 +339,28 @@ private fun SearchResultItem(
         Column(modifier = Modifier.weight(1f)) {
             Text(text = company.companyName, style = Typography.body1Bold, color = CS.Gray.G90)
             Spacer(Modifier.height(8.dp))
-            Text(text = address, style = Typography.captionRegular, color = CS.Gray.G50)
+            Text(text = company.companyAddress, style = Typography.captionRegular, color = CS.Gray.G50)
         }
 
         if (selected) {
             CheckCircleFill(24.dp, 24.dp, tint = CS.PrimaryOrange.O40)
         }
+    }
+}
+
+@Composable
+private fun EmptyView() {
+    val textRes = "검색 결과를 찾을 수 없습니다."
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(580.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(Modifier.height(95.dp))
+        SearchLineIcon(48.dp, 48.dp, tint = CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = textRes, color = CS.Gray.G50, style = Typography.body1Regular)
     }
 }
 
