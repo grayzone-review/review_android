@@ -295,3 +295,18 @@ fun ReviewCheckLine(
         tint = tint
     )
 }
+
+@Composable
+fun CheckCircleFill(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.check_circle_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}

@@ -27,8 +27,13 @@ sealed class BottomSheetState {
 }
 
 data class CreateReviewUIState(
+    // 바텀 시트
     val bottomSheetState: BottomSheetState = BottomSheetState.Hidden,
+    val searchTextFieldValue: String = "",
+    val searchedCompanies: List<Company> = emptyList(),
+    // 페이지 관리
     val phase: CreateReviewPhase = CreateReviewPhase.First,
+    // 사용자 입력 값
     val company: Company? = null,
     val jobRole: String = "",
     val employmentPeriod: WorkPeriod? = null,
@@ -39,7 +44,9 @@ data class CreateReviewUIState(
 )
 
 @HiltViewModel
-class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
+class CreateReviewDialogViewModel @Inject constructor(
+    
+) : ViewModel() {
     enum class Action {
         UpdateJobRole,
         DidTapNextButton,

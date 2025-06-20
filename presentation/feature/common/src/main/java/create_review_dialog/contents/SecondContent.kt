@@ -110,8 +110,10 @@ fun RatingSection(
     onRatingsChanged: (Ratings) -> Unit
 ) {
     val ratingKeys: Array<RatingKey> = RatingKey.values()
-    val totalScore: Double = ratingKeys.sumOf { ratings.score(it) } / ratingKeys.size
-
+    val nonZeroScores: List<Double> = ratingKeys
+        .map { ratings.score(it) }
+        .filter { it > 0.0 }
+    val totalScore: Double = if (nonZeroScores.isNotEmpty()) nonZeroScores.average() else 0.0
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer()
     val longestText = "기업 문화"
