@@ -72,14 +72,12 @@ private fun content(
             .background(color = CS.Gray.White)
     ) {
         DefaultTopAppBar(title = "리뷰작성")
+        StepProgressBar(currentStep = uiState.phase.step, totalStep = 3)
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState)
-                .padding(horizontal = 20.dp)
         ) {
-            StepProgressBar(currentStep = uiState.phase.step, totalStep = 3)
-
             when (uiState.phase) {
                 CreateReviewPhase.First -> {
                     FirstContent(
@@ -91,7 +89,11 @@ private fun content(
                 }
 
                 CreateReviewPhase.Second -> {
-                    SecondContent()
+                    SecondContent(
+                        uiState = uiState,
+                        onCompanyNameClick = { },
+                        onRatingsChanged = { viewModel.handleAction(UpdateRatings, it) }
+                    )
                 }
 
                 CreateReviewPhase.Third -> {
@@ -244,7 +246,11 @@ fun StepProgressBar(
     val endColor   = Color(0xFFFF6E40)
     val background = CS.Gray.G10
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+    ) {
         Spacer(modifier = Modifier.height(12.dp))
         /* ─── 프로그레스 바 ─────────────────────── */
         Box(

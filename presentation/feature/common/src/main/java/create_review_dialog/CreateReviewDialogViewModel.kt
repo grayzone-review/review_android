@@ -32,13 +32,11 @@ data class CreateReviewUIState(
     val company: Company? = null,
     val jobRole: String = "",
     val employmentPeriod: WorkPeriod? = null,
-    val rating: Ratings? = null,
+    val rating: Ratings = Ratings(),
     val advantagePoint: String = "",
     val disadvantagePoint: String = "",
     val managementFeedBack: String = ""
-) {
-
-}
+)
 
 @HiltViewModel
 class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
@@ -50,7 +48,8 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
         DidTapTextField,
         SheetDismissed,
         UpdateEmploymentPeriod,
-        UpdateTextFieldValue
+        UpdateTextFieldValue,
+        UpdateRatings
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -104,6 +103,12 @@ class CreateReviewDialogViewModel @Inject constructor() : ViewModel() {
                         InputField.ManagementFeedback -> state.copy(managementFeedBack = text)
                         else -> state
                     }
+                }
+            }
+            Action.UpdateRatings -> {
+                val newRatings = value as? Ratings ?: return
+                _uiState.update { state ->
+                    state.copy(rating = newRatings)
                 }
             }
         }

@@ -23,7 +23,7 @@ fun ThirdContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 20.dp),
+            .padding(all = 20.dp),
         verticalArrangement = Arrangement.spacedBy(40.dp)
     ) {
         TextFields(

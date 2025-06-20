@@ -24,9 +24,9 @@ data class Review(
 )
 
 data class Ratings(
-    val COMPANY_CULTURE: Double,
-    val MANAGEMENT: Double,
-    val SALARY: Double,
-    val WELFARE: Double,
-    val WORK_LIFE_BALANCE: Double
+    val COMPANY_CULTURE: Double = 0.0,
+    val MANAGEMENT: Double = 0.0,
+    val SALARY: Double = 0.0,
+    val WELFARE: Double = 0.0,
+    val WORK_LIFE_BALANCE: Double = 0.0
 )
