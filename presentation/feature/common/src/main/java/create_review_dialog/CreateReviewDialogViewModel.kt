@@ -9,6 +9,7 @@ import com.domain.entity.Company
 import com.domain.entity.Ratings
 import com.domain.entity.SearchedCompany
 import com.domain.usecase.SearchCompaniesUseCase
+import create_review_dialog.contents.isFullyRated
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
 import create_review_dialog.type.InputField
@@ -29,12 +30,13 @@ sealed class BottomSheetState {
 }
 
 data class CreateReviewUIState(
-    // 바텀 시트
+    // 회사 검색 시트 액션
     val bottomSheetState: BottomSheetState = BottomSheetState.Hidden,
     val searchTextFieldValue: String = "",
     val searchedCompanies: List<SearchedCompany> = emptyList(),
     // 페이지 관리
     val phase: CreateReviewPhase = CreateReviewPhase.First,
+    val isNextAndSubmitEnabled: Boolean = false,
     // 사용자 입력 값
     val company: SearchedCompany? = null,
     val jobRole: String = "",
@@ -73,12 +75,18 @@ class CreateReviewDialogViewModel @Inject constructor(
         when (action) {
             Action.DidTapNextButton -> {
                 _uiState.update { state ->
-                    state.phase.next()?.let { next -> state.copy(phase = next) } ?: state
+                    state.phase.next()?.let { nextPhase ->
+                        val enabled = state.isPhaseCompleted(nextPhase)
+                        state.copy(phase = nextPhase, isNextAndSubmitEnabled = enabled)
+                    } ?: state
                 }
             }
             Action.DidTapPreviousButton -> {
                 _uiState.update { state ->
-                    state.phase.prev()?.let { prv -> state.copy(phase = prv) } ?: state
+                    state.phase.prev()?.let { prevPhase ->
+                        val enabled = state.isPhaseCompleted(prevPhase)
+                        state.copy(phase = prevPhase, isNextAndSubmitEnabled = enabled)
+                    } ?: state
                 }
             }
             Action.DidTapSubmitButton -> {
@@ -96,29 +104,43 @@ class CreateReviewDialogViewModel @Inject constructor(
                 }
             }
             Action.UpdateEmploymentPeriod -> {
-                val field = value as? WorkPeriod ?: return
-                viewModelScope.launch {
-                    _uiState.update { state ->
-                        state.copy(employmentPeriod = field)
-                    }
+                val period = value as? WorkPeriod ?: return
+                _uiState.update { state ->
+                    val updatedState = state.copy(
+                        employmentPeriod = period
+                    )
+                    updatedState.copy(
+                        isNextAndSubmitEnabled = updatedState.isFirstPhaseCompleted()
+                    )
                 }
             }
             Action.UpdateTextFieldValue -> {
                 val (field, text) = value as? Pair<InputField,String> ?: return
                 _uiState.update { state ->
-                    when (field) {
+                    val updated = when (field) {
                         InputField.JobRole -> state.copy(jobRole = text)
                         InputField.Advantage -> state.copy(advantagePoint = text)
                         InputField.Disadvantage -> state.copy(disadvantagePoint = text)
                         InputField.ManagementFeedback -> state.copy(managementFeedBack = text)
                         else -> state
                     }
+                    val enabled = when (updated.phase) {
+                        CreateReviewPhase.First -> updated.isFirstPhaseCompleted()
+                        CreateReviewPhase.Second -> updated.isSecondPhaseCompleted()
+                        CreateReviewPhase.Third -> updated.isThirdPhaseCompleted()
+                    }
+                    updated.copy(isNextAndSubmitEnabled = enabled)
                 }
             }
             Action.UpdateRatings -> {
                 val newRatings = value as? Ratings ?: return
                 _uiState.update { state ->
-                    state.copy(rating = newRatings)
+                    val updatedState = state.copy(
+                        rating = newRatings
+                    )
+                    updatedState.copy(
+                        isNextAndSubmitEnabled = updatedState.isSecondPhaseCompleted()
+                    )
                 }
             }
             Action.UpdateSearchQuery -> {
@@ -131,7 +153,12 @@ class CreateReviewDialogViewModel @Inject constructor(
             Action.UpdateCompany -> {
                 val newCompany = value as? SearchedCompany ?: return
                 _uiState.update { state ->
-                    state.copy(company = newCompany)
+                    val stateWithCompany = state.copy(
+                        company = newCompany
+                    )
+                    stateWithCompany.copy(
+                        isNextAndSubmitEnabled = stateWithCompany.isFirstPhaseCompleted()
+                    )
                 }
             }
             Action.DidTapClearButton -> {
@@ -174,4 +201,20 @@ class CreateReviewDialogViewModel @Inject constructor(
         _uiState.update { it.copy(searchedCompanies = emptyList()) }
     }
 
+    private fun CreateReviewUIState.isFirstPhaseCompleted(): Boolean =
+        company != null && jobRole.isNotBlank() && employmentPeriod != null
+
+    private fun CreateReviewUIState.isSecondPhaseCompleted(): Boolean =
+        rating.isFullyRated()
+
+    private fun CreateReviewUIState.isThirdPhaseCompleted(): Boolean =
+        advantagePoint.isNotBlank() && disadvantagePoint.isNotBlank() && managementFeedBack.isNotBlank()
+
+    private fun CreateReviewUIState.isPhaseCompleted(
+        phase: CreateReviewPhase = this.phase
+    ): Boolean = when (phase) {
+        CreateReviewPhase.First  -> isFirstPhaseCompleted()
+        CreateReviewPhase.Second -> isSecondPhaseCompleted()
+        CreateReviewPhase.Third  -> isThirdPhaseCompleted()
+    }
 }

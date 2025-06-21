@@ -61,6 +61,14 @@ fun Ratings.update(key: RatingKey, new: Double): Ratings = when (key) {
     RatingKey.WORK_LIFE_BALANCE -> copy(WORK_LIFE_BALANCE = new)
 }
 
+fun Ratings.isFullyRated(): Boolean {
+    return COMPANY_CULTURE > 0.0 &&
+            MANAGEMENT > 0.0 &&
+            SALARY > 0.0 &&
+            WELFARE > 0.0 &&
+            WORK_LIFE_BALANCE > 0.0
+}
+
 @Composable
 fun SecondContent(
     uiState: CreateReviewUIState,

@@ -112,6 +112,7 @@ private fun content(
         }
         ReviewDialogButtons(
             phase = uiState.phase,
+            enabled = uiState.isNextAndSubmitEnabled,
             onClickNextButton = { viewModel.handleAction(DidTapNextButton) },
             onClickBackButton = { viewModel.handleAction(DidTapPreviousButton) },
             onClickSubmitButton = { viewModel.handleAction(DidTapSubmitButton) }
@@ -122,6 +123,7 @@ private fun content(
 @Composable
 private fun ReviewDialogButtons(
     phase: CreateReviewPhase,
+    enabled: Boolean,
     onClickNextButton: () -> Unit,
     onClickBackButton: () -> Unit,
     onClickSubmitButton: () -> Unit,
@@ -144,6 +146,7 @@ private fun ReviewDialogButtons(
             CreateReviewPhase.First -> {
                 Button(
                     onClick = onClickNextButton,
+                    enabled = enabled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -160,7 +163,7 @@ private fun ReviewDialogButtons(
                     rightText = "다음",
                     onClickLeft = onClickBackButton,
                     onClickRight = onClickNextButton,
-                    rightEnabled = true
+                    rightEnabled = enabled
                 )
             }
 
@@ -170,7 +173,7 @@ private fun ReviewDialogButtons(
                     rightText = "작성완료",
                     onClickLeft = onClickBackButton,
                     onClickRight = onClickSubmitButton,
-                    rightEnabled = true
+                    rightEnabled = enabled
                 )
             }
         }
