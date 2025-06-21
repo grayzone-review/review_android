@@ -125,7 +125,10 @@ private fun content(
             enabled = uiState.isNextAndSubmitEnabled,
             onClickNextButton = { viewModel.handleAction(DidTapNextButton) },
             onClickBackButton = { viewModel.handleAction(DidTapPreviousButton) },
-            onClickSubmitButton = { viewModel.handleAction(DidTapSubmitButton) }
+            onClickSubmitButton = {
+                viewModel.handleAction(DidTapSubmitButton) // TODO: 달아서 테스트
+                onDismiss()
+            }
         )
     }
 }
