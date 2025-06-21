@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,30 +16,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import colors.CS
-import com.domain.entity.Company
 import com.domain.entity.SearchedCompany
 import com.example.presentation.designsystem.typography.Typography
-import create_review_dialog.BottomSheetState
 import create_review_dialog.CreateReviewUIState
 import create_review_dialog.type.InputContentType
 import create_review_dialog.type.InputField
@@ -49,7 +42,6 @@ import create_review_dialog.type.placeholder
 import create_review_dialog.type.title
 import preset_ui.icons.CheckCircleFill
 import preset_ui.icons.CloseFillIcon
-import preset_ui.icons.InfoIcon
 import preset_ui.icons.ReviewCheckLine
 import preset_ui.icons.SearchLineIcon
 
@@ -68,7 +60,7 @@ fun InputContainer(
     inputField: InputField,
     onSelectPeriodItem: (WorkPeriod) -> Unit,
     onCloseButtonClick: () -> Unit,
-    onChangeTextFieldValue: (InputField, String) -> Unit,
+    onSaveButtonClick: (InputField, String) -> Unit,
     onChangeSearchCompaniesQuery: (String) -> Unit,
     onCompanyItemClick: (SearchedCompany) -> Unit,
     onClickClearButton: () -> Unit
@@ -100,10 +92,9 @@ fun InputContainer(
                     else -> ""
                 }
                 TextContent(
-                    text = fieldText,
+                    initialText = fieldText,
                     placeholder = inputField.placeholder,
-                    onTextChange = { onChangeTextFieldValue(inputField, it) },
-                    onSave = { },
+                    onSaveClick = { onSaveButtonClick(inputField, it) },
                     minChars = inputField.minMax.first,
                     maxChars = inputField.minMax.last
                 )
@@ -156,22 +147,21 @@ fun CompanyContent(
 
 @Composable
 fun TextContent(
-    text: String,
+    initialText: String,
     placeholder: String,
-    onTextChange: (String) -> Unit,
-    onSave: () -> Unit,
+    onSaveClick: (String) -> Unit,
     minChars: Int,
     maxChars: Int
 ) {
-    val savable = text.length in minChars..maxChars
+    var text by rememberSaveable { mutableStateOf(initialText) }
+    val savable = text.length in minChars..maxChars && text != initialText
 
     Column(
-        modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 20.dp)
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
     ) {
         BasicTextField(
             value = text,
-            onValueChange = { if (it.length <= maxChars) onTextChange(it) },
+            onValueChange = { if (it.length <= maxChars) text = it },
             textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
             modifier = Modifier
                 .fillMaxWidth()
@@ -179,7 +169,11 @@ fun TextContent(
             decorationBox = { innerTextField ->
                 innerTextField()
                 if (text.isEmpty()) {
-                    Text(text = placeholder, style = Typography.body1Regular, color = CS.Gray.G50)
+                    Text(
+                        text = placeholder,
+                        style = Typography.body1Regular,
+                        color = CS.Gray.G50
+                    )
                 }
             }
         )
@@ -198,11 +192,12 @@ fun TextContent(
                 text = "저장",
                 style = Typography.body1Bold,
                 color = if (savable) CS.PrimaryOrange.O40 else CS.PrimaryOrange.O20,
-                modifier = Modifier.clickable(enabled = savable) { onSave() }
+                modifier = Modifier.clickable(enabled = savable) { onSaveClick(text) }
             )
         }
     }
 }
+
 
 @Composable
 fun PeriodContent(

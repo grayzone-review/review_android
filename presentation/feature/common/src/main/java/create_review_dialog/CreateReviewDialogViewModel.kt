@@ -50,16 +50,18 @@ class CreateReviewDialogViewModel @Inject constructor(
     private val searchCompaniesUseCase: SearchCompaniesUseCase
 ) : ViewModel() {
     enum class Action {
-        UpdateJobRole,
+        // 모달, 시트 흐름 제어
         DidTapNextButton,
         DidTapPreviousButton,
         DidTapSubmitButton,
         DidTapTextField,
         SheetDismissed,
+        // 사용자 입력 액션
         UpdateEmploymentPeriod,
         UpdateTextFieldValue,
         UpdateRatings,
         UpdateCompany,
+        // 회사 검색 시트 액션
         UpdateSearchQuery,
         DidTapClearButton
     }
@@ -69,10 +71,6 @@ class CreateReviewDialogViewModel @Inject constructor(
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
-            Action.UpdateJobRole -> {
-                val newJobRole = value as? String ?: return
-                _uiState.update { it.copy(jobRole = newJobRole) }
-            }
             Action.DidTapNextButton -> {
                 _uiState.update { state ->
                     state.phase.next()?.let { next -> state.copy(phase = next) } ?: state

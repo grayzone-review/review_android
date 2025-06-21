@@ -65,7 +65,7 @@ private fun content(
         bottomSheetState = uiState.bottomSheetState,
         onDismissedSheet = { viewModel.handleAction(SheetDismissed) },
         onSelectPeriodItem = { viewModel.handleAction(UpdateEmploymentPeriod, it) },
-        onChangeTextFieldValue = { field, text -> viewModel.handleAction(UpdateTextFieldValue, field to text) },
+        onClickSaveButton = { field, text -> viewModel.handleAction(UpdateTextFieldValue, field to text) },
         onChangeSearchCompaniesQuery = { viewModel.handleAction(UpdateSearchQuery, it) },
         onCompanyItemClick = { viewModel.handleAction(UpdateCompany, it) },
         onClickClearButton = { viewModel.handleAction(DidTapClearButton) }
@@ -95,7 +95,7 @@ private fun content(
                 CreateReviewPhase.Second -> {
                     SecondContent(
                         uiState = uiState,
-                        onCompanyNameClick = { },
+                        onCompanyNameClick = { viewModel.handleAction(DidTapTextField, InputField.Company) },
                         onRatingsChanged = { viewModel.handleAction(UpdateRatings, it) }
                     )
                 }
@@ -150,7 +150,7 @@ private fun ReviewDialogButtons(
                     shape = shape,
                     colors = nextAndSubmitColor
                 ) {
-                    Text("다음")
+                    Text("다음", style = Typography.body1Bold, color = CS.Gray.White)
                 }
             }
 
@@ -294,7 +294,7 @@ fun InputBottomSheet(
     uiState: CreateReviewUIState,
     onDismissedSheet: () -> Unit,
     onSelectPeriodItem: (WorkPeriod) -> Unit,
-    onChangeTextFieldValue: (InputField, String) -> Unit,
+    onClickSaveButton: (InputField, String) -> Unit,
     onChangeSearchCompaniesQuery: (String) -> Unit,
     onCompanyItemClick: (SearchedCompany) -> Unit,
     onClickClearButton: () -> Unit
@@ -311,6 +311,7 @@ fun InputBottomSheet(
             scope.launch {
                 sheetState.hide()
                 onDismissedSheet()
+                onClickClearButton() // 쿼리 제거 요청
             }
         },
         sheetState = sheetState,
@@ -333,7 +334,13 @@ fun InputBottomSheet(
                     onDismissedSheet()
                 }
             },
-            onChangeTextFieldValue = { field, text -> onChangeTextFieldValue(field, text) },
+            onSaveButtonClick = { field, text ->
+                scope.launch {
+                    onClickSaveButton(field, text)
+                    sheetState.hide()
+                    onDismissedSheet()
+                }
+            },
             onChangeSearchCompaniesQuery = { onChangeSearchCompaniesQuery(it) },
             onCompanyItemClick = {
                 scope.launch {
