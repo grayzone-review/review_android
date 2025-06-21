@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import create_review_dialog.CreateReviewDialog
+import com.presentation.main.scene.MainViewModel.Action.*
 
 @Composable
 fun MainScene(
@@ -25,7 +26,10 @@ fun MainScene(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    CreateReviewDialog(isShow = uiState.isShowCreateReviewDialog, onDismiss =  { })
+    CreateReviewDialog(
+        isShow = uiState.isShowCreateReviewDialog,
+        onDismiss =  { viewModel.handleAction(DidTapCloseSheet) }
+    )
 
     Column(
         modifier = Modifier
@@ -35,7 +39,7 @@ fun MainScene(
         verticalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = {  },
+            onClick = { viewModel.handleAction(DidTapOpenSheet)  },
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
             Text(text = "리뷰-생성")
@@ -52,6 +56,8 @@ fun MainScene(
 @Composable
 fun CreateReviewDialog(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) {
-        CreateReviewDialog(onDismiss = onDismiss)
+        CreateReviewDialog(
+            onDismiss = onDismiss
+        )
     }
 }

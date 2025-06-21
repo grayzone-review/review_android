@@ -35,6 +35,7 @@ import create_review_dialog.type.sheetPartially
 import create_review_dialog.type.step
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import preset_ui.icons.CloseLine
 
 @Composable
 fun CreateReviewDialog(
@@ -75,7 +76,16 @@ private fun content(
             .fillMaxSize()
             .background(color = CS.Gray.White)
     ) {
-        DefaultTopAppBar(title = "리뷰작성")
+        DefaultTopAppBar(
+            title = "리뷰작성",
+            actions = {
+                IconButton(
+                    onClick = { onDismiss() }
+                ) {
+                    CloseLine(24.dp, 24.dp, tint = CS.Gray.G90)
+                }
+            }
+        )
         StepProgressBar(currentStep = uiState.phase.step, totalStep = 3)
         Column(
             modifier = Modifier

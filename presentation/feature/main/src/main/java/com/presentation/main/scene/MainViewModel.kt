@@ -1,31 +1,43 @@
 package com.presentation.main.scene
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import create_review_dialog.CreateReviewDialogViewModel
-import create_review_dialog.CreateReviewUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 
 data class MainUIState(
-    val isShowCreateReviewDialog: Boolean = true
+    val isShowCreateReviewDialog: Boolean = false
 )
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
-
+        DidTapOpenSheet,
+        DidTapCloseSheet
     }
 
     private var _uiState = MutableStateFlow(value = MainUIState())
     val uiState = _uiState.asStateFlow()
 
+    fun handleAction(action: Action) {
+        when (action) {
+            Action.DidTapCloseSheet -> {
+                _uiState.update {
+                    it.copy(isShowCreateReviewDialog = false)
+                }
+            }
+
+            Action.DidTapOpenSheet -> {
+                _uiState.update {
+                    it.copy(isShowCreateReviewDialog = true)
+                }
+            }
+        }
+    }
 
 
 
