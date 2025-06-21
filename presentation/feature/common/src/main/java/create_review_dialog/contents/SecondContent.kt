@@ -27,7 +27,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Ratings
-import com.domain.entity.SearchedCompany
 import com.team.common.feature_api.utility.Utility
 import create_review_dialog.CreateReviewUIState
 import preset_ui.icons.StarFilled
@@ -75,7 +74,7 @@ fun SecondContent(
     onCompanyNameClick: () -> Unit,
     onRatingsChanged: (Ratings) -> Unit
 ) {
-    CompanyNameRow(
+    CompanyRatingHeader(
         companyName = uiState.company?.companyName,
         ratings = uiState.rating,
         onCompanyNameClick = onCompanyNameClick
@@ -91,7 +90,7 @@ fun SecondContent(
 }
 
 @Composable
-private fun CompanyNameRow(
+private fun CompanyRatingHeader(
     companyName: String?,
     ratings: Ratings,
     onCompanyNameClick: () -> Unit
