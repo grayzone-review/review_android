@@ -77,10 +77,11 @@ fun SecondContent(
 ) {
     CompanyNameRow(
         companyName = uiState.company?.companyName,
+        ratings = uiState.rating,
         onCompanyNameClick = onCompanyNameClick
     )
     Column(
-        Modifier.padding(all = 20.dp)
+        Modifier.padding(start = 20.dp)
     ) {
         RatingSection(
             ratings = uiState.rating,
@@ -92,24 +93,31 @@ fun SecondContent(
 @Composable
 private fun CompanyNameRow(
     companyName: String?,
+    ratings: Ratings,
     onCompanyNameClick: () -> Unit
 ) {
-    Row(
+    val ratingKeys: Array<RatingKey> = RatingKey.values()
+    val nonZeroScores: List<Double> = ratingKeys
+        .map { ratings.score(it) }
+        .filter { it > 0.0 }
+    val totalScore: Double = if (nonZeroScores.isNotEmpty()) nonZeroScores.average() else 0.0
+    val textColor = if (totalScore == 0.0) CS.Gray.G50 else CS.Gray.G90
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp)
-            .clickable(onClick = onCompanyNameClick)
+            .height(111.dp)
             .background(CS.Gray.G10),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "기업명",
-            style = Typography.body2Regular,
-            color = CS.Gray.G50,
-            modifier = Modifier.padding(start = 20.dp)
-        )
-        Spacer(Modifier.width(20.dp))
-        Text(text = companyName ?: "", style = Typography.body2Bold, color = CS.PrimaryOrange.O40)
+        Text(text = companyName ?: "" , style = Typography.h3, color = CS.PrimaryOrange.O40, modifier = Modifier.clickable { onCompanyNameClick()  })
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            StarRow(totalScore, resizable = false, onSelect = { })
+            Spacer(Modifier.width(8.dp))
+            Text("%.1f".format(totalScore), style = Typography.h1, color = textColor)
+        }
     }
 }
 
@@ -119,10 +127,6 @@ fun RatingSection(
     onRatingsChanged: (Ratings) -> Unit
 ) {
     val ratingKeys: Array<RatingKey> = RatingKey.values()
-    val nonZeroScores: List<Double> = ratingKeys
-        .map { ratings.score(it) }
-        .filter { it > 0.0 }
-    val totalScore: Double = if (nonZeroScores.isNotEmpty()) nonZeroScores.average() else 0.0
     val density = LocalDensity.current
     val measurer = rememberTextMeasurer()
     val longestText = "기업 문화"
@@ -135,15 +139,6 @@ fun RatingSection(
     }
 
     Column(Modifier.fillMaxWidth()) {
-        Text(text = "기업 총 평점", style = Typography.body1Regular, color = CS.Gray.G90)
-        Spacer(Modifier.height(12.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            StarRow(totalScore, resizable = false, onSelect = { })
-            Spacer(Modifier.width(12.dp))
-            Text("%.1f".format(totalScore), style = Typography.h1, color = CS.Gray.G90)
-        }
-        Spacer(Modifier.height(20.dp))
-
         ratingKeys.forEach { ratingKey ->
             Row (
                 modifier = Modifier.padding(vertical = 20.dp),
