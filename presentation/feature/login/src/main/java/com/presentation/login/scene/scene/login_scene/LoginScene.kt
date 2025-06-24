@@ -1,5 +1,7 @@
 package com.presentation.login.scene.scene.login_scene
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,23 +16,52 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.presentation.designsystem.typography.Typography
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.user.UserApiClient
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.KakaoBubble
+import com.presentation.login.scene.scene.login_scene.LoginViewModel.Action.*
 
 @Composable
 fun LoginScene(
     viewModel: LoginViewModel,
     appBarViewModel: AppBarViewModel
 ) {
+    val context = LocalContext.current
+
     Column(
 //        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.weight(1f))
-        KakaoLoginButton(onClick =  { })
+        KakaoLoginButton(
+            onClick =  {
+                if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+                    UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+                        if (error != null) {
+                            Log.e(TAG, "카카오톡으로 로그인 실패", error)
+
+                            // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
+                            // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
+                            if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
+                                return@loginWithKakaoTalk
+                            }
+
+                            UserApiClient.instance.loginWithKakaoAccount(context, callback = { token, error ->  })
+                        } else if (token != null) {
+                            Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
+                        }
+                    }
+                } else {
+                    UserApiClient.instance.loginWithKakaoAccount(context, callback =  { token, error ->   })
+                }
+            }
+        )
     }
 }
 

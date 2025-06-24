@@ -26,13 +26,15 @@
             android:theme="@style/Theme.ReviewAndroid">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <data android:host="oauth"
+                    android:scheme="${KAKAO_NATIVE_APP_KEY}"/>
             </intent-filter>
         </activity>
         <meta-data
             android:name="com.kakao.vectormap.KAKAO_MAP_KEY"
-            android:value="@string/kakao_map_api_key"/>
+            android:value="${KAKAO_NATIVE_APP_KEY}"/>
     </application>
 
 </manifest>

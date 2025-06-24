@@ -70,15 +70,11 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navigationProvider: NavigationProvider
 
-    @Inject
-    @Named("NATIVE_APP_KEY")
-    lateinit var nativeAppKey: String
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        KakaoMapSdk.init(this, nativeAppKey)
-        KakaoSdk.init(this, nativeAppKey)
+        KakaoMapSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
+        KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         UpDataStoreService.init(context = applicationContext)
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)

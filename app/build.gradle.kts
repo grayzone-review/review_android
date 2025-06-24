@@ -1,3 +1,10 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+val localProperties = Properties()
+localProperties.load(FileInputStream(rootProject.file("local.properties")))
+val kakaoKey = localProperties["kakao_native_app_key"] as String
+
 plugins {
     id("com.android.application")               version "8.10.0"
     id("org.jetbrains.kotlin.android")          version "2.1.10"
@@ -9,23 +16,24 @@ plugins {
 android {
     namespace = AppConfig.NameSpace.app
     compileSdk = AppConfig.compileSdk
-
     defaultConfig {
         applicationId = AppConfig.applicationId
         minSdk = AppConfig.minSdk
         targetSdk = AppConfig.targetSdk
         versionCode = AppConfig.versionCode
         versionName = AppConfig.versionName
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoKey
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String","KAKAO_NATIVE_APP_KEY","\"$kakaoKey\"")
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String","KAKAO_NATIVE_APP_KEY","\"$kakaoKey\"")
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-
-            )
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -36,6 +44,7 @@ android {
         jvmTarget = AppConfig.jvmTarget
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }
