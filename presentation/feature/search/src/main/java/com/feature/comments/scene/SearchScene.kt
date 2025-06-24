@@ -128,7 +128,7 @@ fun Appbar(appBarViewModel: AppBarViewModel, searchUIState: SearchUIState) {
 }
 
 @Composable
-fun SearchTextField(
+private fun SearchTextField(
     searchUIState: SearchUIState,
     onTextChange: (String) -> Unit,
     onFocusChange: (FocusState) -> Unit,

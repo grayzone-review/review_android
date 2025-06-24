@@ -36,7 +36,9 @@
             <option value="$PROJECT_DIR$/presentation" />
             <option value="$PROJECT_DIR$/presentation/design-system" />
             <option value="$PROJECT_DIR$/presentation/feature" />
+            <option value="$PROJECT_DIR$/presentation/feature/common" />
             <option value="$PROJECT_DIR$/presentation/feature/company-detail" />
+            <option value="$PROJECT_DIR$/presentation/feature/main" />
             <option value="$PROJECT_DIR$/presentation/feature/search" />
           </set>
         </option>

@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":data:repository-implementation"))
     implementation(project(":presentation:feature:company-detail"))
     implementation(project(":presentation:feature:search"))
+    implementation(project(":presentation:feature:main"))
     implementation(project(":common"))
     implementation(project(":presentation:design-system"))
     implementation(project(":data:storage"))

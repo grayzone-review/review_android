@@ -265,3 +265,48 @@ fun FollowAddOffIcon(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun ArrowDownIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+    tint: Color
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.arrow_down),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+@Composable
+fun ReviewCheckLine(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.review_check_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+@Composable
+fun CheckCircleFill(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.check_circle_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
