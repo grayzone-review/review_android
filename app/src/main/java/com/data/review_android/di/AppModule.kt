@@ -10,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.presentation.company_detail.ReviewAPI
+import com.presentation.login.scene.LoginAPI
 import com.presentation.main.MainAPI
 import javax.inject.Named
 
@@ -28,12 +29,14 @@ object AppModule {
     fun provideNavigationProvider(
         mainAPI: MainAPI,
         reviewAPI: ReviewAPI,
-        searchAPI: SearchAPI
+        searchAPI: SearchAPI,
+        loginAPI: LoginAPI
     ): NavigationProvider {
         return NavigationProvider(
             mainAPI = mainAPI,
             reviewAPI = reviewAPI,
-            searchAPI = searchAPI
+            searchAPI = searchAPI,
+            loginAPI = loginAPI
         )
     }
 }

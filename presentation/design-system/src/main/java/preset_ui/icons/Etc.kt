@@ -310,3 +310,17 @@ fun CheckCircleFill(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun KakaoBubble(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.kakao_bubble),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
