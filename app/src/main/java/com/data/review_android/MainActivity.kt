@@ -52,6 +52,7 @@ import com.data.review_android.ui.theme.ReviewAndroidTheme
 import com.data.review_android.ui.theme.Typography
 import com.data.storage.datastore.UpDataStoreService
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.kakao.sdk.common.KakaoSdk
 import com.kakao.vectormap.KakaoMapSdk
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
@@ -77,6 +78,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         KakaoMapSdk.init(this, nativeAppKey)
+        KakaoSdk.init(this, nativeAppKey)
         UpDataStoreService.init(context = applicationContext)
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)

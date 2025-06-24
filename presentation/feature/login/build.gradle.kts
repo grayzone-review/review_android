@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":presentation:design-system"))
     implementation(project(":domain:usecase"))
 
+    implementation(Kakao.login)
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)

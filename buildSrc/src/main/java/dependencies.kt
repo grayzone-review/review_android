@@ -24,6 +24,8 @@ object Versions {
 
     // ── Kakao ─────────────────────────────
     const val map                   = "2.12.8"
+    const val login                 = "2.21.4"
+
 }
 
 object Deps {
@@ -70,4 +72,5 @@ object DaggerHilt {
 
 object Kakao {
     const val map                       = "com.kakao.maps.open:android:${Versions.map}"
+    const val login                     = "com.kakao.sdk:v2-user:${Versions.login}"
 }
