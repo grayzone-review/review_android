@@ -1,7 +1,5 @@
 package com.presentation.login.scenes.login
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +11,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,6 +24,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.KakaoBubble
+import com.presentation.login.scenes.sign_up.SignUpDialog
 
 @Composable
 fun LoginScene(
@@ -31,6 +32,9 @@ fun LoginScene(
     appBarViewModel: AppBarViewModel
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    ResisterCreateAccountDialog(isShow = uiState.shoudShowCreateAccountDialog)
 
     Column(
 //        verticalArrangement = Arrangement.Center,
@@ -40,25 +44,30 @@ fun LoginScene(
         KakaoLoginButton(
             onClick =  {
                 if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
-                    Log.d(TAG, "카카오톡 로그인 사용 가능")
                     UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                         if (error != null) {
-                            Log.e(TAG, "카카오톡으로 로그인 실패", error)
-
-                            // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-                            // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
                             if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
                                 return@loginWithKakaoTalk
                             }
-                            Log.e(TAG, "이쪽지점")
-                            UserApiClient.instance.loginWithKakaoAccount(context, callback = viewModel.callback)
+                            UserApiClient.instance.loginWithKakaoAccount(context) { token2, error2 ->
+                                if (error2 != null) {
+                                    viewModel.handleAction(LoginViewModel.Action.FailedKakaoLogin, error2)
+                                } else if (token2 != null) {
+                                    viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin)
+                                }
+                            }
                         } else if (token != null) {
-                            Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
+                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin)
                         }
                     }
                 } else {
-                    Log.d(TAG, "카카오톡 로그인 사용 가능2 구간")
-                    UserApiClient.instance.loginWithKakaoAccount(context, callback = viewModel.callback)
+                    UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
+                        if (error != null) {
+                            viewModel.handleAction(LoginViewModel.Action.FailedKakaoLogin, error)
+                        } else if (token != null) {
+                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin)
+                        }
+                    }
                 }
             }
         )
@@ -93,4 +102,9 @@ fun KakaoLoginButton(
             Text(text = "카카오톡으로 시작하기", style = Typography.body1Bold, color = kakaoBrown)
         }
     }
+}
+
+@Composable
+fun ResisterCreateAccountDialog(isShow: Boolean) {
+    if (isShow) SignUpDialog(onDismiss = { })
 }
