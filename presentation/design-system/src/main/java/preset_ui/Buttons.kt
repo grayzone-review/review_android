@@ -1,12 +1,14 @@
 package preset_ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -125,6 +127,40 @@ fun SimpleTextFieldButton(
                     strokeWidth = 1.dp.toPx()
                 )
             },
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            text = if (value.isEmpty()) placeholder else value,
+            style = textStyle,
+            color = if (value.isEmpty()) CS.Gray.G50 else CS.Gray.G90,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        if (selectableMark) {
+            ArrowDownIcon(24.dp, 24.dp, tint = CS.Gray.G50, modifier = Modifier.align(Alignment.CenterEnd))
+        }
+    }
+}
+
+
+@Composable
+fun SimpleTextFieldOutlinedButton(
+    value: String,
+    placeholder: String,
+    selectableMark: Boolean,
+    onClick: () -> Unit
+) {
+    val textStyle = Typography.body1Regular
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 52.dp)
+            .border(width = 1.dp, color = CS.Gray.G20, shape = RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         Text(

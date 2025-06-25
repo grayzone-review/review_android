@@ -46,6 +46,7 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import preset_ui.icons.CloseLine
 import com.presentation.login.scenes.sign_up.SignUpDialogViewModel.Action.*
 import preset_ui.SimpleTextFieldButton
+import preset_ui.SimpleTextFieldOutlinedButton
 import preset_ui.icons.RightArrowIcon
 import preset_ui.icons.SignUpRemove
 
@@ -187,7 +188,7 @@ private fun MyTownInput(
     Column {
         Text(text = "우리 동네 설정", style = Typography.h3, color = CS.Gray.G90)
         Spacer(Modifier.height(10.dp))
-        SimpleTextFieldButton(
+        SimpleTextFieldOutlinedButton (
             value = value,
             placeholder = "동 검색하기",
             selectableMark = false,
