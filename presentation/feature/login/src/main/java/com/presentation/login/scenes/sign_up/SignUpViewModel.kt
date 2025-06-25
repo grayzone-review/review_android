@@ -25,7 +25,7 @@ data class SignUpUIState(
     val isSubmitEnabled: Boolean = false
 )
 
-class SignUpDialogViewModel @Inject constructor() : ViewModel() {
+class SignUpViewModel @Inject constructor() : ViewModel() {
     enum class Action {
         UpdateNickNameTextField,
         DidTapCheckDuplicateButton,

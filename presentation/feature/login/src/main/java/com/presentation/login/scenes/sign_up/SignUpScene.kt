@@ -37,24 +37,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavHostController
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import preset_ui.icons.CloseLine
-import com.presentation.login.scenes.sign_up.SignUpDialogViewModel.Action.*
+import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.*
+import com.presentation.login.scenes.sign_up.navgraph.SignUpNavRoute
 import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.SimpleTextFieldOutlinedButton
 import preset_ui.icons.RightArrowIcon
 import preset_ui.icons.SignUpRemove
 
 @Composable
-fun SignUpDialog(
+fun SignUpScene(
     onDismiss: () -> Unit,
-    viewModel: SignUpDialogViewModel = hiltViewModel()
+    navHostController: NavHostController,
+    viewModel: SignUpViewModel = hiltViewModel()
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -63,14 +65,15 @@ fun SignUpDialog(
             decorFitsSystemWindows = false
         )
     ) {
-        content(onDismiss = { }, viewModel = viewModel)
+        content(onDismiss = { }, viewModel = viewModel, navHostController)
     }
 }
 
 @Composable
 private fun content(
     onDismiss: () -> Unit,
-    viewModel: SignUpDialogViewModel
+    viewModel: SignUpViewModel,
+    navHostController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
@@ -102,7 +105,10 @@ private fun content(
             InterestInput(
                 towns = uiState.interestTowns,
                 onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton, it) },
-                onAddTownButtonClick = { viewModel.handleAction(DidTapAddInterestTownButton) }
+                onAddTownButtonClick = {
+                    viewModel.handleAction(DidTapAddInterestTownButton)
+                    navHostController.navigate(SignUpNavRoute.SearchAddress.route)
+                }
             )
             TermsSection(
                 terms = uiState.terms,

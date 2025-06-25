@@ -24,7 +24,7 @@ import com.kakao.sdk.user.UserApiClient
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.KakaoBubble
-import com.presentation.login.scenes.sign_up.SignUpDialog
+import com.presentation.login.scenes.sign_up.SignUpRootDialog
 
 @Composable
 fun LoginScene(
@@ -106,5 +106,5 @@ fun KakaoLoginButton(
 
 @Composable
 fun ResisterCreateAccountDialog(isShow: Boolean) {
-    if (isShow) SignUpDialog(onDismiss = { })
+    if (isShow) SignUpRootDialog()
 }
