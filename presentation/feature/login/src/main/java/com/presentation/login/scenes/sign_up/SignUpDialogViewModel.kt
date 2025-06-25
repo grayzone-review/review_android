@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
+enum class TermKind { ALL, SERVICE, PRIVACY, LOCATION }
+
 data class TermsAgreement(
     val service: Boolean = false,
     val privacy: Boolean = false,
@@ -29,7 +31,6 @@ class SignUpDialogViewModel @Inject constructor() : ViewModel() {
         DidTapCheckDuplicateButton,
         DidTapMyTownTextFieldButton,
         DidTapRemoveInterestTownButton,
-        DidTapInterestTownItem,
         DidTapAddInterestTownButton,
         DidTapCheckBox,
         DidTapDetailButton,
@@ -43,29 +44,33 @@ class SignUpDialogViewModel @Inject constructor() : ViewModel() {
         when (action) {
             Action.UpdateNickNameTextField -> {
                 val newNickname = value as? String ?: return
-                _uiState.update { it.copy(nickname = newNickname) }
+                _uiState.update {
+                    it.copy(nickname = newNickname)
+                        .checkSubmitValidation()
+                }
             }
             Action.DidTapCheckDuplicateButton -> {
-                // TODO: Check 듀플리케이트
+                // TODO: Check 듀플리케이트 -> API 나오면 처리
             }
             Action.DidTapSubmitButton -> {
-                // TODO: Check Submitable
+                // TODO: Check Submit -> API 나오면 처리
             }
             Action.DidTapMyTownTextFieldButton -> {
-                // TODO: MyTownTextfieldButton
+                // TODO: MyTownTextFieldButton Navigate
             }
             Action.DidTapRemoveInterestTownButton -> {
-
-            }
-            Action.DidTapInterestTownItem -> {
-
+                val targetInterest = value as? String ?: return
+                _uiState.update { state ->
+                    state.copy(interestTowns = state.interestTowns
+                        .filterNot { it == targetInterest }
+                    )
+                }
             }
             Action.DidTapAddInterestTownButton -> {
-
+                // TODO: MyTownTextFieldButton Navigate
             }
             Action.DidTapCheckBox -> {
                 val kind = value as? TermKind ?: return
-
                 _uiState.update { state ->
                     val current = state.terms
                     val newTerms = when (kind) {
@@ -75,12 +80,17 @@ class SignUpDialogViewModel @Inject constructor() : ViewModel() {
                         TermKind.LOCATION -> current.copy(location = !current.location)
                     }
                     state.copy(terms = newTerms)
+                        .checkSubmitValidation()
                 }
             }
             Action.DidTapDetailButton -> {
-
+                // TODO: WebView Navigate
             }
         }
     }
 
 }
+
+private fun SignUpUIState.checkSubmitValidation(): SignUpUIState = copy(
+    isSubmitEnabled = nickname.isNotBlank() && myTown.isNotBlank() && terms.all
+)

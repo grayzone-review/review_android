@@ -37,7 +37,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import colors.CS
@@ -45,7 +46,7 @@ import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import preset_ui.icons.CloseLine
 import com.presentation.login.scenes.sign_up.SignUpDialogViewModel.Action.*
-import preset_ui.SimpleTextFieldButton
+import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.SimpleTextFieldOutlinedButton
 import preset_ui.icons.RightArrowIcon
 import preset_ui.icons.SignUpRemove
@@ -73,9 +74,12 @@ private fun content(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
 
     Column(
-        modifier = Modifier.background(CS.Gray.White)
+        modifier = Modifier
+            .background(CS.Gray.White)
+            .addFocusCleaner(focusManager)
     ) {
         TopAppBar { onDismiss() }
         Column(
@@ -97,8 +101,7 @@ private fun content(
             )
             InterestInput(
                 towns = uiState.interestTowns,
-                onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton) },
-                onInterestTownItemClick = { viewModel.handleAction(DidTapAddInterestTownButton) },
+                onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton, it) },
                 onAddTownButtonClick = { viewModel.handleAction(DidTapAddInterestTownButton) }
             )
             TermsSection(
@@ -200,7 +203,6 @@ private fun MyTownInput(
 @Composable
 private fun InterestInput(
     towns: List<String>,
-    onInterestTownItemClick: (String) -> Unit,
     onRemoveButtonClick: (String) -> Unit,
     onAddTownButtonClick: () -> Unit
 ) {
@@ -213,7 +215,6 @@ private fun InterestInput(
             items(towns, key = { it }) { town ->
                 DeletableTownChip(
                     text = town,
-                    onItemClick = { onInterestTownItemClick(town) },
                     onDelete = { onRemoveButtonClick(town) }
                 )
             }
@@ -230,7 +231,6 @@ private fun InterestInput(
 @Composable
 private fun DeletableTownChip(
     text: String,
-    onItemClick: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -239,7 +239,6 @@ private fun DeletableTownChip(
             .height(48.dp)
             .border(width = 1.dp, color = CS.PrimaryOrange.O40, shape = RoundedCornerShape(8.dp))
             .background(color = CS.PrimaryOrange.O10, shape = RoundedCornerShape(8.dp))
-            .clickable { onItemClick() }
             .zIndex(2f)
     ) {
         Text(
@@ -284,7 +283,6 @@ private fun AddTownChip(
 }
 
 
-enum class TermKind { ALL, SERVICE, PRIVACY, LOCATION }
 @Composable
 fun TermsSection(
     terms: TermsAgreement,
@@ -297,7 +295,7 @@ fun TermsSection(
             label = "약관 전체 동의",
             kind = TermKind.ALL,
             onCheckboxButtonClick = { onCheckBoxButtonClick(TermKind.ALL) },
-            onDetailButtonClick = {} // 없음
+            onDetailButtonClick = {}
         )
         HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = CS.Gray.G20)
         TermRow(
@@ -371,7 +369,9 @@ private fun TermRow(
 
 
 @Composable
-private fun TopAppBar(onCloseButtonClick: () -> Unit) {
+private fun TopAppBar(
+    onCloseButtonClick: () -> Unit
+) {
     DefaultTopAppBar(
         title = "회원 가입",
         actions = {
