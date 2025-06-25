@@ -42,6 +42,7 @@ fun LoginScene(
         KakaoLoginButton(
             onClick =  {
                 if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+                    Log.d(TAG, "카카오톡 로그인 사용 가능")
                     UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
                         if (error != null) {
                             Log.e(TAG, "카카오톡으로 로그인 실패", error)
@@ -51,14 +52,15 @@ fun LoginScene(
                             if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
                                 return@loginWithKakaoTalk
                             }
-
-                            UserApiClient.instance.loginWithKakaoAccount(context, callback = { token, error ->  })
+                            Log.e(TAG, "이쪽지점")
+                            UserApiClient.instance.loginWithKakaoAccount(context, callback = viewModel.callback)
                         } else if (token != null) {
                             Log.i(TAG, "카카오톡으로 로그인 성공 ${token.accessToken}")
                         }
                     }
                 } else {
-                    UserApiClient.instance.loginWithKakaoAccount(context, callback =  { token, error ->   })
+                    Log.d(TAG, "카카오톡 로그인 사용 가능2 구간")
+                    UserApiClient.instance.loginWithKakaoAccount(context, callback = viewModel.callback)
                 }
             }
         )
