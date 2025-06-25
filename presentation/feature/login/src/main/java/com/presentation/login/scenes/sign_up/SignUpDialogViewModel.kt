@@ -3,6 +3,7 @@ package com.presentation.login.scenes.sign_up
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class TermsAgreement(
@@ -18,21 +19,32 @@ data class SignUpUIState(
     val nickname: String = "",
     val myTown: String = "",
     val interestTowns: List<String> = emptyList(),
-    val terms: TermsAgreement = TermsAgreement()
+    val terms: TermsAgreement = TermsAgreement(),
+    val isSubmitEnabled: Boolean = false
 )
 
 class SignUpDialogViewModel @Inject constructor() : ViewModel() {
     enum class Action {
-        Hi
-
+        UpdateNickNameTextField,
+        DidTapCheckDuplicateButton,
+        DidTapSubmitButton
     }
 
     private var _uiState = MutableStateFlow(value = SignUpUIState())
     val uiState = _uiState.asStateFlow()
 
-    fun handleAction(action: Action, value: Any? = null) = when (action) {
-        Action.Hi -> {
-
+    fun handleAction(action: Action, value: Any? = null) {
+        when (action) {
+            Action.UpdateNickNameTextField -> {
+                val newNickname = value as? String ?: return
+                _uiState.update { it.copy(nickname = newNickname) }
+            }
+            Action.DidTapCheckDuplicateButton -> {
+                // TODO: Check 듀플리케이트
+            }
+            Action.DidTapSubmitButton -> {
+                // TODO: Check Submitable
+            }
         }
     }
 
