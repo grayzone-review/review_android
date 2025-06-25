@@ -1,8 +1,7 @@
-package com.presentation.login.scene.scene.login_scene
+package com.presentation.login.scenes.login
 
 import android.content.ContentValues.TAG
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +24,6 @@ import com.kakao.sdk.user.UserApiClient
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.KakaoBubble
-import com.presentation.login.scene.scene.login_scene.LoginViewModel.Action.*
 
 @Composable
 fun LoginScene(

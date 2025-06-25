@@ -1,7 +1,7 @@
-package com.presentation.login.scene.di
+package com.presentation.login.di
 
-import com.presentation.login.scene.LoginAPI
-import com.presentation.login.scene.LoginAPIImpl
+import com.presentation.login.LoginAPI
+import com.presentation.login.LoginAPIImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

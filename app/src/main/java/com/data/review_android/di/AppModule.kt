@@ -1,18 +1,14 @@
 package com.data.review_android.di
 
-import android.content.Context
-import com.data.review_android.R
 import com.data.review_android.navigation.NavigationProvider
 import com.feature.comments.SearchAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.presentation.company_detail.ReviewAPI
-import com.presentation.login.scene.LoginAPI
+import com.presentation.login.LoginAPI
 import com.presentation.main.MainAPI
-import javax.inject.Named
 
 @InstallIn(SingletonComponent::class)
 @Module

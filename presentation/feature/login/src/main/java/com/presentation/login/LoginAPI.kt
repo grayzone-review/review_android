@@ -1,4 +1,4 @@
-package com.presentation.login.scene
+package com.presentation.login
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
@@ -6,8 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
-import com.presentation.login.scene.scene.login_scene.LoginScene
-import com.presentation.login.scene.scene.login_scene.LoginViewModel
+import com.presentation.login.scenes.login.LoginScene
+import com.presentation.login.scenes.login.LoginViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.FeatureAPI
 

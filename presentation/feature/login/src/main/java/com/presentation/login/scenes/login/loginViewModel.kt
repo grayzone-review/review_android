@@ -1,12 +1,9 @@
-package com.presentation.login.scene.scene.login_scene
+package com.presentation.login.scenes.login
 
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.util.Log
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import com.kakao.sdk.auth.model.OAuthToken
-import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
