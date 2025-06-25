@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class TermsAgreement(
-    val service: Boolean = false,   // [필수] 서비스 이용 약관
-    val privacy: Boolean = false,   // [필수] 개인정보 수집‧이용
-    val location: Boolean = false   // [필수] 위치 기반 서비스
+    val service: Boolean = false,
+    val privacy: Boolean = false,
+    val location: Boolean = false
 ) {
     val all: Boolean
         get() = service && privacy && location
@@ -18,7 +18,7 @@ data class TermsAgreement(
 data class SignUpUIState(
     val nickname: String = "",
     val myTown: String = "",
-    val interestTowns: List<String> = emptyList(),
+    val interestTowns: List<String> = listOf("수유3동", "면목동"),
     val terms: TermsAgreement = TermsAgreement(),
     val isSubmitEnabled: Boolean = false
 )
@@ -27,6 +27,12 @@ class SignUpDialogViewModel @Inject constructor() : ViewModel() {
     enum class Action {
         UpdateNickNameTextField,
         DidTapCheckDuplicateButton,
+        DidTapMyTownTextFieldButton,
+        DidTapRemoveInterestTownButton,
+        DidTapInterestTownItem,
+        DidTapAddInterestTownButton,
+        DidTapCheckBox,
+        DidTapDetailButton,
         DidTapSubmitButton
     }
 
@@ -44,6 +50,35 @@ class SignUpDialogViewModel @Inject constructor() : ViewModel() {
             }
             Action.DidTapSubmitButton -> {
                 // TODO: Check Submitable
+            }
+            Action.DidTapMyTownTextFieldButton -> {
+                // TODO: MyTownTextfieldButton
+            }
+            Action.DidTapRemoveInterestTownButton -> {
+
+            }
+            Action.DidTapInterestTownItem -> {
+
+            }
+            Action.DidTapAddInterestTownButton -> {
+
+            }
+            Action.DidTapCheckBox -> {
+                val kind = value as? TermKind ?: return
+
+                _uiState.update { state ->
+                    val current = state.terms
+                    val newTerms = when (kind) {
+                        TermKind.ALL -> current.copy(service = !current.all, privacy = !current.all, location = !current.all)
+                        TermKind.SERVICE -> current.copy(service = !current.service)
+                        TermKind.PRIVACY -> current.copy(privacy = !current.privacy)
+                        TermKind.LOCATION -> current.copy(location = !current.location)
+                    }
+                    state.copy(terms = newTerms)
+                }
+            }
+            Action.DidTapDetailButton -> {
+
             }
         }
     }

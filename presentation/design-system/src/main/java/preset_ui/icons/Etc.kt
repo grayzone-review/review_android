@@ -125,6 +125,22 @@ fun BackBarButtonIcon(
 }
 
 @Composable
+fun RightArrowIcon(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.arrow_right_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+
+@Composable
 fun SearchLineIcon(
     width: Dp,
     height: Dp,
@@ -319,6 +335,20 @@ fun KakaoBubble(
 ) {
     Icon(
         painter = painterResource(com.presentation.design_system.R.drawable.kakao_bubble),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun SignUpRemove(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.signup_remove),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified
