@@ -22,9 +22,9 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
+import com.presentation.login.scenes.sign_up.SignUpRootDialog
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.KakaoBubble
-import com.presentation.login.scenes.sign_up.SignUpRootDialog
 
 @Composable
 fun LoginScene(
@@ -106,5 +106,5 @@ fun KakaoLoginButton(
 
 @Composable
 fun ResisterCreateAccountDialog(isShow: Boolean) {
-    if (isShow) SignUpRootDialog()
+    if (isShow) SignUpRootDialog(onDismiss =  { })
 }

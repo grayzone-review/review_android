@@ -354,3 +354,18 @@ fun SignUpRemove(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun MapPinTintable(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mappin_tintable),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
