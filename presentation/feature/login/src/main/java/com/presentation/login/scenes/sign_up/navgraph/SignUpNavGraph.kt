@@ -27,7 +27,7 @@ fun SignUpNavGraph(
             )
         }
         composable(SignUpNavRoute.SearchAddress.route) {
-            SearchAddressScene()
+            SearchAddressScene(navHostController = navController)
         }
     }
 }

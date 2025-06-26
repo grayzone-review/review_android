@@ -237,36 +237,32 @@ private fun InterestInput(
 @Composable
 private fun DeletableTownChip(
     text: String,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    onDelete: () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .height(48.dp)
-            .border(width = 1.dp, color = CS.PrimaryOrange.O40, shape = RoundedCornerShape(8.dp))
-            .background(color = CS.PrimaryOrange.O10, shape = RoundedCornerShape(8.dp))
-            .zIndex(2f)
-    ) {
-        Text(
-            text = text,
-            style = Typography.body1Bold,
-            color = CS.PrimaryOrange.O40,
+    Box {
+        Box(
             modifier = Modifier
-                .align(Alignment.CenterStart)
-                .padding(horizontal = 20.dp)
-        )
+                .height(48.dp)
+                .border(1.dp, CS.PrimaryOrange.O40, RoundedCornerShape(8.dp))
+                .background(CS.PrimaryOrange.O10, RoundedCornerShape(8.dp))
+                .padding(horizontal = 20.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = text, style = Typography.body1Bold, color = CS.PrimaryOrange.O40)
+        }
+        // ② 삭제 아이콘 ― 칩과 형제이므로 border 위에 자연스럽게 올라감
         IconButton(
             onClick = onDelete,
             modifier = Modifier
                 .size(18.dp)
                 .align(Alignment.TopEnd)
                 .offset(x = 5.dp, y = (-5).dp)
-                .zIndex(1f)
         ) {
             SignUpRemove(18.dp, 18.dp)
         }
     }
 }
+
 
 @Composable
 private fun AddTownChip(
