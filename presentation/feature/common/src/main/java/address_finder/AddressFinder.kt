@@ -84,6 +84,8 @@ fun AddressBulletItem(
     onClick: () -> Unit
 ) {
     var isSelected by rememberSaveable(address) { mutableStateOf(false) }
+    val selectColor = if (isSelected) CS.PrimaryOrange.O40 else CS.Gray.G90
+    val selectFont = if (isSelected) Typography.body1Bold else Typography.body1Regular
 
     Row(
         modifier = Modifier
@@ -95,10 +97,10 @@ fun AddressBulletItem(
             .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "•", style = Typography.body1Bold, color = CS.Gray.G90, modifier = Modifier
+        Text(text = "•", style = selectFont, color = selectColor, modifier = Modifier
             .padding(end = 8.dp)
         )
-        Text(text = address, style = Typography.body1Regular, color = CS.Gray.G90, modifier = Modifier
+        Text(text = address, style = selectFont, color = selectColor, modifier = Modifier
             .weight(1f)
         )
 
