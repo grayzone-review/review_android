@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import colors.CS
 
 @Composable
 fun ChatLine(
@@ -170,6 +169,20 @@ fun CloseFillIcon(
 }
 
 @Composable
+fun CloseFillTint(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.close_fill_tint),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
 fun AroundIcon(
     isOn: Boolean,
     width: Dp,
@@ -316,11 +329,10 @@ fun ReviewCheckLine(
 fun CheckCircleFill(
     width: Dp,
     height: Dp,
-    tint: Color,
     modifier: Modifier = Modifier
 ) {
     Icon(
-        painter = painterResource(com.presentation.design_system.R.drawable.check_circle_fill),
+        painter = painterResource(com.presentation.design_system.R.drawable.check_fill_tint),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified

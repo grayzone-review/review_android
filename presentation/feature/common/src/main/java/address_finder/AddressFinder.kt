@@ -1,7 +1,7 @@
 package address_finder
 
 import address_finder.AddressFinderViewModel.Action.GetAddresses
-import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,21 +20,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import preset_ui.icons.CheckCircleFill
 import preset_ui.icons.MapPinTintable
 
 @Composable
 fun AddressFinder(
     query: String,
-    viewModel: AddressFinderViewModel = hiltViewModel()
+    viewModel: AddressFinderViewModel = hiltViewModel(),
+    onAddressItemClick: (String) -> Unit
 ) {
     LaunchedEffect(query) {
-        Log.d("여기 몇번타나", "몇번")
         viewModel.handleAction(GetAddresses, query)
     }
 
@@ -43,26 +47,33 @@ fun AddressFinder(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(all = 20.dp)
         ,horizontalAlignment = Alignment.CenterHorizontally
     ) {
         FindMyLocationButton(
             onClick = { }
         )
         AddressList(
-            addresses = uiState.addresses
+            addresses = uiState.addresses,
+            onAddressItemClick = { onAddressItemClick(it) }
         )
     }
 }
 
 @Composable
 fun AddressList(
-    addresses: List<String>
+    addresses: List<String>,
+    onAddressItemClick: (String) -> Unit
 ) {
+    Spacer(modifier = Modifier.height(10.dp))
     LazyColumn(
         modifier = Modifier.fillMaxWidth()
     ) {
         items(addresses) { address ->
-            AddressBulletItem(address)
+            AddressBulletItem(
+                address = address,
+                onClick = { onAddressItemClick(address) }
+            )
         }
     }
 }
@@ -70,24 +81,31 @@ fun AddressList(
 @Composable
 fun AddressBulletItem(
     address: String,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
+    var isSelected by rememberSaveable(address) { mutableStateOf(false) }
+
     Row(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp, horizontal = 16.dp),
+            .clickable {
+                isSelected = !isSelected
+                onClick()
+            }
+            .padding(vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // ● 또는 • 원하는 글리프 사용
-        Text(
-            text = "•",
-            style = Typography.body1Bold,
-            modifier = Modifier.padding(end = 8.dp)
+        Text(text = "•", style = Typography.body1Bold, color = CS.Gray.G90, modifier = Modifier
+            .padding(end = 8.dp)
         )
-        Text(
-            text = address,
-            style = Typography.body1Regular
+        Text(text = address, style = Typography.body1Regular, color = CS.Gray.G90, modifier = Modifier
+            .weight(1f)
         )
+
+        /* 선택된 경우에만 체크 아이콘 표시 */
+        if (isSelected) {
+            CheckCircleFill(24.dp, 24.dp)
+        }
     }
 }
 

@@ -338,7 +338,7 @@ private fun SearchResultItem(
         }
 
         if (selected) {
-            CheckCircleFill(24.dp, 24.dp, tint = CS.PrimaryOrange.O40)
+            CheckCircleFill(24.dp, 24.dp)
         }
     }
 }
