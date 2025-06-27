@@ -3,6 +3,7 @@ package com.presentation.login.scenes.search_address
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class SearchAddressUIState(
@@ -20,7 +21,8 @@ class SearchAddressViewModel @Inject constructor() : ViewModel() {
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
             Action.UpdateSearchQuery -> {
-
+                val query = value as? String ?: return
+                _uiState.update { it.copy(query = query) }
             }
         }
     }

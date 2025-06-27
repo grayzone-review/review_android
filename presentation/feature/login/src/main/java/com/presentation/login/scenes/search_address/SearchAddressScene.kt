@@ -12,11 +12,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
 import com.presentation.design_system.appbar.appbars.SearchableTopAppBar
+import com.presentation.login.scenes.search_address.SearchAddressViewModel.Action.UpdateSearchQuery
+import com.team.common.feature_api.extension.addFocusCleaner
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -26,17 +29,17 @@ fun SearchAddressScene(
     navHostController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
     val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .addFocusCleaner(focusManager = LocalFocusManager.current)
             .background(CS.Gray.White)
     ) {
         SearchableTopAppBar(
-            keyword = "",
-            onKeywordChange = { },
+            keyword = uiState.query,
+            onKeywordChange = { viewModel.handleAction(UpdateSearchQuery, it) },
             onBack = { navHostController.popBackStack() },
             onCancel = { }
         )
@@ -45,6 +48,9 @@ fun SearchAddressScene(
             query = "",
             onAddressItemClick = {
                 scope.launch {
+                    navHostController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("selectedAddress", it)
                     delay(timeMillis = 300)
                     navHostController.popBackStack()
                 }

@@ -30,6 +30,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,11 +42,9 @@ import androidx.navigation.NavHostController
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
-import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapAddInterestTownButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckBox
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckDuplicateButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapDetailButton
-import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapMyTownTextFieldButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapSubmitButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.UpdateNickNameTextField
@@ -65,6 +64,17 @@ fun SignUpScene(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
+
+    val savedStateHandle = navHostController.currentBackStackEntry!!.savedStateHandle
+    val address by savedStateHandle
+        .getStateFlow<String?>("addressResult", null)
+        .collectAsState()
+
+    LaunchedEffect(address) {
+        address?.let {
+            savedStateHandle["addressResult"] = null   // 1회성 소비 후 초기화
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -87,15 +97,12 @@ fun SignUpScene(
             )
             MyTownInput(
                 value = uiState.myTown,
-                onClick = { viewModel.handleAction(DidTapMyTownTextFieldButton) }
+                onClick = { navHostController.navigate(SignUpNavRoute.SearchAddress.route) }
             )
             InterestInput(
                 towns = uiState.interestTowns,
                 onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton, it) },
-                onAddTownButtonClick = {
-                    viewModel.handleAction(DidTapAddInterestTownButton)
-                    navHostController.navigate(SignUpNavRoute.SearchAddress.route)
-                }
+                onAddTownButtonClick = { navHostController.navigate(SignUpNavRoute.SearchAddress.route) }
             )
             TermsSection(
                 terms = uiState.terms,

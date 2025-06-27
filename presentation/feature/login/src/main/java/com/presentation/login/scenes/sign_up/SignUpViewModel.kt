@@ -29,9 +29,7 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
     enum class Action {
         UpdateNickNameTextField,
         DidTapCheckDuplicateButton,
-        DidTapMyTownTextFieldButton,
         DidTapRemoveInterestTownButton,
-        DidTapAddInterestTownButton,
         DidTapCheckBox,
         DidTapDetailButton,
         DidTapSubmitButton
@@ -55,9 +53,6 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
             Action.DidTapSubmitButton -> {
                 // TODO: Check Submit -> API 나오면 처리
             }
-            Action.DidTapMyTownTextFieldButton -> {
-                // TODO: MyTownTextFieldButton Navigate
-            }
             Action.DidTapRemoveInterestTownButton -> {
                 val targetInterest = value as? String ?: return
                 _uiState.update { state ->
@@ -65,9 +60,6 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
                         .filterNot { it == targetInterest }
                     )
                 }
-            }
-            Action.DidTapAddInterestTownButton -> {
-                // TODO: MyTownTextFieldButton Navigate
             }
             Action.DidTapCheckBox -> {
                 val kind = value as? TermKind ?: return
