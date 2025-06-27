@@ -1,6 +1,7 @@
 package address_finder
 
-import address_finder.AddressFinderViewModel.Action.GetAddresses
+import address_finder.AddressFinderViewModel.Action.DismissSettingAlert
+import address_finder.AddressFinderViewModel.Action.ShoudShowSettingAlert
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,40 +26,54 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
+import com.data.location.LocationService
 import com.example.presentation.designsystem.typography.Typography
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.team.common.feature_api.extension.openAppSettings
 import preset_ui.icons.CheckCircleFill
 import preset_ui.icons.MapPinTintable
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun AddressFinder(
     query: String,
     viewModel: AddressFinderViewModel = hiltViewModel(),
     onAddressItemClick: (String) -> Unit
 ) {
-    LaunchedEffect(query) {
-        viewModel.handleAction(GetAddresses, query)
-    }
-
     val uiState by viewModel.uiState.collectAsState()
+    val permissionState = rememberMultiplePermissionsState(LocationService.locationPermissions)
+    val context = LocalContext.current
+
+    LaunchedEffect(query) { viewModel.handleAction(AddressFinderViewModel.Action.GetAddresses, query) }
+
+    SettingAlertDialog(
+        isShow = uiState.shouldShowSettingAlert,
+        onDismiss = { viewModel.handleAction(DismissSettingAlert) },
+        onOpenSettings = { context.openAppSettings() }
+    )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(all = 20.dp)
-        ,horizontalAlignment = Alignment.CenterHorizontally
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FindMyLocationButton(
-            onClick = { }
-        )
-        AddressList(
-            addresses = uiState.addresses,
-            onAddressItemClick = { onAddressItemClick(it) }
-        )
+        FindMyLocationButton {
+            when {
+                permissionState.allPermissionsGranted -> { viewModel.handleAction(AddressFinderViewModel.Action.DidTapFindMyLocationButton) }
+                permissionState.shouldShowRationale -> { viewModel.handleAction(ShoudShowSettingAlert) }
+                else -> permissionState.launchMultiplePermissionRequest()
+            }
+        }
+        AddressList(uiState.addresses, onAddressItemClick)
     }
 }
+
 
 @Composable
 fun AddressList(
@@ -110,7 +125,6 @@ fun AddressBulletItem(
         }
     }
 }
-
 
 @Composable
 private fun FindMyLocationButton(

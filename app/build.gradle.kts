@@ -52,6 +52,7 @@ android {
 dependencies {
     implementation(project(":data:network"))
     implementation(project(":data:repository-implementation"))
+    implementation(project(":data:location"))
     implementation(project(":presentation:feature:company-detail"))
     implementation(project(":presentation:feature:search"))
     implementation(project(":presentation:feature:main"))

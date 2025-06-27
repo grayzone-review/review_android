@@ -26,6 +26,7 @@
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/dto" />
+            <option value="$PROJECT_DIR$/data/location" />
             <option value="$PROJECT_DIR$/data/network" />
             <option value="$PROJECT_DIR$/data/repository-implementation" />
             <option value="$PROJECT_DIR$/data/storage" />

@@ -3,55 +3,36 @@ package com.data.review_android
 import BottomSheetHelper
 import DimController
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import colors.CS
+import com.data.location.LocationService
 import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
-import com.data.review_android.ui.theme.Typography
 import com.data.storage.datastore.UpDataStoreService
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.kakao.sdk.common.KakaoSdk
 import com.kakao.vectormap.KakaoMapSdk
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
@@ -59,7 +40,6 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import preset_ui.icons.BackBarButtonIcon
 import javax.inject.Inject
-import javax.inject.Named
 import androidx.compose.material3.IconButton as IconButton1
 
 fun Int.toPx(context: Context): Int =
@@ -76,6 +56,7 @@ class MainActivity : ComponentActivity() {
         KakaoMapSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         UpDataStoreService.init(context = applicationContext)
+        LocationService.init(context = applicationContext)
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)
         val dimView = findViewById<FrameLayout>(R.id.dimView)

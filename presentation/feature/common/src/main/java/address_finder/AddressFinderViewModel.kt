@@ -8,12 +8,16 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class AddressFinderUIState(
-    val addresses: List<String> = emptyList()
+    val addresses: List<String> = emptyList(),
+    val shouldShowSettingAlert: Boolean = false
 )
 
 class AddressFinderViewModel @Inject constructor() : ViewModel() {
     enum class Action {
-        GetAddresses
+        GetAddresses,
+        DidTapFindMyLocationButton,
+        ShoudShowSettingAlert,
+        DismissSettingAlert
     }
 
     private val _uiState = MutableStateFlow(AddressFinderUIState())
@@ -24,6 +28,15 @@ class AddressFinderViewModel @Inject constructor() : ViewModel() {
             Action.GetAddresses -> {
                 val query = value as? String ?: return
                 _uiState.update { it.copy(addresses = allAddresses) }
+            }
+            Action.DidTapFindMyLocationButton -> {
+                
+            }
+            Action.ShoudShowSettingAlert -> {
+                _uiState.update { it.copy(shouldShowSettingAlert = true) }
+            }
+            Action.DismissSettingAlert -> {
+                _uiState.update { it.copy(shouldShowSettingAlert = false) }
             }
         }
     }
