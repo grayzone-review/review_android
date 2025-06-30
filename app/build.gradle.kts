@@ -65,6 +65,7 @@ dependencies {
     implementation(Kakao.login)
     implementation(Kakao.map)
     implementation(DaggerHilt.hilt)
+    implementation("com.google.android.gms:play-services-location:20.0.0")
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Retrofit.retrofit)

@@ -1,21 +1,26 @@
 package address_finder
 
+import androidx.annotation.OptIn
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.UnstableApi
+import com.data.location.UpLocationService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class AddressFinderUIState(
     val addresses: List<String> = emptyList(),
-    val shouldShowSettingAlert: Boolean = false
+    val shouldShowSettingAlert: Boolean = false,
 )
 
 class AddressFinderViewModel @Inject constructor() : ViewModel() {
     enum class Action {
         GetAddresses,
-        DidTapFindMyLocationButton,
+        FindMyLocation,
         ShoudShowSettingAlert,
         DismissSettingAlert
     }
@@ -23,14 +28,18 @@ class AddressFinderViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(AddressFinderUIState())
     val uiState: StateFlow<AddressFinderUIState> = _uiState.asStateFlow()
 
+    @OptIn(UnstableApi::class)
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
             Action.GetAddresses -> {
                 val query = value as? String ?: return
                 _uiState.update { it.copy(addresses = allAddresses) }
             }
-            Action.DidTapFindMyLocationButton -> {
-                
+            Action.FindMyLocation -> {
+                viewModelScope.launch {
+                    val (latitude, longitude) = UpLocationService.fetchCurrentLocation() ?: return@launch
+
+                }
             }
             Action.ShoudShowSettingAlert -> {
                 _uiState.update { it.copy(shouldShowSettingAlert = true) }

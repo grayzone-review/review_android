@@ -50,6 +50,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
     implementation(DaggerHilt.hilt)
+    implementation("androidx.media3:media3-common-ktx:1.7.1")
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)
     implementation(Deps.coreKtx)

@@ -1,6 +1,7 @@
 package address_finder
 
 import address_finder.AddressFinderViewModel.Action.DismissSettingAlert
+import address_finder.AddressFinderViewModel.Action.FindMyLocation
 import address_finder.AddressFinderViewModel.Action.ShoudShowSettingAlert
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
-import com.data.location.LocationService
+import com.data.location.UpLocationService
 import com.example.presentation.designsystem.typography.Typography
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -46,7 +47,7 @@ fun AddressFinder(
     onAddressItemClick: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val permissionState = rememberMultiplePermissionsState(LocationService.locationPermissions)
+    val permissionState = rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
     val context = LocalContext.current
 
     LaunchedEffect(query) { viewModel.handleAction(AddressFinderViewModel.Action.GetAddresses, query) }
@@ -65,7 +66,7 @@ fun AddressFinder(
     ) {
         FindMyLocationButton {
             when {
-                permissionState.allPermissionsGranted -> { viewModel.handleAction(AddressFinderViewModel.Action.DidTapFindMyLocationButton) }
+                permissionState.allPermissionsGranted -> { viewModel.handleAction(FindMyLocation) }
                 permissionState.shouldShowRationale -> { viewModel.handleAction(ShoudShowSettingAlert) }
                 else -> permissionState.launchMultiplePermissionRequest()
             }

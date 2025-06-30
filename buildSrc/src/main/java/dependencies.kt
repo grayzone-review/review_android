@@ -26,6 +26,9 @@ object Versions {
     const val map                   = "2.12.8"
     const val login                 = "2.21.4"
 
+    // ── Coroutines ─────────────────────────────
+    const val coroutineCore       = "1.10.2"
+
 }
 
 object Deps {
@@ -55,6 +58,9 @@ object Deps {
     // --- UI(View) 계열 ---
     const val appcompat = "androidx.appcompat:appcompat:${Versions.appcompat}"
 
+    // --- Coroutines 계열 ---
+    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutineCore}"
+    const val coroutinesPlayServices = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${Versions.coroutineCore}"
 }
 
 object Retrofit {
