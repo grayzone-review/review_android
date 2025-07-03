@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.data.location.UpLocationService
 import com.domain.entity.Region
@@ -43,7 +44,7 @@ import preset_ui.icons.MapPinTintable
 @Composable
 fun AddressFinder(
     query: String,
-    viewModel: AddressFinderViewModel,
+    viewModel: AddressFinderViewModel = hiltViewModel(),
     onQueryChanged: (Region) -> Unit,
     onAddressItemClick: (String) -> Unit
 ) {

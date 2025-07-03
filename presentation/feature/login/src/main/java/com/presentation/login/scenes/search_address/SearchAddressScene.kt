@@ -1,7 +1,6 @@
 package com.presentation.login.scenes.search_address
 
 import address_finder.AddressFinder
-import address_finder.AddressFinderViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +31,6 @@ fun SearchAddressScene(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
-    val addressFinderViewModel = hiltViewModel<AddressFinderViewModel>()
 
     Column(
         modifier = Modifier
@@ -48,7 +46,6 @@ fun SearchAddressScene(
         )
         Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(color = CS.Gray.G10))
         AddressFinder(
-            viewModel = addressFinderViewModel,
             query = "",
             onQueryChanged = { viewModel.handleAction(UpdateQueryFromLocation, it) },
             onAddressItemClick = {
