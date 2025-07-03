@@ -1,15 +1,15 @@
 package com.data.network.mapper
 
 import RequestModel.SearchCompaniesRequestModel
-import com.data.network.endpoint.Endpoint
+import com.data.network.endpoint.UpEndpoint
 import javax.inject.Inject
 
 class SearchCompaniesRequestMapper @Inject constructor() {
     fun toDTO(requestModel: SearchCompaniesRequestModel): Map<String, Any> = mapOf(
-        Endpoint.Query.KEYWORD   to requestModel.keyword,
-        Endpoint.Query.LATITUDE  to requestModel.latitude,
-        Endpoint.Query.LONGITUDE to requestModel.longitude,
-        Endpoint.Query.SIZE      to requestModel.size,
-        Endpoint.Query.PAGE      to requestModel.page
+        UpEndpoint.Query.KEYWORD   to requestModel.keyword,
+        UpEndpoint.Query.LATITUDE  to requestModel.latitude,
+        UpEndpoint.Query.LONGITUDE to requestModel.longitude,
+        UpEndpoint.Query.SIZE      to requestModel.size,
+        UpEndpoint.Query.PAGE      to requestModel.page
     )
 } 

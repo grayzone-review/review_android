@@ -3,7 +3,8 @@ import java.util.Properties
 
 val localProperties = Properties()
 localProperties.load(FileInputStream(rootProject.file("local.properties")))
-val kakaoKey = localProperties["kakao_native_app_key"] as String
+val kakaoNativeAppKey = localProperties["kakao_native_app_key"] as String
+val kakaoRestAPIKey = localProperties["kakao_rest_api_key"] as String
 
 plugins {
     id("com.android.application")               version "8.10.0"
@@ -22,16 +23,18 @@ android {
         targetSdk = AppConfig.targetSdk
         versionCode = AppConfig.versionCode
         versionName = AppConfig.versionName
-        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoKey
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
     }
 
     buildTypes {
         debug {
-            buildConfigField("String","KAKAO_NATIVE_APP_KEY","\"$kakaoKey\"")
+            buildConfigField("String","KAKAO_NATIVE_APP_KEY","\"$kakaoNativeAppKey\"")
+            buildConfigField("String", "KAKAO_REST_API_KEY", "\"$kakaoRestAPIKey\"")
         }
         release {
             isMinifyEnabled = false
-            buildConfigField("String","KAKAO_NATIVE_APP_KEY","\"$kakaoKey\"")
+            buildConfigField("String","KAKAO_NATIVE_APP_KEY","\"$kakaoNativeAppKey\"")
+            buildConfigField("String", "KAKAO_REST_API_KEY", "\"$kakaoRestAPIKey\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

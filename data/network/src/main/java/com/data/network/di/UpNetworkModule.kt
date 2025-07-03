@@ -1,7 +1,7 @@
 package com.data.network.di
 
-import com.data.network.APIService
-import com.data.network.endpoint.Endpoint
+import com.data.network.api_service.UpAPIService
+import com.data.network.endpoint.UpEndpoint
 import com.data.network.interceptor.BearerTokenInterceptor
 import com.data.network.interceptor.ErrorInterceptor
 import com.data.network.mapper.SearchCompaniesRequestMapper
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule {
+object UpNetworkModule {
 
     @Provides
     @Singleton
@@ -31,7 +31,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(Endpoint.Host.baseURL)
+            .baseUrl(UpEndpoint.Host.upBaseURL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -39,8 +39,8 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideAPIService(retrofit: Retrofit): APIService {
-        return retrofit.create(APIService::class.java)
+    fun provideAPIService(retrofit: Retrofit): UpAPIService {
+        return retrofit.create(UpAPIService::class.java)
     }
 
     @Provides

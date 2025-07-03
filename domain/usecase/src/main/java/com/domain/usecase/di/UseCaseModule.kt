@@ -4,6 +4,8 @@ import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.CompanyDetailUseCaseImpl
 import com.domain.usecase.SearchCompaniesUseCase
 import com.domain.usecase.SearchCompaniesUseCaseImpl
+import com.domain.usecase.KakaoMapUseCase
+import com.domain.usecase.KakaoMapUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,10 @@ abstract class UseCaseModule {
     abstract fun bindCompanyDetailUseCase(
         impl: CompanyDetailUseCaseImpl
     ): CompanyDetailUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindKakaoMapUseCase(
+        impl: KakaoMapUseCaseImpl
+    ): KakaoMapUseCase
 } 

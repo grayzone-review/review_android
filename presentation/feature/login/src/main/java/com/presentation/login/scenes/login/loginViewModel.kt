@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class LoginUIState(
-    val shoudShowCreateAccountDialog: Boolean = true
+    val shoudShowCreateAccountDialog: Boolean = false
 )
 
 @HiltViewModel
