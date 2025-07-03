@@ -1,10 +1,8 @@
 package com.data.network.di
 
-import com.data.network.api_service.UpAPIService
+import com.data.network.api_service.UpAuthService
 import com.data.network.endpoint.UpEndpoint
-import com.data.network.interceptor.BearerTokenInterceptor
 import com.data.network.interceptor.ErrorInterceptor
-import com.data.network.mapper.SearchCompaniesRequestMapper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,22 +15,21 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object UpNetworkModule {
+object UpAuthNetworkModule {
     @Provides
     @Singleton
-    @Named("Up")
+    @Named("UpAuth")
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(BearerTokenInterceptor())
             .addInterceptor(ErrorInterceptor())
             .build()
     }
 
     @Provides
     @Singleton
-    @Named("Up")
+    @Named("UpAuth")
     fun provideRetrofit(
-        @Named("Up") okHttpClient: OkHttpClient
+        @Named("UpAuth") okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(UpEndpoint.Host.baseURL)
@@ -43,16 +40,9 @@ object UpNetworkModule {
 
     @Provides
     @Singleton
-    fun provideAPIService(
-        @Named("Up") retrofit: Retrofit
-    ): UpAPIService {
-        return retrofit.create(UpAPIService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    @Named("Up")
-    fun provideSearchCompaniesRequestMapper(): SearchCompaniesRequestMapper {
-        return SearchCompaniesRequestMapper()
+    fun provideUpAuthService(
+        @Named("UpAuth") retrofit: Retrofit
+    ): UpAuthService {
+        return retrofit.create(UpAuthService::class.java)
     }
 }
