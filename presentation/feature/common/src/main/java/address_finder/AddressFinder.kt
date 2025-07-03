@@ -29,9 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.data.location.UpLocationService
+import com.domain.entity.Region
 import com.example.presentation.designsystem.typography.Typography
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -43,7 +43,8 @@ import preset_ui.icons.MapPinTintable
 @Composable
 fun AddressFinder(
     query: String,
-    viewModel: AddressFinderViewModel = hiltViewModel(),
+    viewModel: AddressFinderViewModel,
+    onQueryChanged: (Region) -> Unit,
     onAddressItemClick: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -51,6 +52,13 @@ fun AddressFinder(
     val context = LocalContext.current
 
     LaunchedEffect(query) { viewModel.handleAction(AddressFinderViewModel.Action.GetAddresses, query) }
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { locationEvent ->
+            when (locationEvent) {
+                is LocationEvent.RegionFound -> { onQueryChanged(locationEvent.region) }
+            }
+        }
+    }
 
     SettingAlertDialog(
         isShow = uiState.shouldShowSettingAlert,

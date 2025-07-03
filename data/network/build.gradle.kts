@@ -58,7 +58,6 @@ dependencies {
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
-
     implementation(Retrofit.retrofit)
     implementation(Retrofit.okHttp)
     implementation(Retrofit.gsonConverter)

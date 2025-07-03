@@ -5,19 +5,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.data.location.UpLocationService
+import com.domain.entity.Region
+import com.domain.usecase.KakaoMapUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface LocationEvent {
+    data class RegionFound(val region: Region) : LocationEvent
+}
+
 data class AddressFinderUIState(
     val addresses: List<String> = emptyList(),
-    val shouldShowSettingAlert: Boolean = false,
+    val shouldShowSettingAlert: Boolean = false
 )
 
-class AddressFinderViewModel @Inject constructor() : ViewModel() {
+@HiltViewModel
+class AddressFinderViewModel @Inject constructor(
+    private val kakaoMapUseCase: KakaoMapUseCase
+) : ViewModel() {
     enum class Action {
         GetAddresses,
         FindMyLocation,
@@ -27,6 +40,8 @@ class AddressFinderViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddressFinderUIState())
     val uiState: StateFlow<AddressFinderUIState> = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<LocationEvent>()
+    val event: SharedFlow<LocationEvent> = _event.asSharedFlow()
 
     @OptIn(UnstableApi::class)
     fun handleAction(action: Action, value: Any? = null) {
@@ -38,7 +53,9 @@ class AddressFinderViewModel @Inject constructor() : ViewModel() {
             Action.FindMyLocation -> {
                 viewModelScope.launch {
                     val (latitude, longitude) = UpLocationService.fetchCurrentLocation() ?: return@launch
-
+                    val reverseGeocodingRegions = kakaoMapUseCase.reverseGeocoding(xLongitude = longitude, yLatitude = latitude)
+                    val region = reverseGeocodingRegions.regions.first()
+                    _event.emit(LocationEvent.RegionFound(region = region))
                 }
             }
             Action.ShoudShowSettingAlert -> {

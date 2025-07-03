@@ -60,6 +60,7 @@ dependencies {
     implementation(project(":presentation:feature:search"))
     implementation(project(":presentation:feature:main"))
     implementation(project(":presentation:feature:login"))
+    implementation(project(":presentation:feature:common"))
     implementation(project(":common"))
     implementation(project(":presentation:design-system"))
     implementation(project(":data:storage"))

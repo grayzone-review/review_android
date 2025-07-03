@@ -4,6 +4,7 @@ import com.data.network.api_service.KakaoMapAPIService
 import com.data.network.endpoint.KakaoMapEndpoint
 import com.data.network.interceptor.ErrorInterceptor
 import com.data.network.interceptor.KakaoKeyInterceptor
+import com.data.network.mapper.KakaoRequestMapper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,10 +18,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object KakaoMapNetworkModule {
-
     @Provides
     @Singleton
-    @Named("KakaoOkHttp")
+    @Named("KakaoMap")
     fun provideKakaoOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(KakaoKeyInterceptor())
@@ -28,25 +28,31 @@ object KakaoMapNetworkModule {
             .build()
     }
 
-    /* ───── Kakao Retrofit ───── */
     @Provides
     @Singleton
-    @Named("KakaoRetrofit")
+    @Named("KakaoMap")
     fun provideKakaoRetrofit(
-        @Named("KakaoOkHttp")client:OkHttpClient
-    ):Retrofit =
-        Retrofit.Builder()
+        @Named("KakaoMap") client: OkHttpClient
+    ): Retrofit {
+        return Retrofit.Builder()
             .baseUrl(KakaoMapEndpoint.Host.baseURL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
 
-    /* ───── Kakao 서비스 ───── */
     @Provides
     @Singleton
-    @Named("KakaoAPI")
     fun provideKakaoService(
-        @Named("KakaoRetrofit")retrofit:Retrofit
-    ): KakaoMapAPIService =
-        retrofit.create(KakaoMapAPIService::class.java)
+        @Named("KakaoMap") retrofit: Retrofit
+    ): KakaoMapAPIService {
+        return retrofit.create(KakaoMapAPIService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("KakaoMap")
+    fun provideKakaoMapRequestMapper(): KakaoRequestMapper {
+        return KakaoRequestMapper()
+    }
 }

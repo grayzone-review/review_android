@@ -1,6 +1,7 @@
 package com.presentation.login.scenes.search_address
 
 import address_finder.AddressFinder
+import address_finder.AddressFinderViewModel
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +19,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
 import com.presentation.design_system.appbar.appbars.SearchableTopAppBar
-import com.presentation.login.scenes.search_address.SearchAddressViewModel.Action.UpdateSearchQuery
+import com.presentation.login.scenes.search_address.SearchAddressViewModel.Action.UpdateQueryFromLocation
+import com.presentation.login.scenes.search_address.SearchAddressViewModel.Action.UpdateQueryFromSearching
 import com.team.common.feature_api.extension.addFocusCleaner
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,6 +32,7 @@ fun SearchAddressScene(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
+    val addressFinderViewModel = hiltViewModel<AddressFinderViewModel>()
 
     Column(
         modifier = Modifier
@@ -39,13 +42,15 @@ fun SearchAddressScene(
     ) {
         SearchableTopAppBar(
             keyword = uiState.query,
-            onKeywordChange = { viewModel.handleAction(UpdateSearchQuery, it) },
+            onKeywordChange = { viewModel.handleAction(UpdateQueryFromSearching, it) },
             onBack = { navHostController.popBackStack() },
             onCancel = { }
         )
         Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(color = CS.Gray.G10))
         AddressFinder(
+            viewModel = addressFinderViewModel,
             query = "",
+            onQueryChanged = { viewModel.handleAction(UpdateQueryFromLocation, it) },
             onAddressItemClick = {
                 scope.launch {
                     navHostController.previousBackStackEntry
