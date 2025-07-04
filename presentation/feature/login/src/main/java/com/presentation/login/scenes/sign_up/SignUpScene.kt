@@ -40,15 +40,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
+import com.domain.entity.LegalDistrictInfo
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.AddInterestTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckBox
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckDuplicateButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapDetailButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapSubmitButton
+import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.SetMyTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.UpdateNickNameTextField
-import com.presentation.login.scenes.sign_up.navgraph.SignUpNavRoute
+import com.presentation.login.scenes.sign_up.navgraph.NavConstant
 import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.SimpleTextFieldOutlinedButton
 import preset_ui.icons.CloseLine
@@ -67,13 +70,22 @@ fun SignUpScene(
 
     val savedStateHandle = navHostController.currentBackStackEntry!!.savedStateHandle
     val address by savedStateHandle
-        .getStateFlow<String?>("addressResult", null)
+        .getStateFlow<LegalDistrictInfo?>("selectedLegalDistrictInfo", null)
+        .collectAsState()
+    val mode by savedStateHandle
+        .getStateFlow<String?>("selectedMode", null)        // "my" | "interest" | null
         .collectAsState()
 
-    LaunchedEffect(address) {
-        address?.let {
-            savedStateHandle["addressResult"] = null   // 1회성 소비 후 초기화
+    LaunchedEffect(address, mode) {
+        val selectedLegalDistrict = address ?: return@LaunchedEffect
+        val mode= mode ?: return@LaunchedEffect
+
+        when (mode) {
+            NavConstant.Mode.MY.value -> viewModel.handleAction(SetMyTown, selectedLegalDistrict)
+            NavConstant.Mode.INTEREST.value -> viewModel.handleAction(AddInterestTown, selectedLegalDistrict)
         }
+        savedStateHandle["selectedLegalDistrictInfo"] = null
+        savedStateHandle["selectedMode"] = null
     }
 
     Column(
@@ -87,7 +99,7 @@ fun SignUpScene(
                 .weight(1f)
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(all = 20.dp),
+                .padding(vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(40.dp)
         ) {
             NicknameInput(
@@ -97,12 +109,16 @@ fun SignUpScene(
             )
             MyTownInput(
                 value = uiState.myTown,
-                onClick = { navHostController.navigate(SignUpNavRoute.SearchAddress.route) }
+                onClick = { navHostController.navigate(
+                    NavConstant.destSearchAddress(startQuery = it, mode = NavConstant.Mode.MY))
+                }
             )
             InterestInput(
-                towns = uiState.interestTowns,
+                legalDistrictInfos = uiState.interestTowns,
                 onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton, it) },
-                onAddTownButtonClick = { navHostController.navigate(SignUpNavRoute.SearchAddress.route) }
+                onAddTownButtonClick = { navHostController.navigate(
+                    NavConstant.destSearchAddress(startQuery = "", mode = NavConstant.Mode.INTEREST))
+                }
             )
             TermsSection(
                 terms = uiState.terms,
@@ -125,7 +141,9 @@ private fun NicknameInput(
     isError: Boolean = false,
     helperText: String = "닉네임은 최소 2자 이상 15자 이내로 입력해주세요."
 ) {
-    Column {
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
         Text(text = "닉네임", style = Typography.h3, color = CS.Gray.G90)
         Spacer(Modifier.height(10.dp))
         BasicTextField(
@@ -185,44 +203,54 @@ private fun NicknameInput(
 
 @Composable
 private fun MyTownInput(
-    value: String,
-    onClick: () -> Unit
+    value: LegalDistrictInfo?,
+    onClick: (String) -> Unit
 ) {
-    Column {
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        val dong = value?.name
+            ?.split(" ")
+            ?.getOrNull(2)
+            ?: ""
+
         Text(text = "우리 동네 설정", style = Typography.h3, color = CS.Gray.G90)
         Spacer(Modifier.height(10.dp))
         SimpleTextFieldOutlinedButton (
-            value = value,
+            value = dong,
             placeholder = "동 검색하기",
             selectableMark = false,
-            onClick = onClick
+            onClick = { onClick(dong) }
         )
     }
 }
 
 @Composable
 private fun InterestInput(
-    towns: List<String>,
-    onRemoveButtonClick: (String) -> Unit,
+    legalDistrictInfos: List<LegalDistrictInfo>,
+    onRemoveButtonClick: (LegalDistrictInfo) -> Unit,
     onAddTownButtonClick: () -> Unit
 ) {
     Column {
-        Text(text = "관심 동네 설정 (선택)", style = Typography.h3, color = CS.Gray.G90)
-        Spacer(Modifier.height(12.dp))
+        Text(text = "관심 동네 설정 (선택)", style = Typography.h3, color = CS.Gray.G90, modifier = Modifier
+            .padding(horizontal = 20.dp)
+        )
+        Spacer(Modifier.height(18.dp))
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp)
         ) {
-            items(towns, key = { it }) { town ->
+            items(legalDistrictInfos, key = { it }) { legalDistrictInfo ->
+                val dong = legalDistrictInfo.name.split(" ")[2]
+
                 DeletableTownChip(
-                    text = town,
-                    onDelete = { onRemoveButtonClick(town) }
+                    text = dong,
+                    onDelete = { onRemoveButtonClick(legalDistrictInfo) }
                 )
             }
 
-            item {
-                AddTownChip(
-                    onClick = { onAddTownButtonClick() }
-                )
+            if (legalDistrictInfos.size < 3) {
+                item { AddTownChip(onClick = { onAddTownButtonClick() }) }
             }
         }
     }
@@ -285,7 +313,9 @@ fun TermsSection(
     onCheckBoxButtonClick: (TermKind) -> Unit,
     onDetailButtonClick: (TermKind) -> Unit,
 ) {
-    Column() {
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
         TermRow(
             checked = terms.all,
             label = "약관 전체 동의",

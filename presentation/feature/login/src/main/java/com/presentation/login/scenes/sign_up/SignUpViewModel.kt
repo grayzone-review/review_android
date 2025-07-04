@@ -1,6 +1,7 @@
 package com.presentation.login.scenes.sign_up
 
 import androidx.lifecycle.ViewModel
+import com.domain.entity.LegalDistrictInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,14 +20,16 @@ data class TermsAgreement(
 
 data class SignUpUIState(
     val nickname: String = "",
-    val myTown: String = "",
-    val interestTowns: List<String> = listOf("수유3동", "면목동"),
+    val myTown: LegalDistrictInfo? = null,
+    val interestTowns: List<LegalDistrictInfo> = emptyList(),
     val terms: TermsAgreement = TermsAgreement(),
     val isSubmitEnabled: Boolean = false
 )
 
 class SignUpViewModel @Inject constructor() : ViewModel() {
     enum class Action {
+        AddInterestTown,
+        SetMyTown,
         UpdateNickNameTextField,
         DidTapCheckDuplicateButton,
         DidTapRemoveInterestTownButton,
@@ -40,6 +43,18 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
+            Action.AddInterestTown -> {
+                val currentState = _uiState.value
+                val addedLegalDistrictInfo = value as? LegalDistrictInfo ?: return
+                if (currentState.interestTowns.any { it.id == addedLegalDistrictInfo.id }) return
+                _uiState.update {
+                    it.copy(interestTowns = currentState.interestTowns + addedLegalDistrictInfo)
+                }
+            }
+            Action.SetMyTown -> {
+                val selectedDistrictInfo = value as? LegalDistrictInfo ?: return
+                _uiState.update { it.copy(myTown = selectedDistrictInfo) }
+            }
             Action.UpdateNickNameTextField -> {
                 val newNickname = value as? String ?: return
                 _uiState.update {
@@ -54,10 +69,10 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
                 // TODO: Check Submit -> API 나오면 처리
             }
             Action.DidTapRemoveInterestTownButton -> {
-                val targetInterest = value as? String ?: return
+                val targetDistrictInfo = value as? LegalDistrictInfo ?: return
                 _uiState.update { state ->
                     state.copy(interestTowns = state.interestTowns
-                        .filterNot { it == targetInterest }
+                        .filterNot { it.id == targetDistrictInfo.id }
                     )
                 }
             }
@@ -84,5 +99,5 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
 }
 
 private fun SignUpUIState.checkSubmitValidation(): SignUpUIState = copy(
-    isSubmitEnabled = nickname.isNotBlank() && myTown.isNotBlank() && terms.all
+//    isSubmitEnabled = nickname.isNotBlank() && myTown?.isNotBlank() && terms.all
 )

@@ -1,5 +1,6 @@
 package com.presentation.login.scenes.sign_up.navgraph
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -10,9 +11,22 @@ import com.presentation.login.scenes.search_address.SearchAddressViewModel
 import com.presentation.login.scenes.sign_up.SignUpScene
 import com.presentation.login.scenes.sign_up.SignUpViewModel
 
+object NavConstant {
+    enum class Mode(val value: String) { MY("my"), INTEREST("interest") }
+    const val SIGN_UP_ROUTE = "sign_up"
+    private const val SEARCH_ADDRESS_BASE = "search_address"
+    private const val ARGUMENT_TOWN = "town"
+    private const val ARGUMENT_MODE = "mode"
+    const val SEARCH_ADDRESS_ROUTE =
+        "$SEARCH_ADDRESS_BASE?$ARGUMENT_TOWN={$ARGUMENT_TOWN}&$ARGUMENT_MODE={$ARGUMENT_MODE}"
+
+    fun destSearchAddress(startQuery: String, mode: Mode) =
+        "$SEARCH_ADDRESS_BASE?$ARGUMENT_TOWN=${Uri.encode(startQuery)}&$ARGUMENT_MODE=${mode.value}"
+}
+
 sealed class SignUpNavRoute(val route: String) {
-    object SignUp : SignUpNavRoute("sign_up")
-    object SearchAddress : SignUpNavRoute("search_address")
+    object SignUp : SignUpNavRoute(NavConstant.SIGN_UP_ROUTE)
+    object SearchAddress : SignUpNavRoute(NavConstant.SEARCH_ADDRESS_ROUTE)
 }
 
 @Composable
