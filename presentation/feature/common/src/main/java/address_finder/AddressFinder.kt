@@ -3,6 +3,8 @@ package address_finder
 import address_finder.AddressFinderViewModel.Action.DismissSettingAlert
 import address_finder.AddressFinderViewModel.Action.FindMyLocation
 import address_finder.AddressFinderViewModel.Action.ShoudShowSettingAlert
+import address_finder.AddressFinderViewModel.Action.UpdateAddressesFromChangingQuery
+import address_finder.AddressFinderViewModel.Action.UpdateAddressesFromScrollAtEnd
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +15,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,11 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.data.location.UpLocationService
+import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.Region
 import com.example.presentation.designsystem.typography.Typography
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.team.common.feature_api.extension.openAppSettings
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import preset_ui.icons.CheckCircleFill
 import preset_ui.icons.MapPinTintable
 
@@ -45,18 +52,18 @@ import preset_ui.icons.MapPinTintable
 fun AddressFinder(
     query: String,
     viewModel: AddressFinderViewModel = hiltViewModel(),
-    onQueryChanged: (Region) -> Unit,
-    onAddressItemClick: (String) -> Unit
+    onFindMyLocationButtonClick: (Region) -> Unit,
+    onAddressItemClick: (LegalDistrictInfo) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val permissionState = rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
     val context = LocalContext.current
 
-    LaunchedEffect(query) { viewModel.handleAction(AddressFinderViewModel.Action.GetAddresses, query) }
+    LaunchedEffect(query) { viewModel.handleAction(UpdateAddressesFromChangingQuery, query) }
     LaunchedEffect(Unit) {
         viewModel.event.collect { locationEvent ->
             when (locationEvent) {
-                is LocationEvent.RegionFound -> { onQueryChanged(locationEvent.region) }
+                is LocationEvent.RegionFound -> { onFindMyLocationButtonClick(locationEvent.region) }
             }
         }
     }
@@ -80,24 +87,46 @@ fun AddressFinder(
                 else -> permissionState.launchMultiplePermissionRequest()
             }
         }
-        AddressList(uiState.addresses, onAddressItemClick)
+        AddressList(
+            legalDistricts =  uiState.legalDistrics,
+            onAddressItemClick = onAddressItemClick,
+            onReachedBottom = { viewModel.handleAction(UpdateAddressesFromScrollAtEnd) }
+        )
     }
 }
 
-
 @Composable
 fun AddressList(
-    addresses: List<String>,
-    onAddressItemClick: (String) -> Unit
+    legalDistricts: List<LegalDistrictInfo>,
+    onAddressItemClick: (LegalDistrictInfo) -> Unit,
+    onReachedBottom: () -> Unit
 ) {
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .map { layout ->
+                val total = layout.totalItemsCount
+                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: -1
+                lastVisible >= total - 1 && total > 0       // 바닥 여부
+            }
+            .distinctUntilChanged()                         // true 한 번만 방출
+            .collect { isEnd ->
+                if (isEnd) onReachedBottom()
+            }
+    }
+
+
     Spacer(modifier = Modifier.height(10.dp))
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxWidth()
     ) {
-        items(addresses) { address ->
+        itemsIndexed(legalDistricts) { index, legalDistrictInfo ->
             AddressBulletItem(
-                address = address,
-                onClick = { onAddressItemClick(address) }
+                index = index,
+                legalDistrict = legalDistrictInfo,
+                onClick = { onAddressItemClick(legalDistrictInfo) }
             )
         }
     }
@@ -105,10 +134,11 @@ fun AddressList(
 
 @Composable
 fun AddressBulletItem(
-    address: String,
+    index: Int,
+    legalDistrict: LegalDistrictInfo,
     onClick: () -> Unit
 ) {
-    var isSelected by rememberSaveable(address) { mutableStateOf(false) }
+    var isSelected by rememberSaveable(legalDistrict) { mutableStateOf(false) }
     val selectColor = if (isSelected) CS.PrimaryOrange.O40 else CS.Gray.G90
     val selectFont = if (isSelected) Typography.body1Bold else Typography.body1Regular
 
@@ -125,7 +155,7 @@ fun AddressBulletItem(
         Text(text = "•", style = selectFont, color = selectColor, modifier = Modifier
             .padding(end = 8.dp)
         )
-        Text(text = address, style = selectFont, color = selectColor, modifier = Modifier
+        Text(text = "${index}" + legalDistrict.name, style = selectFont, color = selectColor, modifier = Modifier
             .weight(1f)
         )
 

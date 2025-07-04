@@ -1,0 +1,43 @@
+package com.domain.usecase
+
+import com.domain.entity.LoginResult
+import com.domain.entity.SignUpResult
+import com.domain.repository_interface.Agreement
+import com.domain.repository_interface.UpAuthRepository
+import javax.inject.Inject
+
+interface UpAuthUseCase {
+    suspend fun login(oAuthToken: String): LoginResult
+    suspend fun signUp(
+        oauthToken: String,
+        mainRegionId: Long,
+        interestedRegionIds: List<Long>,
+        nickname: String,
+        agreements: List<Agreement>
+    ): SignUpResult
+}
+
+class UpAuthUseCaseImpl @Inject constructor(
+    private val upAuthRepository: UpAuthRepository
+) : UpAuthUseCase {
+    override suspend fun login(oAuthToken: String): LoginResult {
+        return upAuthRepository.login(oAuthToken)
+    }
+
+    override suspend fun signUp(
+        oauthToken: String,
+        mainRegionId: Long,
+        interestedRegionIds: List<Long>,
+        nickname: String,
+        agreements: List<Agreement>
+    ): SignUpResult {
+        return upAuthRepository.signUp(
+            oauthToken = oauthToken,
+            mainRegionId = mainRegionId,
+            interestedRegionIds = interestedRegionIds,
+            nickname = nickname,
+            agreements = agreements
+        )
+    }
+}
+

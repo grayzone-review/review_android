@@ -21,8 +21,6 @@ import com.presentation.design_system.appbar.appbars.SearchableTopAppBar
 import com.presentation.login.scenes.search_address.SearchAddressViewModel.Action.UpdateQueryFromLocation
 import com.presentation.login.scenes.search_address.SearchAddressViewModel.Action.UpdateQueryFromSearching
 import com.team.common.feature_api.extension.addFocusCleaner
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun SearchAddressScene(
@@ -46,16 +44,16 @@ fun SearchAddressScene(
         )
         Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(color = CS.Gray.G10))
         AddressFinder(
-            query = "",
-            onQueryChanged = { viewModel.handleAction(UpdateQueryFromLocation, it) },
+            query = uiState.query,
+            onFindMyLocationButtonClick = { viewModel.handleAction(UpdateQueryFromLocation, it) },
             onAddressItemClick = {
-                scope.launch {
-                    navHostController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("selectedAddress", it)
-                    delay(timeMillis = 300)
-                    navHostController.popBackStack()
-                }
+//                scope.launch {
+//                    navHostController.previousBackStackEntry
+//                        ?.savedStateHandle
+//                        ?.set("selectedAddress", it)
+//                    delay(timeMillis = 300)
+//                    navHostController.popBackStack()
+//                }
             }
         )
     }

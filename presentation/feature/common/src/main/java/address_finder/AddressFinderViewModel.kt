@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.data.location.UpLocationService
+import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.Region
 import com.domain.usecase.KakaoMapUseCase
+import com.domain.usecase.SearchDistrictUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,16 +25,22 @@ sealed interface LocationEvent {
 }
 
 data class AddressFinderUIState(
-    val addresses: List<String> = emptyList(),
-    val shouldShowSettingAlert: Boolean = false
+    val query: String = "",
+    val legalDistrics: List<LegalDistrictInfo> = emptyList(),
+    val shouldShowSettingAlert: Boolean = false,
+    val currentPage: Int = 0,
+    val hasNext: Boolean = true,
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
 class AddressFinderViewModel @Inject constructor(
-    private val kakaoMapUseCase: KakaoMapUseCase
+    private val kakaoMapUseCase: KakaoMapUseCase,
+    private val searchDistrictUseCase: SearchDistrictUseCase
 ) : ViewModel() {
     enum class Action {
-        GetAddresses,
+        UpdateAddressesFromChangingQuery,
+        UpdateAddressesFromScrollAtEnd,
         FindMyLocation,
         ShoudShowSettingAlert,
         DismissSettingAlert
@@ -46,9 +54,50 @@ class AddressFinderViewModel @Inject constructor(
     @OptIn(UnstableApi::class)
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
-            Action.GetAddresses -> {
-                val query = value as? String ?: return
-                _uiState.update { it.copy(addresses = allAddresses) }
+            Action.UpdateAddressesFromChangingQuery -> {
+                val query = value as? String ?: return // 쿼리 없음 차단
+                if (query.isNotBlank() && query == _uiState.value.query) return // 동일 쿼리 차단
+                _uiState.update {
+                    it.copy(
+                        query = query,
+                        legalDistrics = emptyList(),
+                        currentPage = 0,
+                        isLoading = true
+                    )
+                }
+                viewModelScope.launch {
+                    val result = searchDistrictUseCase.searchLegalDistrict(
+                        keyword = query,
+                        page = 0
+                    )
+                    _uiState.update {
+                        it.copy(
+                            legalDistrics = result.districts,
+                            hasNext = result.hasNext,
+                            isLoading = false
+                        )
+                    }
+                }
+            }
+            Action.UpdateAddressesFromScrollAtEnd -> {
+                val currentState = _uiState.value
+                if (currentState.isLoading || !currentState.hasNext) return // 로딩, 담 페이지 없으면 차단
+                val nextPage = currentState.currentPage + 1
+                _uiState.update { it.copy(isLoading = true) }
+                viewModelScope.launch {
+                    val result = searchDistrictUseCase.searchLegalDistrict(
+                        keyword = currentState.query,
+                        page = nextPage
+                    )
+                    _uiState.update {
+                        it.copy(
+                            legalDistrics = it.legalDistrics + result.districts,
+                            currentPage = nextPage,
+                            hasNext = result.hasNext,
+                            isLoading = false
+                        )
+                    }
+                }
             }
             Action.FindMyLocation -> {
                 viewModelScope.launch {
@@ -66,28 +115,4 @@ class AddressFinderViewModel @Inject constructor(
             }
         }
     }
-
-    private val allAddresses = listOf(
-        "제주특별자치도 제주시 표선면",
-        "서울특별시 종로구 청운동",
-        "서울특별시 종로구 신교동",
-        "서울특별시 종로구 궁정동",
-        "서울특별시 종로구 효자동",
-        "서울특별시 종로구 창성동",
-        "서울특별시 종로구 통의동",
-        "서울특별시 종로구 보광동",
-        "서울특별시 종로구 사직동",
-        "부산광역시 해운대구 중동",
-        "부산광역시 해운대구 우동",
-        "부산광역시 해운대구 재송동",
-        "대구광역시 달서구 두류동",
-        "대구광역시 달서구 상인동",
-        "대전광역시 서구 둔산동",
-        "광주광역시 서구 화정동",
-        "경기도 성남시 분당구 정자동",
-        "경기도 고양시 일산서구 주엽동",
-        "경기도 수원시 영통구 영통동",
-        "강원특별자치도 춘천시 석사동"
-    )
-
 }

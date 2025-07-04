@@ -23,6 +23,7 @@ interface UpAPIService {
 
     @GET(UpEndpoint.Path.SEARCH_LEGAL_DISTRICTS)
     suspend fun searchLegalDistrict(
-        @Query(UpEndpoint.Query.KEYWORD) keyword: String
+        @Query(UpEndpoint.Query.KEYWORD) keyword: String,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<LegalDistrictResponseDTO>
 }

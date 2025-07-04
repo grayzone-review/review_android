@@ -4,7 +4,6 @@ import RequestModel.SearchCompaniesRequestModel
 import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAPIService
 import com.data.network.mapper.SearchCompaniesRequestMapper
-import com.data.network.response.mapOrThrow
 import com.domain.entity.SearchedCompanies
 import com.domain.repository_interface.SearchCompaniesRepository
 import javax.inject.Inject
@@ -23,6 +22,6 @@ class SearchCompaniesRepositoryImpl @Inject constructor(
         val requestModel = SearchCompaniesRequestModel(keyword, latitude, longitude, size, page)
         val requestDTO = searchCompaniesRequestMapper.toDTO(requestModel)
         val responseDTO = upApiService.searchCompanies(requestDTO)
-        return responseDTO.mapOrThrow { dto -> dto.toDomain() }
+        return responseDTO.data?.toDomain()!!
     }
 }
