@@ -1,5 +1,5 @@
 package RequestModel
 
-data class NicknameVerifyRequestModel(
+data class VerifyNicknameRequestModel(
     val nickname: String
 )

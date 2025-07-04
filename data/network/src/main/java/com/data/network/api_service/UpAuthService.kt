@@ -1,8 +1,8 @@
 package com.data.network.api_service
 
 import RequestModel.AuthLoginRequestModel
-import RequestModel.NicknameVerifyRequestModel
 import RequestModel.SignUpRequestModel
+import RequestModel.VerifyNicknameRequestModel
 import com.data.dto.ResponseModel.search.AuthLoginResponseDTO
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.response.APIResponse
@@ -22,7 +22,7 @@ interface UpAuthService {
 
     @POST(UpEndpoint.Path.NICKNAME_VERIFY)
     suspend fun verifyNickname(
-        @Body body: NicknameVerifyRequestModel
+        @Body body: VerifyNicknameRequestModel
     ): APIResponse<Unit>
 
 }

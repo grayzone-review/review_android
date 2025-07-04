@@ -2,10 +2,12 @@ package com.data.repository_implementation
 
 import RequestModel.AuthLoginRequestModel
 import RequestModel.SignUpRequestModel
+import RequestModel.VerifyNicknameRequestModel
 import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAuthService
 import com.domain.entity.LoginResult
 import com.domain.entity.SignUpResult
+import com.domain.entity.VerifyNickNameResult
 import com.domain.repository_interface.Agreement
 import com.domain.repository_interface.UpAuthRepository
 import javax.inject.Inject
@@ -39,4 +41,11 @@ class UpAuthRepositoryImpl @Inject constructor(
         return SignUpResult(message = responseDTO.message, success = responseDTO.success)
     }
 
+    override suspend fun verifyNickName(
+        nickname: String
+    ): VerifyNickNameResult {
+        val requestDTO = VerifyNicknameRequestModel(nickname = nickname)
+        val responseDTO = upAuthService.verifyNickname(body = requestDTO)
+        return VerifyNickNameResult(message = responseDTO.message, success = responseDTO.success)
+    }
 }

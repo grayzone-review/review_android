@@ -1,10 +1,15 @@
 package com.presentation.login.scenes.sign_up
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.domain.entity.LegalDistrictInfo
+import com.domain.usecase.UpAuthUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 enum class TermKind { ALL, SERVICE, PRIVACY, LOCATION }
@@ -26,7 +31,10 @@ data class SignUpUIState(
     val isSubmitEnabled: Boolean = false
 )
 
-class SignUpViewModel @Inject constructor() : ViewModel() {
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    private val upAuthUseCase: UpAuthUseCase
+) : ViewModel() {
     enum class Action {
         AddInterestTown,
         SetMyTown,
@@ -63,7 +71,11 @@ class SignUpViewModel @Inject constructor() : ViewModel() {
                 }
             }
             Action.DidTapCheckDuplicateButton -> {
-                // TODO: Check 듀플리케이트 -> API 나오면 처리
+                val currentState = _uiState.value
+                viewModelScope.launch {
+                    val result = upAuthUseCase.verifyNickName(nickname = currentState.nickname)
+                    Log.d("리저트:", result.toString())
+                }
             }
             Action.DidTapSubmitButton -> {
                 // TODO: Check Submit -> API 나오면 처리

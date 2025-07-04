@@ -67,17 +67,16 @@ fun SignUpScene(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
-
     val savedStateHandle = navHostController.currentBackStackEntry!!.savedStateHandle
-    val address by savedStateHandle
+    val selectedAddress by savedStateHandle
         .getStateFlow<LegalDistrictInfo?>("selectedLegalDistrictInfo", null)
         .collectAsState()
     val mode by savedStateHandle
-        .getStateFlow<String?>("selectedMode", null)        // "my" | "interest" | null
+        .getStateFlow<String?>("selectedMode", null)
         .collectAsState()
 
-    LaunchedEffect(address, mode) {
-        val selectedLegalDistrict = address ?: return@LaunchedEffect
+    LaunchedEffect(selectedAddress, mode) {
+        val selectedLegalDistrict = selectedAddress ?: return@LaunchedEffect
         val mode= mode ?: return@LaunchedEffect
 
         when (mode) {

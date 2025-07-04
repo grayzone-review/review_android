@@ -2,6 +2,7 @@ package com.domain.repository_interface
 
 import com.domain.entity.LoginResult
 import com.domain.entity.SignUpResult
+import com.domain.entity.VerifyNickNameResult
 
 enum class Agreement { serviceUse, privacy, location }
 
@@ -14,4 +15,7 @@ interface UpAuthRepository {
         nickname: String,
         agreements: List<Agreement>
     ): SignUpResult
+    suspend fun verifyNickName(
+        nickname: String
+    ): VerifyNickNameResult
 }
