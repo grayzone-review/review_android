@@ -2,6 +2,7 @@ package com.domain.usecase
 
 import com.domain.entity.LoginResult
 import com.domain.entity.SignUpResult
+import com.domain.entity.Terms
 import com.domain.entity.VerifyNickNameResult
 import com.domain.repository_interface.Agreement
 import com.domain.repository_interface.UpAuthRepository
@@ -17,6 +18,7 @@ interface UpAuthUseCase {
         agreements: List<Agreement>
     ): SignUpResult
     suspend fun verifyNickName(nickname: String): VerifyNickNameResult
+    suspend fun terms(): Terms
 }
 
 class UpAuthUseCaseImpl @Inject constructor(
@@ -44,6 +46,10 @@ class UpAuthUseCaseImpl @Inject constructor(
 
     override suspend fun verifyNickName(nickname: String): VerifyNickNameResult {
         return upAuthRepository.verifyNickName(nickname)
+    }
+
+    override suspend fun terms(): Terms {
+        return upAuthRepository.terms()
     }
 }
 

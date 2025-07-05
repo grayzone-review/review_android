@@ -7,6 +7,7 @@ import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAuthService
 import com.domain.entity.LoginResult
 import com.domain.entity.SignUpResult
+import com.domain.entity.Terms
 import com.domain.entity.VerifyNickNameResult
 import com.domain.repository_interface.Agreement
 import com.domain.repository_interface.UpAuthRepository
@@ -48,4 +49,12 @@ class UpAuthRepositoryImpl @Inject constructor(
         val responseDTO = upAuthService.verifyNickname(body = requestDTO)
         return VerifyNickNameResult(message = responseDTO.message, success = responseDTO.success)
     }
+
+    override suspend fun terms(
+    ): Terms {
+        val responseDTO = upAuthService.term()
+        return responseDTO.data!!.toDomain()
+    }
+
+
 }

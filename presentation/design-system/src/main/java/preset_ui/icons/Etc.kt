@@ -381,3 +381,19 @@ fun MapPinTintable(
         tint = tint
     )
 }
+
+@Composable
+fun CheckBoxIcon(
+    state: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (state) com.presentation.design_system.R.drawable.checkbox_true else com.presentation.design_system.R.drawable.checkbox_false
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}

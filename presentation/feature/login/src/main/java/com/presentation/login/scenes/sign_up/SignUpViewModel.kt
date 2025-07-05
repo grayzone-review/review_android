@@ -3,6 +3,7 @@ package com.presentation.login.scenes.sign_up
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.LegalDistrictInfo
+import com.domain.entity.TermInfo
 import com.domain.usecase.UpAuthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,16 +12,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class TermKind { ALL, SERVICE, PRIVACY, LOCATION }
-
-data class TermsAgreement(
-    val service: Boolean = false,
-    val privacy: Boolean = false,
-    val location: Boolean = false
-) {
-    val all: Boolean
-        get() = service && privacy && location
-}
+data class TermCheck(
+    val info: TermInfo,
+    val isChecked: Boolean = false
+)
 
 enum class FieldState {
     ClientError, Normal, ServerSuccess
@@ -36,7 +31,7 @@ data class SignUpUIState(
     val nickNameField: NickNameField = NickNameField(),
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
-    val terms: TermsAgreement = TermsAgreement(),
+    val terms: List<TermCheck> = emptyList(),
     val isSubmitEnabled: Boolean = false
 )
 
@@ -45,6 +40,7 @@ class SignUpViewModel @Inject constructor(
     private val upAuthUseCase: UpAuthUseCase
 ) : ViewModel() {
     enum class Action {
+        GetTerms,
         AddInterestTown,
         SetMyTown,
         UpdateNickNameTextField,
@@ -60,6 +56,16 @@ class SignUpViewModel @Inject constructor(
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
+            Action.GetTerms -> {
+                viewModelScope.launch {
+                    val result = upAuthUseCase.terms()
+                    val termChecks = result.terms.map { TermCheck(it, false) }
+                    _uiState.update {
+                        it.copy(terms = termChecks)
+                            .checkSubmitValidation()
+                    }
+                }
+            }
             Action.AddInterestTown -> {
                 val currentState = _uiState.value
                 val addedLegalDistrictInfo = value as? LegalDistrictInfo ?: return
@@ -70,7 +76,10 @@ class SignUpViewModel @Inject constructor(
             }
             Action.SetMyTown -> {
                 val selectedDistrictInfo = value as? LegalDistrictInfo ?: return
-                _uiState.update { it.copy(myTown = selectedDistrictInfo) }
+                _uiState.update {
+                    it.copy(myTown = selectedDistrictInfo)
+                        .checkSubmitValidation()
+                }
             }
             Action.UpdateNickNameTextField -> {
                 val newNickname = value as? String ?: return
@@ -78,7 +87,6 @@ class SignUpViewModel @Inject constructor(
                     FieldState.ClientError to "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
                 else
                     FieldState.Normal to ""
-
                 val updatedField = _uiState.value.nickNameField.copy(
                     value = newNickname,
                     fieldState = fieldState,
@@ -99,7 +107,10 @@ class SignUpViewModel @Inject constructor(
                         fieldState = if (result.success) FieldState.ServerSuccess else FieldState.ClientError,
                         errorMessage = "※ ${result.message}"
                     )
-                    _uiState.update { it.copy(nickNameField = newNickNameField) }
+                    _uiState.update {
+                        it.copy(nickNameField = newNickNameField)
+                            .checkSubmitValidation()
+                    }
                 }
             }
             Action.DidTapSubmitButton -> {
@@ -114,16 +125,32 @@ class SignUpViewModel @Inject constructor(
                 }
             }
             Action.DidTapCheckBox -> {
-                val kind = value as? TermKind ?: return
+                val code = value as? TermCode ?: return      // ALL | SERVICE | PRIVACY | LOCATION
+
                 _uiState.update { state ->
-                    val current = state.terms
-                    val newTerms = when (kind) {
-                        TermKind.ALL -> current.copy(service = !current.all, privacy = !current.all, location = !current.all)
-                        TermKind.SERVICE -> current.copy(service = !current.service)
-                        TermKind.PRIVACY -> current.copy(privacy = !current.privacy)
-                        TermKind.LOCATION -> current.copy(location = !current.location)
+
+                    /* 현재 약관 리스트 */
+                    val updated = when (code) {
+                        TermCode.ALL -> {
+                            val toggle = !state.terms
+                                .filter { it.info.required }
+                                .all   { it.isChecked }
+                            state.terms.map { term ->
+                                if (term.info.required) term.copy(isChecked = toggle) else term
+                            }
+                        }
+                        else -> state.terms.map { term ->
+                            val termCode = when (term.info.code) {
+                                "serviceUse" -> TermCode.SERVICE
+                                "privacy"    -> TermCode.PRIVACY
+                                "location"   -> TermCode.LOCATION
+                                else         -> null
+                            }
+                            if (termCode == code) term.copy(isChecked = !term.isChecked) else term
+                        }
                     }
-                    state.copy(terms = newTerms)
+
+                    state.copy(terms = updated)
                         .checkSubmitValidation()
                 }
             }
@@ -132,9 +159,10 @@ class SignUpViewModel @Inject constructor(
             }
         }
     }
-
 }
 
 private fun SignUpUIState.checkSubmitValidation(): SignUpUIState = copy(
-//    isSubmitEnabled = nickname.isNotBlank() && myTown?.isNotBlank() && terms.all
+    isSubmitEnabled = nickNameField.fieldState == FieldState.ServerSuccess &&
+            myTown != null &&
+            terms.filter { it.info.required }.all { it.isChecked }
 )

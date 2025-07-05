@@ -15,6 +15,7 @@ object UpEndpoint {
         const val AUTH_LOGIN = "/api/auth/login"
         const val AUTH_SIGNUP = "/api/auth/signup"
         const val NICKNAME_VERIFY = "/api/users/nickname-verify"
+        const val TERM = "/api/auth/terms"
     }
 
     object Query {

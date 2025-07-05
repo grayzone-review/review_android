@@ -24,8 +24,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -50,11 +48,13 @@ import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckD
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapDetailButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapSubmitButton
+import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.GetTerms
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.SetMyTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.UpdateNickNameTextField
 import com.presentation.login.scenes.sign_up.navgraph.NavConstant
 import com.team.common.feature_api.extension.addFocusCleaner
 import preset_ui.SimpleTextFieldOutlinedButton
+import preset_ui.icons.CheckBoxIcon
 import preset_ui.icons.CloseLine
 import preset_ui.icons.RightArrowIcon
 import preset_ui.icons.SignUpRemove
@@ -75,6 +75,12 @@ fun SignUpScene(
     val mode by savedStateHandle
         .getStateFlow<String?>("selectedMode", null)
         .collectAsState()
+
+    LaunchedEffect(uiState.terms.isEmpty()) {
+        if (uiState.terms.isEmpty()) {
+            viewModel.handleAction(GetTerms)
+        }
+    }
 
     LaunchedEffect(selectedAddress, mode) {
         val selectedLegalDistrict = selectedAddress ?: return@LaunchedEffect
@@ -122,8 +128,8 @@ fun SignUpScene(
             )
             TermsSection(
                 terms = uiState.terms,
-                onCheckBoxButtonClick = { viewModel.handleAction(DidTapCheckBox, it) },
-                onDetailButtonClick = { viewModel.handleAction(DidTapDetailButton, it) },
+                onCheckBoxClick = { viewModel.handleAction(DidTapCheckBox, it) },
+                onDetailClick = { viewModel.handleAction(DidTapDetailButton, it) },
             )
         }
         SubmitButton(
@@ -299,7 +305,6 @@ private fun DeletableTownChip(
     }
 }
 
-
 @Composable
 private fun AddTownChip(
     onClick: () -> Unit,
@@ -320,47 +325,45 @@ private fun AddTownChip(
     }
 }
 
-
+enum class TermCode { ALL, SERVICE, PRIVACY, LOCATION }
 @Composable
 fun TermsSection(
-    terms: TermsAgreement,
-    onCheckBoxButtonClick: (TermKind) -> Unit,
-    onDetailButtonClick: (TermKind) -> Unit,
+    terms: List<TermCheck>,
+    onCheckBoxClick: (TermCode) -> Unit,
+    onDetailClick: (TermCode) -> Unit,
 ) {
-    Column(
-        modifier = Modifier.padding(horizontal = 20.dp)
-    ) {
+    val allChecked = terms.filter { it.info.required }.all { it.isChecked }
+
+    Column(Modifier.padding(horizontal = 20.dp)) {
+        /* ── 전체 동의 ── */
         TermRow(
-            checked = terms.all,
+            checked = allChecked,
             label = "약관 전체 동의",
-            kind = TermKind.ALL,
-            onCheckboxButtonClick = { onCheckBoxButtonClick(TermKind.ALL) },
-            onDetailButtonClick = {}
-        )
-        HorizontalDivider(modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = CS.Gray.G20)
-        TermRow(
-            checked = terms.service,
-            label = "[필수] 서비스 이용 약관 동의",
-            kind = TermKind.SERVICE,
-            onCheckboxButtonClick = { onCheckBoxButtonClick(TermKind.SERVICE) },
-            onDetailButtonClick = { onDetailButtonClick(TermKind.SERVICE) }
+            code = TermCode.ALL,
+            onCheckboxClick = { onCheckBoxClick(TermCode.ALL) },
+            onDetailClick = {}
         )
 
-        TermRow(
-            checked = terms.privacy,
-            label = "[필수] 개인정보 수집 및 이용 동의",
-            kind = TermKind.PRIVACY,
-            onCheckboxButtonClick = { onCheckBoxButtonClick(TermKind.PRIVACY) },
-            onDetailButtonClick = { onDetailButtonClick(TermKind.PRIVACY) }
+        HorizontalDivider(
+            Modifier.fillMaxWidth(),
+            thickness = 1.dp,
+            color = CS.Gray.G20
         )
 
-        TermRow(
-            checked = terms.location,
-            label = "[필수] 위치 기반 서비스 이용 동의",
-            kind = TermKind.LOCATION,
-            onCheckboxButtonClick = { onCheckBoxButtonClick(TermKind.LOCATION) },
-            onDetailButtonClick = { onDetailButtonClick(TermKind.LOCATION) }
-        )
+        terms.forEach { term ->
+            TermRow(
+                checked = term.isChecked,
+                label = term.info.term,
+                code = when (term.info.code) {
+                    "serviceUse" -> TermCode.SERVICE
+                    "privacy"    -> TermCode.PRIVACY
+                    "location"   -> TermCode.LOCATION
+                    else         -> TermCode.SERVICE
+                },
+                onCheckboxClick = { code -> onCheckBoxClick(code) },
+                onDetailClick   = { code -> onDetailClick(code) }
+            )
+        }
     }
 }
 
@@ -368,36 +371,32 @@ fun TermsSection(
 private fun TermRow(
     checked: Boolean,
     label: String,
-    kind: TermKind,
-    onCheckboxButtonClick: () -> Unit,
-    onDetailButtonClick: () -> Unit,
+    code: TermCode,
+    onCheckboxClick: (TermCode) -> Unit,
+    onDetailClick: (TermCode) -> Unit,
 ) {
     Row(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .clickable(onClick = onCheckboxButtonClick),
+            .clickable { onCheckboxClick(code) },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = { _ -> onCheckboxButtonClick() },
-            colors = CheckboxDefaults.colors(
-                checkedColor = CS.PrimaryOrange.O40,
-                uncheckedColor = CS.Gray.G40
-            )
+        CheckBoxIcon(
+            state = checked, width  = 24.dp, height = 24.dp,
+            modifier = Modifier
+                .padding(end = 8.dp)
         )
+
         Text(
             text = label,
-            style = if (kind == TermKind.ALL) Typography.h3 else Typography.body1Regular,
+            style = if (code == TermCode.ALL) Typography.body1Semi else Typography.body1Regular,
             color = CS.Gray.G90,
-            modifier = Modifier
-                .weight(1f)
+            modifier = Modifier.weight(1f)
         )
-        if (kind != TermKind.ALL) {
+        if (code != TermCode.ALL) {
             Row(
-                modifier = Modifier
-                    .clickable(onClick = { onDetailButtonClick() }),
+                Modifier.clickable { onDetailClick(code) },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("자세히", style = Typography.body2Regular, color = CS.Gray.G70)
@@ -406,6 +405,7 @@ private fun TermRow(
         }
     }
 }
+
 
 
 @Composable
