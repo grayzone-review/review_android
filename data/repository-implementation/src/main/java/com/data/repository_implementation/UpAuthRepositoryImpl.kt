@@ -5,11 +5,11 @@ import RequestModel.SignUpRequestModel
 import RequestModel.VerifyNicknameRequestModel
 import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAuthService
+import com.domain.entity.Agreement
 import com.domain.entity.LoginResult
 import com.domain.entity.SignUpResult
 import com.domain.entity.Terms
 import com.domain.entity.VerifyNickNameResult
-import com.domain.repository_interface.Agreement
 import com.domain.repository_interface.UpAuthRepository
 import javax.inject.Inject
 

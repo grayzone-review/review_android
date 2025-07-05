@@ -2,6 +2,7 @@ package com.presentation.login.scenes.sign_up
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.domain.entity.Agreement
 import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.TermInfo
 import com.domain.usecase.UpAuthUseCase
@@ -113,9 +114,6 @@ class SignUpViewModel @Inject constructor(
                     }
                 }
             }
-            Action.DidTapSubmitButton -> {
-                // TODO: Check Submit -> API 나오면 처리
-            }
             Action.DidTapRemoveInterestTownButton -> {
                 val targetDistrictInfo = value as? LegalDistrictInfo ?: return
                 _uiState.update { state ->
@@ -156,6 +154,29 @@ class SignUpViewModel @Inject constructor(
             }
             Action.DidTapDetailButton -> {
                 // TODO: WebView Navigate
+            }
+            Action.DidTapSubmitButton -> {
+                val currentState = _uiState.value
+                if (currentState.myTown == null) return
+                val agreements = currentState.terms
+                    .filter { it.isChecked }
+                    .mapNotNull { term ->
+                        when (term.info.code) {
+                            "serviceUse" -> Agreement.serviceUse
+                            "privacy" -> Agreement.privacy
+                            "location" -> Agreement.location
+                            else -> null
+                        }
+                    }
+                viewModelScope.launch {
+                    upAuthUseCase.signUp(
+                        oauthToken = "",
+                        mainRegionId = currentState.myTown.id,
+                        interestedRegionIds = currentState.interestTowns.map { it.id },
+                        nickname = currentState.nickNameField.value,
+                        agreements = agreements
+                    )
+                }
             }
         }
     }
