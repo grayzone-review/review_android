@@ -1,6 +1,5 @@
 package com.presentation.login.scenes.sign_up
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.LegalDistrictInfo
@@ -23,8 +22,18 @@ data class TermsAgreement(
         get() = service && privacy && location
 }
 
+enum class FieldState {
+    ClientError, Normal, ServerSuccess
+}
+// 빨, 기본, 성공
+data class NickNameField(
+    val value: String = "",
+    val fieldState: FieldState = FieldState.Normal,
+    val errorMessage: String = "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
+)
+
 data class SignUpUIState(
-    val nickname: String = "",
+    val nickNameField: NickNameField = NickNameField(),
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
     val terms: TermsAgreement = TermsAgreement(),
@@ -65,16 +74,32 @@ class SignUpViewModel @Inject constructor(
             }
             Action.UpdateNickNameTextField -> {
                 val newNickname = value as? String ?: return
+                val (fieldState, errorMessage) = if (newNickname.isNotEmpty() && newNickname.length < 2)
+                    FieldState.ClientError to "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
+                else
+                    FieldState.Normal to ""
+
+                val updatedField = _uiState.value.nickNameField.copy(
+                    value = newNickname,
+                    fieldState = fieldState,
+                    errorMessage = errorMessage
+                )
                 _uiState.update {
-                    it.copy(nickname = newNickname)
+                    it.copy(nickNameField = updatedField)
                         .checkSubmitValidation()
                 }
             }
             Action.DidTapCheckDuplicateButton -> {
                 val currentState = _uiState.value
+                if (currentState.nickNameField.value.length < 2) return
                 viewModelScope.launch {
-                    val result = upAuthUseCase.verifyNickName(nickname = currentState.nickname)
-                    Log.d("리저트:", result.toString())
+                    val result = upAuthUseCase.verifyNickName(nickname = currentState.nickNameField.value)
+                    val newNickNameField = NickNameField(
+                        value = currentState.nickNameField.value,
+                        fieldState = if (result.success) FieldState.ServerSuccess else FieldState.ClientError,
+                        errorMessage = "※ ${result.message}"
+                    )
+                    _uiState.update { it.copy(nickNameField = newNickNameField) }
                 }
             }
             Action.DidTapSubmitButton -> {

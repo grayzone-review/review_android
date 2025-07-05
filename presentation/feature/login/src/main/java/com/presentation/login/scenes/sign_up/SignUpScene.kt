@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -102,7 +103,7 @@ fun SignUpScene(
             verticalArrangement = Arrangement.spacedBy(40.dp)
         ) {
             NicknameInput(
-                value = uiState.nickname,
+                nicknameField = uiState.nickNameField,
                 onValueChange = { viewModel.handleAction(UpdateNickNameTextField, it) },
                 onCheckDuplicate = { viewModel.handleAction(DidTapCheckDuplicateButton) }
             )
@@ -134,28 +135,46 @@ fun SignUpScene(
 
 @Composable
 private fun NicknameInput(
-    value: String,
+    nicknameField: NickNameField,
     onValueChange: (String) -> Unit,
     onCheckDuplicate: () -> Unit,
-    isError: Boolean = false,
-    helperText: String = "닉네임은 최소 2자 이상 15자 이내로 입력해주세요."
 ) {
+    val invalidRegex = remember { Regex("[^가-힣ㄱ-ㅎa-zA-Z0-9]") }
+    val textColor = when (nicknameField.fieldState) {
+        FieldState.ClientError -> CS.System.Red
+        else -> CS.Gray.G90
+    }
+    val borderColor = when (nicknameField.fieldState) {
+        FieldState.ClientError -> CS.System.Red
+        else -> CS.Gray.G20
+    }
+    val errorMessageColor = when (nicknameField.fieldState) {
+        FieldState.ClientError -> CS.System.Red
+        FieldState.Normal -> CS.Gray.G50
+        FieldState.ServerSuccess -> CS.System.Blue
+    }
+
     Column(
         modifier = Modifier.padding(horizontal = 20.dp)
     ) {
         Text(text = "닉네임", style = Typography.h3, color = CS.Gray.G90)
         Spacer(Modifier.height(10.dp))
         BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = nicknameField.value,
+            onValueChange = {
+                val filtered = it
+                    .replace(invalidRegex, "")
+                    .take(12)
+                onValueChange(filtered)
+            },
             singleLine = true,
-            textStyle = Typography.body1Regular.copy(color = CS.Gray.G90),
+            textStyle = Typography.body1Regular.copy(color = textColor),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
                 .border(
                     width = 1.dp,
-                    color = if (isError) CS.System.Red else CS.Gray.G20,
+                    color = borderColor,
                     shape = RoundedCornerShape(8.dp)
                 ),
             decorationBox = { innerTextField ->
@@ -169,7 +188,7 @@ private fun NicknameInput(
                             .weight(1f)
                             .padding(start = 16.dp)
                     ) {
-                        if (value.isEmpty()) {
+                        if (nicknameField.value.isEmpty()) {
                             Text(text = "닉네임", style = Typography.body1Regular, color = CS.Gray.G40)
                         }
                         innerTextField()
@@ -192,11 +211,7 @@ private fun NicknameInput(
             }
         )
         Spacer(Modifier.height(8.dp))
-        Text(
-            text = helperText,
-            style = Typography.captionRegular,
-            color = if (isError) CS.System.Red else CS.Gray.G50
-        )
+        Text(text = nicknameField.errorMessage, style = Typography.captionRegular, color = errorMessageColor)
     }
 }
 
