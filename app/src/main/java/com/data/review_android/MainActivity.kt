@@ -41,6 +41,7 @@ import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import preset_ui.icons.BackBarButtonIcon
+import token_storage.TokenStoreService
 import javax.inject.Inject
 import androidx.compose.material3.IconButton as IconButton1
 
@@ -68,6 +69,7 @@ class MainActivity : ComponentActivity() {
         KakaoMapSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         UpDataStoreService.init(context = applicationContext)
+        TokenStoreService.init(context = applicationContext)
         UpLocationService.init(context = applicationContext)
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)

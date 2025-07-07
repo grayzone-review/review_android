@@ -41,7 +41,10 @@ dependencies {
     implementation(project(":data:dto"))
 
     implementation(Deps.coreKtx)
-
+    implementation(Retrofit.retrofit
+    )
+    implementation(Retrofit.okHttp)
+    implementation(Retrofit.gsonConverter)
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
 }

@@ -22,6 +22,10 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
+import com.presentation.login.scenes.login.LoginViewModel.Action.CompletedSignUp
+import com.presentation.login.scenes.login.LoginViewModel.Action.DidTapCloseButton
+import com.presentation.login.scenes.login.LoginViewModel.Action.FailedKakaoLogin
+import com.presentation.login.scenes.login.LoginViewModel.Action.SuccessKakaoLogin
 import com.presentation.login.scenes.sign_up.SignUpRootDialog
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.KakaoBubble
@@ -36,11 +40,12 @@ fun LoginScene(
 
     ResisterCreateAccountDialog(
         accessToken = uiState.accessToken,
-        isShow = uiState.shoudShowCreateAccountDialog
+        isShow = uiState.shoudShowCreateAccountDialog,
+        onDismiss = { viewModel.handleAction(DidTapCloseButton) },
+        onSubmitCompleted = { viewModel.handleAction(CompletedSignUp) }
     )
 
     Column(
-//        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.weight(1f))
@@ -54,20 +59,20 @@ fun LoginScene(
                             }
                             UserApiClient.instance.loginWithKakaoAccount(context) { token2, error2 ->
                                 if (error2 != null) {
-                                    viewModel.handleAction(LoginViewModel.Action.FailedKakaoLogin, error2)
+                                    viewModel.handleAction(FailedKakaoLogin, error2)
                                 } else if (token2 != null) {
-                                    viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin, token2)
+                                    viewModel.handleAction(SuccessKakaoLogin, token2)
                                 }
                             }
                         } else if (token != null) {
-                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin, token)
+                            viewModel.handleAction(SuccessKakaoLogin, token)
                         }
                     }
                 } else {
                     UserApiClient.instance.loginWithKakaoAccount(context) { token, error -> if (error != null) {
-                            viewModel.handleAction(LoginViewModel.Action.FailedKakaoLogin, error)
+                            viewModel.handleAction(FailedKakaoLogin, error)
                         } else if (token != null) {
-                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin, token)
+                            viewModel.handleAction(SuccessKakaoLogin, token)
                         }
                     }
                 }
@@ -107,6 +112,15 @@ fun KakaoLoginButton(
 }
 
 @Composable
-fun ResisterCreateAccountDialog(accessToken: String, isShow: Boolean) {
-    if (isShow) SignUpRootDialog(accessToken = accessToken, onDismiss =  { })
+fun ResisterCreateAccountDialog(
+    accessToken: String,
+    isShow: Boolean,
+    onDismiss: () -> Unit,
+    onSubmitCompleted: () -> Unit
+) {
+    if (isShow) SignUpRootDialog(
+        accessToken = accessToken,
+        onDismiss =  { onDismiss() },
+        onSubmitCompleted = { onSubmitCompleted() }
+    )
 }

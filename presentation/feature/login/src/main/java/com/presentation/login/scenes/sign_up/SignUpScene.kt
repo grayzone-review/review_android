@@ -62,6 +62,7 @@ import preset_ui.icons.SignUpRemove
 @Composable
 fun SignUpScene(
     onDismiss: () -> Unit,
+    onSubmitCompleted: () -> Unit,
     navHostController: NavHostController,
     accessToken: String,
     viewModel: SignUpViewModel = hiltViewModel()
@@ -103,7 +104,7 @@ fun SignUpScene(
             .background(CS.Gray.White)
             .addFocusCleaner(focusManager)
     ) {
-        TopAppBar { onDismiss() }
+        TopAppBar(onCloseButtonClick = { onDismiss() })
         Column(
             Modifier
                 .weight(1f)

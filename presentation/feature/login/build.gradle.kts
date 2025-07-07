@@ -42,6 +42,7 @@ android {
 dependencies {
     implementation(project(":common"))
     implementation(project(":domain:entity"))
+    implementation(project(":data:storage"))
     implementation(project(":presentation:design-system"))
     implementation(project(":presentation:feature:common"))
     implementation(project(":domain:usecase"))
