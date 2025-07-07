@@ -7,7 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.presentation.login.scenes.sign_up.navgraph.SignUpNavGraph
 
 @Composable
-fun SignUpRootDialog(onDismiss: () -> Unit) {
+fun SignUpRootDialog(accessToken: String, onDismiss: () -> Unit) {
     val navController = rememberNavController()
 
     Dialog(
@@ -17,6 +17,6 @@ fun SignUpRootDialog(onDismiss: () -> Unit) {
             decorFitsSystemWindows = false
         )
     ) {
-        SignUpNavGraph(navController = navController)
+        SignUpNavGraph(navController = navController, accessToken = accessToken)
     }
 }

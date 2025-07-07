@@ -33,7 +33,8 @@ data class SignUpUIState(
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
     val terms: List<TermCheck> = emptyList(),
-    val isSubmitEnabled: Boolean = false
+    val isSubmitEnabled: Boolean = false,
+    val accessToken: String = ""
 )
 
 @HiltViewModel
@@ -49,7 +50,8 @@ class SignUpViewModel @Inject constructor(
         DidTapRemoveInterestTownButton,
         DidTapCheckBox,
         DidTapDetailButton,
-        DidTapSubmitButton
+        DidTapSubmitButton,
+        SetAccessToken
     }
 
     private var _uiState = MutableStateFlow(value = SignUpUIState())
@@ -57,6 +59,12 @@ class SignUpViewModel @Inject constructor(
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
+            Action.SetAccessToken -> {
+                val token = value as? String ?: return
+                _uiState.update {
+                    it.copy(accessToken = token)
+                }
+            }
             Action.GetTerms -> {
                 viewModelScope.launch {
                     val result = upAuthUseCase.terms()
@@ -169,8 +177,8 @@ class SignUpViewModel @Inject constructor(
                         }
                     }
                 viewModelScope.launch {
-                    upAuthUseCase.signUp(
-                        oauthToken = "",
+                    val result = upAuthUseCase.signUp(
+                        oauthToken = currentState.accessToken,
                         mainRegionId = currentState.myTown.id,
                         interestedRegionIds = currentState.interestTowns.map { it.id },
                         nickname = currentState.nickNameField.value,

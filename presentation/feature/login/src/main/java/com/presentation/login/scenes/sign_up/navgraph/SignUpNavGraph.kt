@@ -31,7 +31,8 @@ sealed class SignUpNavRoute(val route: String) {
 
 @Composable
 fun SignUpNavGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    accessToken: String
 ) {
     NavHost(
         navController = navController,
@@ -41,6 +42,7 @@ fun SignUpNavGraph(
             val viewModel = hiltViewModel<SignUpViewModel>()
             SignUpScene(
                 viewModel = viewModel,
+                accessToken = accessToken,
                 onDismiss = { },
                 navHostController = navController
             )

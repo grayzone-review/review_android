@@ -34,7 +34,10 @@ fun LoginScene(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
-    ResisterCreateAccountDialog(isShow = uiState.shoudShowCreateAccountDialog)
+    ResisterCreateAccountDialog(
+        accessToken = uiState.accessToken,
+        isShow = uiState.shoudShowCreateAccountDialog
+    )
 
     Column(
 //        verticalArrangement = Arrangement.Center,
@@ -53,19 +56,18 @@ fun LoginScene(
                                 if (error2 != null) {
                                     viewModel.handleAction(LoginViewModel.Action.FailedKakaoLogin, error2)
                                 } else if (token2 != null) {
-                                    viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin)
+                                    viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin, token2)
                                 }
                             }
                         } else if (token != null) {
-                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin)
+                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin, token)
                         }
                     }
                 } else {
-                    UserApiClient.instance.loginWithKakaoAccount(context) { token, error ->
-                        if (error != null) {
+                    UserApiClient.instance.loginWithKakaoAccount(context) { token, error -> if (error != null) {
                             viewModel.handleAction(LoginViewModel.Action.FailedKakaoLogin, error)
                         } else if (token != null) {
-                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin)
+                            viewModel.handleAction(LoginViewModel.Action.SuccessKakaoLogin, token)
                         }
                     }
                 }
@@ -105,6 +107,6 @@ fun KakaoLoginButton(
 }
 
 @Composable
-fun ResisterCreateAccountDialog(isShow: Boolean) {
-    if (isShow) SignUpRootDialog(onDismiss =  { })
+fun ResisterCreateAccountDialog(accessToken: String, isShow: Boolean) {
+    if (isShow) SignUpRootDialog(accessToken = accessToken, onDismiss =  { })
 }

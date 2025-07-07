@@ -63,6 +63,7 @@ import preset_ui.icons.SignUpRemove
 fun SignUpScene(
     onDismiss: () -> Unit,
     navHostController: NavHostController,
+    accessToken: String,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -76,6 +77,9 @@ fun SignUpScene(
         .getStateFlow<String?>("selectedMode", null)
         .collectAsState()
 
+    LaunchedEffect(accessToken) {
+        viewModel.handleAction(SignUpViewModel.Action.SetAccessToken, accessToken)
+    }
     LaunchedEffect(uiState.terms.isEmpty()) {
         if (uiState.terms.isEmpty()) {
             viewModel.handleAction(GetTerms)
@@ -405,8 +409,6 @@ private fun TermRow(
         }
     }
 }
-
-
 
 @Composable
 private fun TopAppBar(
