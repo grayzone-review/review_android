@@ -160,6 +160,7 @@ fun LogoUserTopAppBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(61.dp)
+            .background(Color.White)
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
