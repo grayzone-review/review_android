@@ -26,6 +26,7 @@
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/dto" />
+            <option value="$PROJECT_DIR$/data/location" />
             <option value="$PROJECT_DIR$/data/network" />
             <option value="$PROJECT_DIR$/data/repository-implementation" />
             <option value="$PROJECT_DIR$/data/storage" />
@@ -38,6 +39,7 @@
             <option value="$PROJECT_DIR$/presentation/feature" />
             <option value="$PROJECT_DIR$/presentation/feature/common" />
             <option value="$PROJECT_DIR$/presentation/feature/company-detail" />
+            <option value="$PROJECT_DIR$/presentation/feature/login" />
             <option value="$PROJECT_DIR$/presentation/feature/main" />
             <option value="$PROJECT_DIR$/presentation/feature/search" />
           </set>

@@ -14,10 +14,11 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRouteConstant.mainNestedRoute
+        startDestination = NavigationRouteConstant.loginNestedRoute
     ) {
         navigationProvider.mainAPI.registerGraph(navController, this, appBarViewModel)
         navigationProvider.reviewAPI.registerGraph(navController, this, appBarViewModel)
         navigationProvider.searchAPI.registerGraph(navController, this, appBarViewModel)
+        navigationProvider.loginAPI.registerGraph(navController, this, appBarViewModel)
     }
 }

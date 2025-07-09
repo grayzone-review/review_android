@@ -2,82 +2,75 @@ package com.data.review_android
 
 import BottomSheetHelper
 import DimController
+import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
+import android.content.ContextWrapper
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import colors.CS
+import com.data.location.UpLocationService
 import com.data.review_android.navigation.AppNavGraph
 import com.data.review_android.navigation.NavigationProvider
 import com.data.review_android.ui.theme.ReviewAndroidTheme
-import com.data.review_android.ui.theme.Typography
 import com.data.storage.datastore.UpDataStoreService
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.kakao.sdk.common.KakaoSdk
 import com.kakao.vectormap.KakaoMapSdk
 import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import preset_ui.icons.BackBarButtonIcon
+import token_storage.TokenStoreService
 import javax.inject.Inject
-import javax.inject.Named
 import androidx.compose.material3.IconButton as IconButton1
+
 
 fun Int.toPx(context: Context): Int =
     (this * context.resources.displayMetrics.density).toInt()
+
+fun Context.findActivity(): Activity? {
+    var ctx = this
+    while (ctx is ContextWrapper) {
+        if (ctx is Activity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
+}
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var navigationProvider: NavigationProvider
 
-    @Inject
-    @Named("NATIVE_APP_KEY")
-    lateinit var nativeAppKey: String
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        KakaoMapSdk.init(this, nativeAppKey)
+        KakaoMapSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
+        KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
         UpDataStoreService.init(context = applicationContext)
+        TokenStoreService.init(context = applicationContext)
+        UpLocationService.init(context = applicationContext)
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)
         val dimView = findViewById<FrameLayout>(R.id.dimView)
@@ -142,6 +135,39 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+//    private fun test() {
+//        val locationRequest = com.google.android.gms.location.LocationRequest.create().apply {
+//            interval = 10000
+//            fastestInterval = 5000
+//            priority = LocationRequest.QUALITY_HIGH_ACCURACY
+//        }
+//
+//        val builder = LocationSettingsRequest.Builder()
+//            .addLocationRequest(locationRequest)
+//
+//        val client: SettingsClient = LocationServices.getSettingsClient(this)
+//        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+//
+//        task.addOnSuccessListener {
+//            // GPS가 켜져있을 경우
+//        }
+//
+//        task.addOnFailureListener { exception ->
+//            // GPS가 꺼져있을 경우
+//            if (exception is ResolvableApiException) {
+//                Log.d(TAG, "OnFailure")
+//                try {
+//                    exception.startResolutionForResult(
+//                        this@MainActivity,
+//                        100
+//                    )
+//                } catch (sendEx: IntentSender.SendIntentException) {
+//                    Log.d(TAG, sendEx.message.toString())
+//                }
+//            }
+//        }
+//    }
 
     private fun registerDimViewOnClickListner(dimView: FrameLayout) {
         dimView.setOnClickListener {

@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":domain:entity"))
     implementation(Deps.coreKtx)
     implementation("androidx.datastore:datastore-preferences:1.1.7")
 }

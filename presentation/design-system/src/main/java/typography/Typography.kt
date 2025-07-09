@@ -30,6 +30,12 @@ object Typography {
         fontSize = 16.sp,
         lineHeight = 16.sp * 1.3f
     )
+    var body1Semi = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 16.sp * 1.3f
+    )
     var body1Regular = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,

@@ -1,5 +1,6 @@
 package com.team.common.feature_api.utility
 
+import androidx.compose.ui.graphics.Color
 import kotlin.math.floor
 
 object Utility {
@@ -17,4 +18,20 @@ object Utility {
         val empty      = 5 - full - half
         return StarCounts(full, half, empty)
     }
+
+    fun hexToColor(hex: String): Color {
+        val cleaned = hex.removePrefix("#")
+        val argb = when (cleaned.length) {
+            3 -> buildString {          // #RGB → #FFRRGGBB
+                append("FF")
+                cleaned.forEach { append("$it$it") }
+            }
+            6 -> "FF$cleaned"           // #RRGGBB → #FFRRGGBB
+            8 -> cleaned                // #AARRGGBB
+            else -> throw IllegalArgumentException("Invalid hex color: $hex")
+        }.toLong(16).toInt()
+
+        return Color(argb)
+    }
+
 }

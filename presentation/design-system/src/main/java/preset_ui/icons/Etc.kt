@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
-import colors.CS
 
 @Composable
 fun ChatLine(
@@ -125,6 +124,22 @@ fun BackBarButtonIcon(
 }
 
 @Composable
+fun RightArrowIcon(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.arrow_right_line),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+
+@Composable
 fun SearchLineIcon(
     width: Dp,
     height: Dp,
@@ -147,6 +162,20 @@ fun CloseFillIcon(
 ) {
     Icon(
         painter = painterResource(com.presentation.design_system.R.drawable.close_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun CloseFillTint(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.close_fill_tint),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified
@@ -300,11 +329,69 @@ fun ReviewCheckLine(
 fun CheckCircleFill(
     width: Dp,
     height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.check_fill_tint),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun KakaoBubble(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.kakao_bubble),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun SignUpRemove(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.signup_remove),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun MapPinTintable(
+    width: Dp,
+    height: Dp,
     tint: Color,
     modifier: Modifier = Modifier
 ) {
     Icon(
-        painter = painterResource(com.presentation.design_system.R.drawable.check_circle_fill),
+        painter = painterResource(com.presentation.design_system.R.drawable.mappin_tintable),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
+@Composable
+fun CheckBoxIcon(
+    state: Boolean,
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val iconRes = if (state) com.presentation.design_system.R.drawable.checkbox_true else com.presentation.design_system.R.drawable.checkbox_false
+    Icon(
+        painter = painterResource(iconRes),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified
