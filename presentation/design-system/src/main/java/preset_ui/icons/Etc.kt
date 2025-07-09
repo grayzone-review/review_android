@@ -472,3 +472,17 @@ fun MainMapPinIcon(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun LocationBanner(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.location_banner),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}

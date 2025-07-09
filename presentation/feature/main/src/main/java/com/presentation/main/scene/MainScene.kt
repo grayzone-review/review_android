@@ -41,6 +41,7 @@ import com.presentation.design_system.appbar.appbars.UpTab
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
 import preset_ui.icons.FollowPersonOnIcon
+import preset_ui.icons.LocationBanner
 import preset_ui.icons.MainMapPinIcon
 import preset_ui.icons.RightArrowIcon
 
@@ -82,6 +83,10 @@ fun MainScene(
                     onMyReviewClick = { },
                     onFollowClick = { }
                 )
+                LocationBannerButton(
+                    onClick = { }
+                )
+                Spacer(modifier = Modifier.fillMaxWidth().height(8.dp).background(CS.Gray.G10))
             }
         }
 
@@ -222,3 +227,46 @@ private fun DashboardCard(
         content(maxWidth, maxHeight)
     }
 }
+
+@Composable
+fun LocationBannerButton(
+    onClick: () -> Unit
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(142.dp)
+            .clickable(onClick = onClick)
+            .background(Color.White)
+            .padding(top = 20.dp)
+            .padding(horizontal = 20.dp)
+    ) {
+
+        LocationBanner(width = maxWidth * 0.34f, height = maxHeight * 0.86f, modifier = Modifier
+            .align(Alignment.CenterEnd)
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 20.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "관심 동네 선택하러 가기",
+                    style = Typography.body1Bold,
+                    color = CS.Gray.G90
+                )
+                Spacer(Modifier.width(4.dp))
+                RightArrowIcon(20.dp, 20.dp, tint = CS.Gray.G90)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "관심 동네 선택하고 리뷰 확인해보세요!",
+                style = Typography.captionRegular,
+                color = CS.Gray.G50
+            )
+        }
+    }
+}
+
