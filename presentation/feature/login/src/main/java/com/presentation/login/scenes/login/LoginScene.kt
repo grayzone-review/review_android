@@ -21,7 +21,6 @@ import com.example.presentation.designsystem.typography.Typography
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
-import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.login.scenes.login.LoginViewModel.Action.CompletedSignUp
 import com.presentation.login.scenes.login.LoginViewModel.Action.DidTapCloseButton
 import com.presentation.login.scenes.login.LoginViewModel.Action.FailedKakaoLogin
@@ -32,8 +31,7 @@ import preset_ui.icons.KakaoBubble
 
 @Composable
 fun LoginScene(
-    viewModel: LoginViewModel,
-    appBarViewModel: AppBarViewModel
+    viewModel: LoginViewModel
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()

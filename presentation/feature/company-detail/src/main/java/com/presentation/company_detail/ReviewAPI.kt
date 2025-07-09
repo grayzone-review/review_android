@@ -7,17 +7,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailScene
 import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel
-import com.presentation.design_system.appbar.appbars.AppBarViewModel
-import common_ui.FeatureAPI
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.FeatureAPI
 
 interface ReviewAPI: FeatureAPI { }
 
 internal object InternalReviewAPI: FeatureAPI {
     override fun registerGraph(
         navController: NavHostController,
-        navGraphBuilder: NavGraphBuilder,
-        appBarViewModel: AppBarViewModel
+        navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation(
             startDestination = NavigationRouteConstant.reviewDetailSceneRoute,
@@ -25,16 +23,14 @@ internal object InternalReviewAPI: FeatureAPI {
         ) {
             composable(NavigationRouteConstant.reviewDetailSceneRoute) {
                 val viewModel = hiltViewModel<ReviewDetailViewModel>()
-                ReviewDetailScene(viewModel = viewModel, appBarViewModel = appBarViewModel)
+                ReviewDetailScene(viewModel = viewModel)
             }
         }
     }
 }
 
 class ReviewAPIImpl: ReviewAPI {
-    override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder, appBarViewModel: AppBarViewModel) {
-        InternalReviewAPI.registerGraph(
-            navController, navGraphBuilder, appBarViewModel
-        )
+    override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder) {
+        InternalReviewAPI.registerGraph(navController, navGraphBuilder)
     }
 }

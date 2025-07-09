@@ -7,7 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.feature.comments.scene.SearchScene
 import com.feature.comments.scene.SearchViewModel
-import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.FeatureAPI
 
@@ -16,8 +15,7 @@ interface SearchAPI: FeatureAPI { }
 internal object InternalSearchAPI: FeatureAPI {
     override fun registerGraph(
         navController: NavHostController,
-        navGraphBuilder: NavGraphBuilder,
-        appBarViewModel: AppBarViewModel
+        navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation(
             startDestination = NavigationRouteConstant.searchSceneRoute,
@@ -25,16 +23,14 @@ internal object InternalSearchAPI: FeatureAPI {
         ) {
             composable(NavigationRouteConstant.searchSceneRoute) {
                 val viewModel = hiltViewModel<SearchViewModel>()
-                SearchScene(viewModel = viewModel, appBarViewModel = appBarViewModel, navController = navController)
+                SearchScene(viewModel = viewModel, navController = navController)
             }
         }
     }
 }
 
 class SearchAPIImpl: SearchAPI {
-    override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder, appBarViewModel: AppBarViewModel) {
-        InternalSearchAPI.registerGraph(
-            navController, navGraphBuilder, appBarViewModel
-        )
+    override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder) {
+        InternalSearchAPI.registerGraph(navController, navGraphBuilder)
     }
 }

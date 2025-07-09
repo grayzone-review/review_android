@@ -5,7 +5,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.presentation.login.scenes.login.LoginScene
 import com.presentation.login.scenes.login.LoginViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
@@ -16,8 +15,7 @@ interface LoginAPI: FeatureAPI { }
 internal object InternalLoginAPI: FeatureAPI {
     override fun registerGraph(
         navController: NavHostController,
-        navGraphBuilder: NavGraphBuilder,
-        appBarViewModel: AppBarViewModel
+        navGraphBuilder: NavGraphBuilder
     ) {
         navGraphBuilder.navigation(
             startDestination = NavigationRouteConstant.loginSceneRoute,
@@ -25,16 +23,14 @@ internal object InternalLoginAPI: FeatureAPI {
         ) {
             composable(NavigationRouteConstant.loginSceneRoute) {
                 val viewModel = hiltViewModel<LoginViewModel>()
-                LoginScene(viewModel = viewModel, appBarViewModel = appBarViewModel)
+                LoginScene(viewModel = viewModel)
             }
         }
     }
 }
 
 class LoginAPIImpl: LoginAPI {
-    override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder, appBarViewModel: AppBarViewModel) {
-        InternalLoginAPI.registerGraph(
-            navController, navGraphBuilder, appBarViewModel
-        )
+    override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder) {
+        InternalLoginAPI.registerGraph(navController, navGraphBuilder)
     }
 }
