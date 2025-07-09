@@ -36,6 +36,21 @@ fun ChatFill(
     )
 }
 
+@Composable
+fun Chat2Fill(
+    width: Dp,
+    height: Dp,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.chat2_fill),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
 
 @Composable
 fun RockClose(
@@ -438,6 +453,20 @@ fun BottomBarAddIcon(
 ) {
     Icon(
         painter = painterResource(com.presentation.design_system.R.drawable.bottombar_add),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun MainMapPinIcon(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.main_mappin),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified

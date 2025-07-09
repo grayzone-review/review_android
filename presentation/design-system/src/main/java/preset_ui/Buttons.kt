@@ -4,15 +4,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import preset_ui.icons.ArrowDownIcon
+import preset_ui.icons.SearchLineIcon
 
 @Composable
 fun IconTextToggleButton(
@@ -174,6 +174,28 @@ fun SimpleTextFieldOutlinedButton(
 
         if (selectableMark) {
             ArrowDownIcon(24.dp, 24.dp, tint = CS.Gray.G50, modifier = Modifier.align(Alignment.CenterEnd))
+        }
+    }
+}
+
+@Composable
+fun IconTextFieldOutlined(
+    text: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 52.dp)
+            .border(width = 1.dp, color = CS.Gray.G20, shape = RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SearchLineIcon(24.dp, 24.dp, tint = CS.Gray.G90)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = text, style = Typography.body1Regular, color = CS.Gray.G50)
         }
     }
 }
