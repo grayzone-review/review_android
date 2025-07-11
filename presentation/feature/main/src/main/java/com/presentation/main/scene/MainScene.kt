@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -15,42 +16,89 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
+import com.data.location.UpLocationService
+import com.domain.entity.ReviewFeed
 import com.example.presentation.designsystem.typography.Typography
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.presentation.design_system.appbar.appbars.LogoUserTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
+import com.presentation.main.scene.MainViewModel.Action.GetPopularFeeds
+import com.presentation.main.scene.MainViewModel.Action.ShowSettingAlert
+import com.team.common.feature_api.extension.openAppSettings
+import com.team.common.feature_api.extension.screenWidthDp
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
 import preset_ui.icons.FollowPersonOnIcon
 import preset_ui.icons.LocationBanner
 import preset_ui.icons.MainMapPinIcon
 import preset_ui.icons.RightArrowIcon
+import preset_ui.icons.StarFilled
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainScene(
     viewModel: MainViewModel = hiltViewModel(),
     navController: NavHostController,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val permissionState =
+        rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
+    val context = LocalContext.current
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        when {
+            permissionState.allPermissionsGranted -> {
+                viewModel.handleAction(GetPopularFeeds)
+            }
+
+            permissionState.shouldShowRationale -> {
+                viewModel.handleAction(ShowSettingAlert)
+            }
+
+            else -> permissionState.launchMultiplePermissionRequest()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { mainUIEvent ->
+            when (mainUIEvent) {
+                MainUIEvent.ShowSettingAlert -> {
+                    context.openAppSettings()
+                }
+            }
+        }
+    }
 
     Box(
         Modifier
@@ -67,11 +115,20 @@ fun MainScene(
                     onLogoClick = { },
                     onProfileClick = { }
                 )
+            },
+            bottomBar = {
+                UpBottomBar(
+                    current = UpTab.Home,
+                    onTabSelected = { /* TODO */ },
+                    onAddButtonClick = { /* TODO */ },
+//            modifier = Modifier.align(Alignment.BottomCenter)
+                )
             }
         ) { inner ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .verticalScroll(state = scrollState)
                     .padding(inner)
                     .background(Color.White)
             ) {
@@ -86,22 +143,22 @@ fun MainScene(
                 LocationBannerButton(
                     onClick = { }
                 )
-                Spacer(modifier = Modifier.fillMaxWidth().height(8.dp).background(CS.Gray.G10))
+                Spacer(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(CS.Gray.G10))
+                RecentReviewSection(
+                    reviews = uiState.popularFeeds,
+                    onMoreClick = { }
+                )
             }
         }
-
-        UpBottomBar(
-            current = UpTab.Home,
-            onTabSelected = { /* TODO */ },
-            onAddButtonClick = { /* TODO */ },
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
     }
 }
 
 @Composable
 fun TextFieldButton(
-    onClickTextFieldButton: () -> Unit
+    onClickTextFieldButton: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(20.dp)) {
         IconTextFieldOutlined(
@@ -115,7 +172,7 @@ fun TextFieldButton(
 fun DashBoardButtons(
     onSearchClick: () -> Unit,
     onMyReviewClick: () -> Unit,
-    onFollowClick: () -> Unit
+    onFollowClick: () -> Unit,
 ) {
 
     Row(
@@ -141,12 +198,21 @@ fun DashBoardButtons(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
-                    modifier = Modifier.padding(start = 16.dp, end = 7.dp, top = 16.dp, bottom = 20.dp)
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        end = 7.dp,
+                        top = 16.dp,
+                        bottom = 20.dp
+                    )
                 ) {
                     Text("우리 동네 리뷰가\n궁금하다면?", style = Typography.body1Bold, color = CS.Gray.White)
                     Spacer(Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("지금 리뷰 검색하러 가기", style = Typography.captionSemiBold, color = CS.Gray.White)
+                        Text(
+                            "지금 리뷰 검색하러 가기",
+                            style = Typography.captionSemiBold,
+                            color = CS.Gray.White
+                        )
                         RightArrowIcon(14.dp, 14.dp, tint = CS.Gray.White)
                     }
                 }
@@ -165,13 +231,18 @@ fun DashBoardButtons(
                 onClick = onMyReviewClick
             ) { _, _ ->
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Text(text = "내가\n작성한 리뷰", style = Typography.body1Bold, color = CS.Gray.G90, modifier = Modifier
-                        .align(alignment = Alignment.TopStart)
-                        .padding(start = 12.dp, top = 16.dp)
+                    Text(
+                        text = "내가\n작성한 리뷰",
+                        style = Typography.body1Bold,
+                        color = CS.Gray.G90,
+                        modifier = Modifier
+                            .align(alignment = Alignment.TopStart)
+                            .padding(start = 12.dp, top = 16.dp)
                     )
-                    Chat2Fill(32.dp, 32.dp, tint = CS.PrimaryOrange.O40, modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 12.dp, bottom = 12.dp)
+                    Chat2Fill(
+                        32.dp, 32.dp, tint = CS.PrimaryOrange.O40, modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 12.dp, bottom = 12.dp)
                     )
                 }
             }
@@ -186,13 +257,18 @@ fun DashBoardButtons(
                     modifier = Modifier
                         .fillMaxSize()
                 ) {
-                    Text("팔로우한\n업체", style = Typography.body1Bold, color = CS.Gray.G90, modifier = Modifier
-                        .align(alignment = Alignment.TopStart)
-                        .padding(12.dp, 12.dp)
+                    Text(
+                        "팔로우한\n업체",
+                        style = Typography.body1Bold,
+                        color = CS.Gray.G90,
+                        modifier = Modifier
+                            .align(alignment = Alignment.TopStart)
+                            .padding(12.dp, 12.dp)
                     )
-                    FollowPersonOnIcon(32.dp, 32.dp, modifier = Modifier
-                        .align(alignment = Alignment.BottomEnd)
-                        .padding(end = 8.dp, bottom = 12.dp)
+                    FollowPersonOnIcon(
+                        32.dp, 32.dp, modifier = Modifier
+                            .align(alignment = Alignment.BottomEnd)
+                            .padding(end = 8.dp, bottom = 12.dp)
                     )
                 }
             }
@@ -230,7 +306,7 @@ private fun DashboardCard(
 
 @Composable
 private fun LocationBannerButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -242,8 +318,9 @@ private fun LocationBannerButton(
             .padding(horizontal = 20.dp)
     ) {
 
-        LocationBanner(width = maxWidth * 0.34f, height = maxHeight * 0.86f, modifier = Modifier
-            .align(Alignment.CenterEnd)
+        LocationBanner(
+            width = maxWidth * 0.34f, height = maxHeight * 0.86f, modifier = Modifier
+                .align(Alignment.CenterEnd)
         )
 
         Column(
@@ -263,6 +340,102 @@ private fun LocationBannerButton(
             Spacer(Modifier.height(8.dp))
             Text(
                 text = "관심 동네 선택하고 리뷰 확인해보세요!",
+                style = Typography.captionRegular,
+                color = CS.Gray.G50
+            )
+        }
+    }
+}
+
+@Composable
+fun RecentReviewSection(
+    reviews: List<ReviewFeed>,
+    onMoreClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 5.dp)
+                .padding(vertical = 5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "지금 인기 있는 리뷰", style = Typography.h3, color = CS.Gray.G90)
+                Spacer(Modifier.width(4.dp))
+                Chat2Fill(20.dp, 20.dp, tint = CS.PrimaryOrange.O40)
+            }
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = onMoreClick) {
+                Text(text = "더보기")
+                RightArrowIcon(14.dp, 14.dp, tint = CS.Gray.G50)
+            }
+        }
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(reviews) { item ->
+                val cardWidth = LocalContext.current.screenWidthDp * 0.861
+                ReviewCard(reviewFeed = item, modifier = Modifier.width(cardWidth.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReviewCard(
+    reviewFeed: ReviewFeed,
+    modifier: Modifier = Modifier,
+) {
+    val review = reviewFeed.review
+    val company = reviewFeed.compactCompany
+
+    Column(
+        modifier = modifier
+            .background(Color.White)
+            .border(
+                width = 1.dp,
+                color = CS.Gray.G20,
+                shape = RoundedCornerShape(8.dp)
+            )
+    ) {
+        /* 제목 + 별점 */
+        Row(
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier.padding(top = 20.dp).padding(horizontal = 20.dp)
+        ) {
+            Text(
+                text = review.title,
+                style = Typography.body1Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(Modifier.width(12.dp))
+            StarFilled(24.dp, 24.dp, modifier = Modifier.offset(y = -(2).dp))
+            Spacer(Modifier.width(4.dp))
+            Text(text = "%.1f".format(company.totalRating), style = Typography.body1Bold, color = CS.Gray.G80)
+        }
+        Text(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+            text = review.advantagePoint,
+            style = Typography.captionRegular,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = company.companyName, style = Typography.captionRegular, color = CS.Gray.G50)
+            Text(
+                text = review.createdAt.substring(0, 7).replace("-", ".") + " 작성",
                 style = Typography.captionRegular,
                 color = CS.Gray.G50
             )
