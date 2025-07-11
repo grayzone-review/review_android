@@ -2,11 +2,13 @@ package com.data.repository_implementation.di
 
 import com.data.repository_implementation.CompanyDetailRepositoryImpl
 import com.data.repository_implementation.KakaoMapRepositoryImpl
+import com.data.repository_implementation.ReviewRepositoryImpl
 import com.data.repository_implementation.SearchCompaniesRepositoryImpl
 import com.data.repository_implementation.SearchDistrictRepositoryImpl
 import com.data.repository_implementation.UpAuthRepositoryImpl
 import com.domain.repository_interface.CompanyDetailRepository
 import com.domain.repository_interface.KakaoMapRepository
+import com.domain.repository_interface.ReviewRepository
 import com.domain.repository_interface.SearchCompaniesRepository
 import com.domain.repository_interface.SearchDistrictRepository
 import com.domain.repository_interface.UpAuthRepository
@@ -49,4 +51,10 @@ abstract class RepositoryModule {
     abstract fun bindSearchDistrictRepository(
         impl: SearchDistrictRepositoryImpl
     ): SearchDistrictRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewRepository(
+        impl: ReviewRepositoryImpl
+    ): ReviewRepository
 } 

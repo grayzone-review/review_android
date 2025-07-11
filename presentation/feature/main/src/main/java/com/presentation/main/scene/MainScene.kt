@@ -101,7 +101,7 @@ fun MainScene(
 
 @Composable
 fun TextFieldButton(
-    onClickTextFieldButton: () -> Unit,
+    onClickTextFieldButton: () -> Unit
 ) {
     Column(modifier = Modifier.padding(20.dp)) {
         IconTextFieldOutlined(
@@ -229,7 +229,7 @@ private fun DashboardCard(
 }
 
 @Composable
-fun LocationBannerButton(
+private fun LocationBannerButton(
     onClick: () -> Unit
 ) {
     BoxWithConstraints(
@@ -269,4 +269,3 @@ fun LocationBannerButton(
         }
     }
 }
-
