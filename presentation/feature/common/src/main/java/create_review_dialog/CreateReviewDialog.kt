@@ -20,7 +20,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import create_review_dialog.contents.FirstContent
@@ -312,7 +312,7 @@ fun InputBottomSheet(
     onSelectPeriodItem: (WorkPeriod) -> Unit,
     onClickSaveButton: (InputField, String) -> Unit,
     onChangeSearchCompaniesQuery: (String) -> Unit,
-    onCompanyItemClick: (SearchedCompany) -> Unit,
+    onCompanyItemClick: (CompactCompany) -> Unit,
     onClickClearButton: () -> Unit
 ) {
     if (bottomSheetState !is BottomSheetState.Visible) return

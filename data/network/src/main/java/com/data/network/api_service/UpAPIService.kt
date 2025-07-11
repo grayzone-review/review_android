@@ -2,7 +2,7 @@ package com.data.network.api_service
 
 import com.data.dto.ResponseModel.search.CompanyInfoResponseDTO
 import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
-import com.data.dto.ResponseModel.search.ReviewsResponseDTO
+import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.response.APIResponse
@@ -30,19 +30,19 @@ interface UpAPIService {
 
     @GET(UpEndpoint.Path.POPULAR_REVIEWS)
     suspend fun popularReviews(
-        @Query(UpEndpoint.Query.LATITUDE) latitude: String,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: String
-    ): APIResponse<ReviewsResponseDTO>
+        @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+    ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.MY_TOWN_REVIEWS)
     suspend fun myTownReviews(
-        @Query(UpEndpoint.Query.LATITUDE) latitude: String,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: String
-    ):
+        @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+    ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.INTEREST_REGIONS_REVIEWS)
     suspend fun interestRegionsReviews(
-        @Query(UpEndpoint.Query.LATITUDE) latitude: String,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: String
-    ):
+        @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+    ): APIResponse<ReviewFeedResponseDTO>
 }

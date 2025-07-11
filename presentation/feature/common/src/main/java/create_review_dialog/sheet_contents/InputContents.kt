@@ -32,7 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import colors.CS
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import create_review_dialog.CreateReviewUIState
 import create_review_dialog.type.InputContentType
@@ -62,7 +62,7 @@ fun InputContainer(
     onCloseButtonClick: () -> Unit,
     onSaveButtonClick: (InputField, String) -> Unit,
     onChangeSearchCompaniesQuery: (String) -> Unit,
-    onCompanyItemClick: (SearchedCompany) -> Unit,
+    onCompanyItemClick: (CompactCompany) -> Unit,
     onClickClearButton: () -> Unit
 ) {
     Column(
@@ -127,7 +127,7 @@ fun TitleBar(text: String) {
 fun CompanyContent(
     uiState: CreateReviewUIState,
     onTextChange: (String) -> Unit,
-    onCompanyItemClick: (SearchedCompany) -> Unit,
+    onCompanyItemClick: (CompactCompany) -> Unit,
     onClearButtonClick: () -> Unit,
 ) {
     SearchTextField(
@@ -292,8 +292,8 @@ private fun SearchTextField(
 
 @Composable
 fun SearchResultList(
-    companies: List<SearchedCompany>,
-    onSelect: (SearchedCompany) -> Unit,
+    companies: List<CompactCompany>,
+    onSelect: (CompactCompany) -> Unit,
 ) {
    LazyColumn(
        modifier = Modifier
@@ -313,7 +313,7 @@ fun SearchResultList(
 
 @Composable
 private fun SearchResultItem(
-    company: SearchedCompany,
+    company: CompactCompany,
     onClick: () -> Unit
 ) {
     /* ─ 선택 여부를 내부에서만 기억 ─ */

@@ -4,6 +4,8 @@ import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.CompanyDetailUseCaseImpl
 import com.domain.usecase.KakaoMapUseCase
 import com.domain.usecase.KakaoMapUseCaseImpl
+import com.domain.usecase.ReviewUseCase
+import com.domain.usecase.ReviewUseCaseImpl
 import com.domain.usecase.SearchCompaniesUseCase
 import com.domain.usecase.SearchCompaniesUseCaseImpl
 import com.domain.usecase.SearchDistrictUseCase
@@ -49,4 +51,10 @@ abstract class UseCaseModule {
     abstract fun bindSearchDistrictUseCase(
         impl: SearchDistrictUseCaseImpl
     ): SearchDistrictUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewUseCase(
+        impl: ReviewUseCaseImpl
+    ): ReviewUseCase
 } 

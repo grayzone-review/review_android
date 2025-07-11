@@ -2,8 +2,7 @@ package com.feature.comments.scene.contents
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.domain.entity.SearchedCompanies
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompany
 import com.domain.usecase.SearchCompaniesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class AfterContentUIState(
-    val searchedCompanies: List<SearchedCompany> = emptyList(),
+    val searchedCompanies: List<CompactCompany> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
     val totalCount: Int = 0,

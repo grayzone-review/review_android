@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.Company
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompany
 import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.SearchCompaniesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,8 +29,8 @@ class SearchingContentViewModel @Inject constructor(
         DidTapRemoveRecentCompanyButton
     }
 
-    private val _autocompletedCompanies = MutableStateFlow<List<SearchedCompany>>(emptyList())
-    val autocompletedCompanies: StateFlow<List<SearchedCompany>> = _autocompletedCompanies.asStateFlow()
+    private val _autocompletedCompanies = MutableStateFlow<List<CompactCompany>>(emptyList())
+    val autocompletedCompanies: StateFlow<List<CompactCompany>> = _autocompletedCompanies.asStateFlow()
 
     private val _recentCompanies = MutableStateFlow<List<Company>>(emptyList())
     val recentCompany: StateFlow<List<Company>> = _recentCompanies.asStateFlow()
@@ -41,7 +41,7 @@ class SearchingContentViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun handleAction(action: Action, text: String? = null, searchedCompany: SearchedCompany? = null, recentCompany: Company? = null) {
+    fun handleAction(action: Action, text: String? = null, compactCompany: CompactCompany? = null, recentCompany: Company? = null) {
         when (action) {
             Action.DidUpdateSearchBarValue -> {
                 text?.let {
@@ -56,7 +56,7 @@ class SearchingContentViewModel @Inject constructor(
             }
 
             Action.DidTapSearchedCompanyItem -> {
-                searchedCompany?.let {
+                compactCompany?.let {
                     val idToAdd = it.id.toString()
                     val ids: MutableList<String> = UpDataStoreService.recentCompanyIDs
                         .split(",")

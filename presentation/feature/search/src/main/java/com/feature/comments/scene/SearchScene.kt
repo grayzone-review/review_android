@@ -41,7 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import colors.CS
 import com.domain.entity.Company
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapFilterButtons
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapRecentQueryButton
@@ -229,8 +229,8 @@ fun Content(
     onClickRecentQuery: (String) -> Unit,
     onClickFilterButton: (TagButtonData) -> Unit,
     onClickRecentCompany: (Company) -> Unit,
-    onClickSearchedCompany: (SearchedCompany) -> Unit,
-    onClickSearchResultCompany: (SearchedCompany) -> Unit
+    onClickSearchedCompany: (CompactCompany) -> Unit,
+    onClickSearchResultCompany: (CompactCompany) -> Unit
 ) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 
