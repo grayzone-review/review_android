@@ -1,0 +1,390 @@
+package com.presentation.archive.scene
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import colors.CS
+import com.domain.entity.CompactCompany
+import com.domain.entity.Review
+import com.domain.entity.roundedAverage
+import com.example.presentation.designsystem.typography.Typography
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetCompanyFollowList
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetInterestReviews
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetStats
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetWroteReviews
+import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.team.common.feature_api.utility.Utility
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import preset_ui.icons.BackBarButtonIcon
+import preset_ui.icons.StarFilled
+import preset_ui.icons.StarHalf
+import preset_ui.icons.StarOutline
+
+@Composable
+fun ArchiveScene(
+    viewModel: ArchiveViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(GetStats)
+    }
+
+    Scaffold(
+        topBar = { TopAppBar(onBackButtonClick = { }) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            StatsRow(uiState.stats)
+            Spacer(modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(color = CS.Gray.G10))
+            ArchiveCollection(
+                wroteReviews = uiState.wroteReviews,
+                interestReviews = uiState.interestReviews,
+                followCompanies = uiState.followCompanies,
+                onTabChange = {
+                    when (it) {
+                        CollectionTab.REVIEW -> { viewModel.handleAction(GetWroteReviews) }
+                        CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews)}
+                        CollectionTab.BOOKMARK -> { viewModel.handleAction(GetCompanyFollowList) }
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun TopAppBar(
+    onBackButtonClick: () -> Unit
+) {
+    DefaultTopAppBar(
+        title = "웅아계정53",
+        leftNavigationIcon = {
+            BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
+                .clickable { onBackButtonClick() })
+        }
+    )
+}
+
+@Composable
+private fun StatsRow(
+    stats: List<Pair<String, Int>>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 20.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        stats.forEach { (label, count) ->
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(text = count.toString(), style = Typography.h3, color = CS.PrimaryOrange.O40)
+                Spacer(Modifier.height(4.dp))
+                Text(text = label, style = Typography.body1Bold, color = CS.Gray.G90)
+            }
+        }
+    }
+}
+
+enum class CollectionTab(val rawValue: String) { REVIEW("리뷰"), INTEREST("관심 리뷰"), BOOKMARK("즐겨찾기") }
+@Composable
+fun ArchiveCollection(
+    wroteReviews: List<Review>,
+    interestReviews: List<Review>,
+    followCompanies: List<CompactCompany>,
+    onTabChange: (CollectionTab) -> Unit
+) {
+    val tabs = CollectionTab.entries
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(
+        pageCount = { tabs.size },
+        initialPage = CollectionTab.REVIEW.ordinal
+    )
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }
+            .distinctUntilChanged()
+            .collect { page -> onTabChange(tabs[page]) }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 20.dp)
+    ) {
+        TabRow(
+            selectedTabIndex = pagerState.currentPage,
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    Modifier
+                        .tabIndicatorOffset(tabPositions[pagerState.currentPage])
+                        .height(4.dp)
+                        .padding(horizontal = 10.dp)
+                    ,
+                    color = CS.PrimaryOrange.O40
+                )
+            }
+        ) {
+            tabs.forEachIndexed { index, tab ->
+                Tab(
+                    selected = pagerState.currentPage == index,
+                    onClick = { scope.launch { pagerState.animateScrollToPage(page = index) } },
+                    text = {
+                        Text(
+                            text = tab.rawValue,
+                            style = if (pagerState.currentPage == index)
+                                Typography.body1Bold else Typography.body1Regular,
+                            color = if (pagerState.currentPage == index)
+                                CS.Gray.G90 else CS.Gray.G50
+                        )
+                    }
+                )
+            }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            beyondViewportPageCount = 1
+        ) { page ->
+            when (tabs[page]) {
+                CollectionTab.REVIEW   -> { ReviewList(reviews = wroteReviews) }
+                CollectionTab.INTEREST -> { ReviewList(reviews = interestReviews) }
+                CollectionTab.BOOKMARK -> { CompanyList(companies = followCompanies) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReviewList(
+    reviews: List<Review>
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(reviews, key = { it.id }) { item ->
+            ReviewCard(review = item)
+        }
+    }
+}
+
+@Composable
+private fun ReviewCard(
+    review: Review
+) {
+    Column(Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 20.dp)
+        ) {
+            Text(
+                text = review.title,
+                style = Typography.body1Bold,
+                color = CS.Gray.G80,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(Modifier.height(8.dp))
+            /* ───── 상호 · 직무 · 날짜 ───── */
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(text = "김밥천국", style = Typography.captionRegular, color = CS.Gray.G50)
+                Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
+                Text(text = review.jobRole, style = Typography.captionRegular, color = CS.Gray.G50)
+                Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
+                Text(
+                    text = review.createdAt.substring(0, 7).replace("-", ".") + " 작성",
+                    style = Typography.captionRegular,
+                    color = CS.Gray.G50
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+            /* ───── 평점 숫자 + 별 ★ ───── */
+            val avgRating = review.ratings.roundedAverage()
+            val starCounts = Utility.calculateStarCounts(totalScore = avgRating)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text =  avgRating.toString(),
+                    style = Typography.h3,
+                    color = CS.Gray.G90
+                )
+                Spacer(Modifier.width(8.dp))
+                repeat(starCounts.full) {
+                    StarFilled(width = 20.dp, height = 20.dp)
+                }
+                repeat(starCounts.half) {
+                    StarHalf(width = 20.dp, height = 20.dp)
+                }
+                repeat(starCounts.empty) {
+                    StarOutline(width = 20.dp, height = 20.dp)
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+            /* ───── 좋아요 · 댓글 카운트 ───── */
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(text = "좋아요 ${review.likeCount}", style = Typography.captionRegular, color = CS.Gray.G90)
+                Text(text = "댓글 ${review.commentCount}", style = Typography.captionRegular, color = CS.Gray.G90)
+            }
+        }
+
+        Divider(color = CS.Gray.G20, thickness = 1.dp)
+    }
+}
+
+@Composable
+private fun CompanyList(
+    companies: List<CompactCompany>
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(companies, key = { it.id }) { item ->
+            CompanyCard(company = item)
+        }
+    }
+}
+
+@Composable
+private fun CompanyCard(
+    company: CompactCompany
+) {
+    Column(Modifier.fillMaxWidth()) {
+
+        /* ───────── 카드 본문 ───────── */
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp)
+        ) {
+
+            /* 1) 회사명 */
+            Text(
+                text = company.companyName,
+                style = Typography.body1Bold,
+                color = CS.Gray.G90,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            /* 2) 업종 · 주소 */
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 업종이 CompactCompany에 없다면 하드코딩(예: 음식점)
+                Text("음식점", style = Typography.captionRegular, color = CS.Gray.G50)
+
+                Spacer(
+                    Modifier
+                        .width(1.dp)
+                        .height(18.dp)
+                        .background(CS.Gray.G20)
+                )
+
+                Text(
+                    text = company.companyAddress,
+                    style = Typography.captionRegular,
+                    color = CS.Gray.G50,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            /* 3) 평점(숫자 + 별) */
+            val starCounts = Utility.calculateStarCounts(totalScore = company.totalRating)
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "%.1f".format(company.totalRating),
+                    style = Typography.h3,
+                    color = CS.Gray.G90
+                )
+                Spacer(Modifier.width(8.dp))
+                repeat(starCounts.full) { StarFilled(20.dp, 20.dp) }
+                repeat(starCounts.half) { StarHalf(20.dp, 20.dp) }
+                repeat(starCounts.empty) { StarOutline(20.dp, 20.dp) }
+            }
+
+            Spacer(Modifier.height(20.dp))
+
+            /* 4) 한줄평 배지 + 내용 */
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .background(CS.Gray.G10, RoundedCornerShape(4.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Text("한줄평", style = Typography.captionSemiBold, color = CS.Gray.G90)
+                }
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = company.reviewTitle ?: "",
+                    style = Typography.captionRegular,
+                    color = CS.Gray.G90,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        /* ───────── 하단 구분선 ───────── */
+        Divider(color = CS.Gray.G20, thickness = 1.dp)
+    }
+}

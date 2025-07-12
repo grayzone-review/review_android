@@ -1,5 +1,7 @@
 package com.domain.entity
 
+import kotlin.math.roundToInt
+
 data class Reviews(
     val currentPage: Int,
     val hasNext: Boolean,
@@ -29,3 +31,8 @@ data class Ratings(
     val welfare: Double = 0.0,
     val workLifeBalance: Double = 0.0
 )
+
+fun Ratings.roundedAverage(): Double {
+    val raw = (companyCulture + management + salary + welfare + workLifeBalance) / 5
+    return (raw * 10).roundToInt() / 10.0
+}
