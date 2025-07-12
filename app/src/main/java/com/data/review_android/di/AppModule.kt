@@ -1,11 +1,12 @@
 package com.data.review_android.di
 
-import com.presentation.archive.ArchiveAPI
 import com.data.review_android.navigation.NavigationProvider
 import com.feature.comments.SearchAPI
+import com.presentation.archive.ArchiveAPI
 import com.presentation.company_detail.ReviewAPI
 import com.presentation.login.LoginAPI
 import com.presentation.main.MainAPI
+import com.presentation.onboarding.OnBoardingAPI
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,14 +22,16 @@ object AppModule {
         reviewAPI: ReviewAPI,
         searchAPI: SearchAPI,
         loginAPI: LoginAPI,
-        archiveAPI: ArchiveAPI
+        archiveAPI: ArchiveAPI,
+        onBoardingAPI: OnBoardingAPI
     ): NavigationProvider {
         return NavigationProvider(
             mainAPI = mainAPI,
             reviewAPI = reviewAPI,
             searchAPI = searchAPI,
             loginAPI = loginAPI,
-            archiveAPI = archiveAPI
+            archiveAPI = archiveAPI,
+            onBoardingAPI = onBoardingAPI
         )
     }
 }
