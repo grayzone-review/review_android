@@ -9,19 +9,20 @@ data class Reviews(
 )
 
 data class Review(
-    val id: Int,
-    val ratings: Ratings,
-    val author: String,
-    val title: String,
+    val nickName: String,           // 추가요청 해두었음
     val advantagePoint: String,
-    val disadvantagePoint: String,
-    val managementFeedback: String,
-    val jobRole: String,
-    val employmentPeriod: String,
-    val createdAt: String,
-    val likeCount: Int,
     val commentCount: Int,
-    val liked: Boolean
+    val createdAt: String,
+    val disadvantagePoint: String,
+    val employmentPeriod: String,
+    val id: Int,
+    val jobRole: String,
+    val likeCount: Int,
+    val liked: Boolean,
+    val managementFeedback: String,
+    val totalRating: Double,            // DTO 매핑 시 계산하여 변환
+    val ratings: Ratings,
+    val title: String
 )
 
 data class Ratings(

@@ -1,13 +1,7 @@
 package com.feature.comments.scene
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,61 +20,55 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.*
+import com.feature.comments.scene.SearchViewModel.ContentAction.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import colors.CS
-import com.domain.entity.Company
-import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
-import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapFilterButtons
-import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapRecentQueryButton
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidFocusSearchBar
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapCancelButton
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapClearButton
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapIMEDone
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUnfocusSearchBar
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUpdateSearchBarValue
 import com.feature.comments.scene.contents.AfterContent
-import com.feature.comments.scene.contents.AfterContentViewModel
 import com.feature.comments.scene.contents.BeforeContent
-import com.feature.comments.scene.contents.BeforeContentViewModel
 import com.feature.comments.scene.contents.SearchingContent
-import com.feature.comments.scene.contents.SearchingContentViewModel
-import com.feature.comments.scene.contents.TagButtonData
-import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.presentation.design_system.appbar.appbars.AppBarState
+import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import com.team.common.feature_api.extension.addFocusCleaner
-import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
-import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.SearchLineIcon
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.domain.entity.Company
+import com.domain.entity.SearchedCompany
+import com.feature.comments.scene.contents.AfterContentViewModel
+import com.feature.comments.scene.contents.BeforeContentViewModel
+import com.feature.comments.scene.contents.SearchingContentViewModel
+import com.feature.comments.scene.contents.TagButtonData
+import com.feature.comments.scene.contents.TagButtonType
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 
 @Composable
 fun SearchScene(
     viewModel: SearchViewModel,
+    appBarViewModel: AppBarViewModel,
     navController: NavController
 ) {
     val focusManager = LocalFocusManager.current
     val searchUIState by viewModel.searchUIState.collectAsState()
 
+    Appbar(appBarViewModel = appBarViewModel, searchUIState = searchUIState)
     Column(Modifier
         .fillMaxSize()
         .addFocusCleaner(focusManager = focusManager)
     ) {
-        Appbar(
-            searchUIState = searchUIState,
-            onBackButtonClick = { }
-        )
         SearchTextField(
             searchUIState = searchUIState,
             onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, text = it) },
@@ -115,24 +103,27 @@ fun SearchScene(
 }
 
 @Composable
-fun Appbar(
-    searchUIState: SearchUIState,
-    onBackButtonClick: () -> Unit,
-) {
+fun Appbar(appBarViewModel: AppBarViewModel, searchUIState: SearchUIState) {
     val phase = searchUIState.phase
-    AnimatedVisibility(
-        visible = phase == SearchPhase.Before,
-        enter = fadeIn() + expandVertically(),
-        exit = fadeOut() + shrinkVertically()
-    ) {
-        DefaultTopAppBar(
-            title = "업체 검색",
-            leftNavigationIcon = {
-                BackBarButtonIcon(
-                    width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
-                        .clickable { onBackButtonClick() })
+
+    LaunchedEffect(phase) {
+        when (phase) {
+            SearchPhase.Before -> {
+                appBarViewModel.updateAppBarState(
+                    AppBarState(
+                        title = "업체 검색",
+                        showBackButton = true,
+                        actions = emptyList(),
+                        isVisible = true
+                    )
+                )
             }
-        )
+            SearchPhase.Searching, SearchPhase.After -> {
+                appBarViewModel.updateAppBarState(
+                    AppBarState(isVisible = false)
+                )
+            }
+        }
     }
 }
 
@@ -229,8 +220,8 @@ fun Content(
     onClickRecentQuery: (String) -> Unit,
     onClickFilterButton: (TagButtonData) -> Unit,
     onClickRecentCompany: (Company) -> Unit,
-    onClickSearchedCompany: (CompactCompany) -> Unit,
-    onClickSearchResultCompany: (CompactCompany) -> Unit
+    onClickSearchedCompany: (SearchedCompany) -> Unit,
+    onClickSearchResultCompany: (SearchedCompany) -> Unit
 ) {
     when (searchUIState.phase) {
         SearchPhase.Before -> { 

@@ -15,9 +15,6 @@ object UpEndpoint {
         const val AUTH_SIGNUP = "/api/auth/signup"
         const val NICKNAME_VERIFY = "/api/users/nickname-verify"
         const val TERM = "/api/auth/terms"
-        const val POPULAR_REVIEWS = "/api/reviews/popular"
-        const val MY_TOWN_REVIEWS = "/api/reviews/main-region"
-        const val INTEREST_REGIONS_REVIEWS = "/api/reviews/interested-region"
     }
 
     object Query {

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
+import com.example.presentation.designsystem.typography.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,7 +27,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Ratings
-import com.example.presentation.designsystem.typography.Typography
 import com.team.common.feature_api.utility.Utility
 import create_review_dialog.CreateReviewUIState
 import preset_ui.icons.StarFilled
@@ -34,11 +34,11 @@ import preset_ui.icons.StarHalf
 import preset_ui.icons.StarOutline
 
 enum class RatingKey(val getter: (Ratings) -> Double) {
-    COMPANY_CULTURE({ it.companyCulture }),
-    MANAGEMENT( { it.management } ),
-    SALARY( { it.salary } ),
-    WELFARE( { it.welfare } ),
-    WORK_LIFE_BALANCE( { it.workLifeBalance } )
+    COMPANY_CULTURE({ it.COMPANY_CULTURE }),
+    MANAGEMENT( { it.MANAGEMENT } ),
+    SALARY( { it.SALARY } ),
+    WELFARE( { it.WELFARE } ),
+    WORK_LIFE_BALANCE( { it.WORK_LIFE_BALANCE } )
 }
 
 val RatingKey.label: String
@@ -53,19 +53,19 @@ val RatingKey.label: String
 fun Ratings.score(key: RatingKey): Double = key.getter(this)
 
 fun Ratings.update(key: RatingKey, new: Double): Ratings = when (key) {
-    RatingKey.COMPANY_CULTURE -> copy(companyCulture = new)
-    RatingKey.MANAGEMENT -> copy(management = new)
-    RatingKey.SALARY -> copy(salary = new)
-    RatingKey.WELFARE -> copy(welfare = new)
-    RatingKey.WORK_LIFE_BALANCE -> copy(workLifeBalance = new)
+    RatingKey.COMPANY_CULTURE -> copy(COMPANY_CULTURE = new)
+    RatingKey.MANAGEMENT -> copy(MANAGEMENT = new)
+    RatingKey.SALARY -> copy(SALARY = new)
+    RatingKey.WELFARE -> copy(WELFARE = new)
+    RatingKey.WORK_LIFE_BALANCE -> copy(WORK_LIFE_BALANCE = new)
 }
 
 fun Ratings.isFullyRated(): Boolean {
-    return companyCulture > 0.0 &&
-            management > 0.0 &&
-            salary > 0.0 &&
-            welfare > 0.0 &&
-            workLifeBalance > 0.0
+    return COMPANY_CULTURE > 0.0 &&
+            MANAGEMENT > 0.0 &&
+            SALARY > 0.0 &&
+            WELFARE > 0.0 &&
+            WORK_LIFE_BALANCE > 0.0
 }
 
 @Composable

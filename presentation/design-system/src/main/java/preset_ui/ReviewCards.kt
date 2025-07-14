@@ -8,6 +8,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Review
@@ -64,7 +67,7 @@ fun WriterProfile(review: Review, modifier: Modifier) {
             .height(18.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = review.author, color = CS.Gray.G50, style = Typography.captionRegular)
+        Text(text = review.nickName, color = CS.Gray.G50, style = Typography.captionRegular)
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
         Text(text = review.jobRole, color = CS.Gray.G50, style = Typography.captionRegular)
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
@@ -76,10 +79,6 @@ fun WriterProfile(review: Review, modifier: Modifier) {
 
 @Composable
 fun RatingSummary(review: Review, modifier: Modifier) {
-    val avgScore = with(review.ratings) {
-        (companyCulture + management + salary + welfare + workLifeBalance) / 5
-    }
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -87,12 +86,13 @@ fun RatingSummary(review: Review, modifier: Modifier) {
             .height(23.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        val starCounts = Utility.calculateStarCounts(avgScore)
+        val score: Double = review.totalRating
+        val starCounts = Utility.calculateStarCounts(score)
         val fullStars = starCounts.full
         val halfStars = starCounts.half
         val emptyStars = starCounts.empty
 
-        Text(text = avgScore.toString(), color = CS.Gray.G90, style = Typography.h3)
+        Text(text = "${review.totalRating}", color = CS.Gray.G90, style = Typography.h3)
         repeat(fullStars) {
             StarFilled(width = 20.dp, height = 20.dp)
         }
@@ -110,11 +110,11 @@ fun RatingBox(review: Review, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(8.dp)
     val ratings = review.ratings
     val ratingItems: List<Pair<String, Double>> = listOf(
-        "급여"    to ratings.salary,
-        "사내문화"  to ratings.companyCulture,
-        "복지"    to ratings.welfare,
-        "경영진"   to ratings.management,
-        "워라밸"   to ratings.workLifeBalance
+        "급여"    to ratings.SALARY,
+        "사내문화"  to ratings.COMPANY_CULTURE,
+        "복지"    to ratings.WELFARE,
+        "경영진"   to ratings.MANAGEMENT,
+        "워라밸"   to ratings.WORK_LIFE_BALANCE
     )
 
     Box(
