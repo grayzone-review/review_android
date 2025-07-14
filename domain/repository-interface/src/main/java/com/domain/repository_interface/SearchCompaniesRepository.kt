@@ -1,6 +1,6 @@
 package com.domain.repository_interface
 
-import com.domain.entity.SearchedCompanies
+import com.domain.entity.CompactCompanies
 
 interface SearchCompaniesRepository {
     suspend fun searchCompanies(
@@ -9,5 +9,5 @@ interface SearchCompaniesRepository {
         longitude: Double,
         size: Int,
         page: Int
-    ): SearchedCompanies
+    ): CompactCompanies
 } 

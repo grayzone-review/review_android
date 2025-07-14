@@ -1,7 +1,7 @@
 package com.data.dto.ResponseModel.search
 
-import com.domain.entity.SearchedCompanies
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompanies
+import com.domain.entity.CompactCompany
 
 data class SearchCompaniesResponseDTO(
     val companies: List<CompanyDTO>,
@@ -20,14 +20,14 @@ data class CompanyDTO(
     val following: Boolean
 )
 
-fun SearchCompaniesResponseDTO.toDomain(): SearchedCompanies = SearchedCompanies(
+fun SearchCompaniesResponseDTO.toDomain(): CompactCompanies = CompactCompanies(
     companies   = companies.map { it.toDomain() },
     totalCount  = totalCount,
     hasNext     = hasNext,
     currentPage = currentPage
 )
 
-private fun CompanyDTO.toDomain() = SearchedCompany(
+private fun CompanyDTO.toDomain() = CompactCompany(
     id            = id,
     companyName   = companyName,
     companyAddress= companyAddress,

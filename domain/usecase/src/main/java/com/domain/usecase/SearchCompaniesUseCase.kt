@@ -1,6 +1,6 @@
 package com.domain.usecase
 
-import com.domain.entity.SearchedCompanies
+import com.domain.entity.CompactCompanies
 import com.domain.repository_interface.SearchCompaniesRepository
 import javax.inject.Inject
 
@@ -11,7 +11,7 @@ interface SearchCompaniesUseCase {
         longitude: Double,
         size: Int,
         page: Int
-    ): SearchedCompanies
+    ): CompactCompanies
 }
 
 class SearchCompaniesUseCaseImpl @Inject constructor(
@@ -23,7 +23,7 @@ class SearchCompaniesUseCaseImpl @Inject constructor(
         longitude: Double,
         size: Int,
         page: Int
-    ): SearchedCompanies {
+    ): CompactCompanies {
         return searchCompaniesRepository.searchCompanies(
             keyword = keyword,
             latitude = latitude,

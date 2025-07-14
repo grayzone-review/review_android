@@ -3,8 +3,8 @@ package com.data.network.endpoint
 object UpEndpoint {
     object Host {
         //60.196.157.199
-        const val baseURL = "http://10.0.2.2:8080"
-//        const val baseURL = "http://60.196.157.199:8080"
+//        const val baseURL = "http://10.0.2.2:8080"
+        const val baseURL = "http://60.196.157.199:8080"
     }
 
     object Path {
@@ -15,6 +15,9 @@ object UpEndpoint {
         const val AUTH_SIGNUP = "/api/auth/signup"
         const val NICKNAME_VERIFY = "/api/users/nickname-verify"
         const val TERM = "/api/auth/terms"
+        const val POPULAR_REVIEWS = "/api/reviews/popular"
+        const val MY_TOWN_REVIEWS = "/api/reviews/main-region"
+        const val INTEREST_REGIONS_REVIEWS = "/api/reviews/interested-region"
     }
 
     object Query {

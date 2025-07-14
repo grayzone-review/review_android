@@ -1,13 +1,13 @@
 package com.domain.entity
 
-data class SearchedCompanies(
-    val companies: List<SearchedCompany>,
+data class CompactCompanies(
+    val companies: List<CompactCompany>,
     val totalCount: Int,
     val hasNext: Boolean,
     val currentPage: Int
 )
 
-data class SearchedCompany(
+data class CompactCompany(
     val id: Long,
     val companyName: String,
     val companyAddress: String,

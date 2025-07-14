@@ -26,26 +26,30 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
-import com.domain.entity.SearchedCompany
+import com.domain.entity.CompactCompany
+import com.domain.entity.Company
 import com.example.presentation.designsystem.typography.Typography
-import com.feature.comments.scene.contents.SearchingContentViewModel.Action.*
 import com.feature.comments.scene.SearchUIState
-import com.feature.comments.scene.contents.SearchingContent.*
+import com.feature.comments.scene.contents.SearchingContent.Recent
+import com.feature.comments.scene.contents.SearchingContent.Searched
+import com.feature.comments.scene.contents.SearchingContentViewModel.Action.DidTapRemoveRecentCompanyButton
+import com.feature.comments.scene.contents.SearchingContentViewModel.Action.DidTapSearchedCompanyItem
+import com.feature.comments.scene.contents.SearchingContentViewModel.Action.DidUpdateSearchBarValue
+import com.feature.comments.scene.contents.SearchingContentViewModel.Action.LoadRecentCompanies
 import preset_ui.icons.ClockIcon
 import preset_ui.icons.CloseLine
 import preset_ui.icons.InfoIcon
 import preset_ui.icons.SearchLineIcon
 import preset_ui.icons.StarFilled
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.domain.entity.Company
 
 @Composable
 fun SearchingContent(
     viewModel: SearchingContentViewModel = hiltViewModel(),
     searchUIState: SearchUIState,
     onRecentCompanyClick: (Company) -> Unit,
-    onSearchedCompanyClick: (SearchedCompany) -> Unit
+    onSearchedCompanyClick: (CompactCompany) -> Unit
 ) {
     val autocompletedCompanies by viewModel.autocompletedCompanies.collectAsState()
     val recentCompanies by viewModel.recentCompany.collectAsState()
@@ -74,7 +78,7 @@ fun SearchingContent(
                 searchUIState = searchUIState,
                 searchedCompanies = autocompletedCompanies,
                 onSearchedCompanyClick = {
-                    viewModel.handleAction(DidTapSearchedCompanyItem, searchedCompany = it)
+                    viewModel.handleAction(DidTapSearchedCompanyItem, compactCompany = it)
                     onSearchedCompanyClick(it)
                 }
             )
@@ -191,8 +195,8 @@ fun RecentCompanyItem(
 @Composable
 private fun SearchedCompanyList(
     searchUIState: SearchUIState,
-    searchedCompanies: List<SearchedCompany>,
-    onSearchedCompanyClick: (SearchedCompany) -> Unit
+    searchedCompanies: List<CompactCompany>,
+    onSearchedCompanyClick: (CompactCompany) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -202,7 +206,7 @@ private fun SearchedCompanyList(
         items(searchedCompanies) { searchedCompany ->
             SearchedCompanyItem(
                 searchUIState = searchUIState,
-                searchedCompany = searchedCompany,
+                compactCompany = searchedCompany,
                 onSearchedCompanyClick = { onSearchedCompanyClick(searchedCompany) }
             )
         }
@@ -212,7 +216,7 @@ private fun SearchedCompanyList(
 @Composable
 private fun SearchedCompanyItem(
     searchUIState: SearchUIState,
-    searchedCompany: SearchedCompany,
+    compactCompany: CompactCompany,
     onSearchedCompanyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -250,12 +254,12 @@ private fun SearchedCompanyItem(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 SearchLineIcon(width = 20.dp, height = 20.dp, tint = CS.Gray.G50)
-                HighlightedCompanyName(companyName = searchedCompany.companyName, keyword = searchUIState.searchBarValue.text)
+                HighlightedCompanyName(companyName = compactCompany.companyName, keyword = searchUIState.searchBarValue.text)
                 StarFilled(20.dp, 20.dp)
-                Text(text = "${searchedCompany.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90)
+                Text(text = "${compactCompany.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90)
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = searchedCompany.companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
+            Text(text = compactCompany.companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
         }
     }
 }
