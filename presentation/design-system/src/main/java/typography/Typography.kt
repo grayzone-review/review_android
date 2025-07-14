@@ -12,6 +12,12 @@ object Typography {
         fontSize = 22.sp,
         lineHeight = 22.sp * 1.3f
     )
+    val h1Regular = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 22.sp * 1.3f
+    )
     val h2 = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
