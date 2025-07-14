@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import colors.CS
 
 @Composable
 fun ChatLine(
@@ -526,5 +527,89 @@ fun OnboardThird(
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun MyPageBell(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mypage_bell),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = CS.Gray.G90
+    )
+}
+
+@Composable
+fun MyPageLogOut(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mypage_logout),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = CS.Gray.G90
+    )
+}
+
+@Composable
+fun MyPagePen(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mypage_pen),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = CS.Gray.G90
+    )
+}
+
+@Composable
+fun MyPagePerson(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mypage_person),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = CS.Gray.G90
+    )
+}
+
+@Composable
+fun MyPageSmile(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mypage_smlie),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun MyPageWithdraw(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.mypage_withdraw),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = CS.Gray.G90
     )
 }
