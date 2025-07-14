@@ -52,6 +52,7 @@ import com.presentation.main.scene.MainViewModel.Action.GetPopularFeeds
 import com.presentation.main.scene.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
 import preset_ui.icons.FollowPersonOnIcon
@@ -100,9 +101,6 @@ fun MainScene(
             .background(CS.Gray.White)
     ) {
         Scaffold(
-//            contentWindowInsets = WindowInsets
-//                .safeDrawing
-//                .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
             topBar = {
                 LogoUserTopAppBar(
                     userName = "서현웅",
@@ -113,9 +111,10 @@ fun MainScene(
             bottomBar = {
                 UpBottomBar(
                     current = UpTab.Home,
-                    onTabSelected = { /* TODO */ },
+                    onTabSelected = {
+                        navController.navigate(NavigationRouteConstant.mypageNestedRoute)
+                    },
                     onAddButtonClick = { /* TODO */ },
-//            modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
         ) { inner ->
