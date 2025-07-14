@@ -21,8 +21,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,13 +40,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
-import com.domain.entity.CompactCompany
+import com.domain.entity.SearchedCompanies
+import com.domain.entity.SearchedCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchUIState
 import preset_ui.icons.AroundIcon
@@ -54,7 +64,7 @@ import preset_ui.icons.StarFilled
 fun AfterContent(
     viewModel: AfterContentViewModel = hiltViewModel(),
     searchUIState: SearchUIState,
-    onClickSearchResult: (CompactCompany) -> Unit
+    onClickSearchResult: (SearchedCompany) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currntQuery = searchUIState.searchBarValue.text
@@ -74,7 +84,7 @@ fun AfterContent(
 private fun SearchResultList(
     uiState: AfterContentUIState,
     onLoadMore: () -> Unit,
-    onClickSearchResult: (CompactCompany) -> Unit
+    onClickSearchResult: (SearchedCompany) -> Unit
 ) {
     var selected by remember { mutableStateOf("우리 동네 업체") }
     val searchedCompanies = uiState.searchedCompanies
@@ -130,7 +140,7 @@ private fun ResultCountText(totalCount: Int) {
 
 @Composable
 private fun SearchedResultItem(
-    company: CompactCompany,
+    company: SearchedCompany,
     onClickSearchResult: () -> Unit,
     onFollowClick: () -> Unit = {}
 ) {

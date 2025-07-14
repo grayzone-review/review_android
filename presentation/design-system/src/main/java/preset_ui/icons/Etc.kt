@@ -36,21 +36,6 @@ fun ChatFill(
     )
 }
 
-@Composable
-fun Chat2Fill(
-    width: Dp,
-    height: Dp,
-    tint: Color,
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        painter = painterResource(com.presentation.design_system.R.drawable.chat2_fill),
-        contentDescription = null,
-        modifier = modifier.size(width = width, height = height),
-        tint = tint
-    )
-}
-
 
 @Composable
 fun RockClose(
@@ -407,80 +392,6 @@ fun CheckBoxIcon(
     val iconRes = if (state) com.presentation.design_system.R.drawable.checkbox_true else com.presentation.design_system.R.drawable.checkbox_false
     Icon(
         painter = painterResource(iconRes),
-        contentDescription = null,
-        modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
-    )
-}
-
-@Composable
-fun BottomBarHomeIcon(
-    state: Boolean,
-    width: Dp,
-    height: Dp,
-    modifier: Modifier = Modifier,
-) {
-    val iconRes = if (state) com.presentation.design_system.R.drawable.bottombar_home_on else com.presentation.design_system.R.drawable.bottombar_home_off
-    Icon(
-        painter = painterResource(iconRes),
-        contentDescription = null,
-        modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
-    )
-}
-
-@Composable
-fun BottomBarMyIcon(
-    state: Boolean,
-    width: Dp,
-    height: Dp,
-    modifier: Modifier = Modifier,
-) {
-    val iconRes = if (state) com.presentation.design_system.R.drawable.bottombar_my_on else com.presentation.design_system.R.drawable.bottombar_my_off
-    Icon(
-        painter = painterResource(iconRes),
-        contentDescription = null,
-        modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
-    )
-}
-
-@Composable
-fun BottomBarAddIcon(
-    width: Dp,
-    height: Dp,
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        painter = painterResource(com.presentation.design_system.R.drawable.bottombar_add),
-        contentDescription = null,
-        modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
-    )
-}
-
-@Composable
-fun MainMapPinIcon(
-    width: Dp,
-    height: Dp,
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        painter = painterResource(com.presentation.design_system.R.drawable.main_mappin),
-        contentDescription = null,
-        modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
-    )
-}
-
-@Composable
-fun LocationBanner(
-    width: Dp,
-    height: Dp,
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        painter = painterResource(com.presentation.design_system.R.drawable.location_banner),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified
