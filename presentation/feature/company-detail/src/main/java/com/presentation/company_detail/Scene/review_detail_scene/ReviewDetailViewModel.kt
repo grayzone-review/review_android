@@ -2,6 +2,7 @@ package com.presentation.company_detail.Scene.review_detail_scene
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -77,22 +78,22 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
 
     private fun generateMockReviews(): List<Review> = List(15) { idx ->
         val ratings = Ratings(
-            companyCulture   = 2.5 + (idx % 3) * 0.5,
-            management        = 2.0 + (idx % 2) * 0.5,
-            salary            = 3.5 + (idx % 4) * 0.5,
-            welfare           = 2.5 + (idx % 3) * 0.5,
-            workLifeBalance = 2.0 + (idx % 2) * 0.5
+            COMPANY_CULTURE   = 2.5 + (idx % 3) * 0.5,
+            MANAGEMENT        = 2.0 + (idx % 2) * 0.5,
+            SALARY            = 3.5 + (idx % 4) * 0.5,
+            WELFARE           = 2.5 + (idx % 3) * 0.5,
+            WORK_LIFE_BALANCE = 2.0 + (idx % 2) * 0.5
         )
         val totalRating = with(ratings) {
             listOf(
-                companyCulture, management, salary, welfare, workLifeBalance
+                COMPANY_CULTURE, MANAGEMENT, SALARY, WELFARE, WORK_LIFE_BALANCE
             ).average().let { "%.1f".format(it).toDouble() }
         }
 
         Review(
             id                 = idx + 1,
             title              = "좋은 회사입니다. #${idx + 1}",
-            author           = "사용자${idx + 1}",
+            nickName           = "사용자${idx + 1}",
             jobRole            = "백엔드 개발자",
             employmentPeriod   = "1년 이상",
             createdAt          = "2025-05-${"%02d".format(23 + idx)}T17:40:33",
@@ -102,7 +103,8 @@ class ReviewDetailViewModel @Inject constructor() : ViewModel() {
             commentCount       = (10..30).random(),
             likeCount          = (0..20).random(),
             liked              = idx % 3 == 0,
-            ratings            = ratings
+            ratings            = ratings,
+            totalRating        = totalRating
         )
     }
 

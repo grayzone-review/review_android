@@ -1,9 +1,13 @@
 package create_review_dialog
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.domain.entity.Company
 import com.domain.entity.Ratings
-import com.domain.entity.CompactCompany
+import com.domain.entity.SearchedCompany
 import com.domain.usecase.SearchCompaniesUseCase
 import create_review_dialog.contents.isFullyRated
 import create_review_dialog.sheet_contents.WorkPeriod
@@ -12,6 +16,7 @@ import create_review_dialog.type.InputField
 import create_review_dialog.type.next
 import create_review_dialog.type.prev
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,12 +33,12 @@ data class CreateReviewUIState(
     // 회사 검색 시트 액션
     val bottomSheetState: BottomSheetState = BottomSheetState.Hidden,
     val searchTextFieldValue: String = "",
-    val searchedCompanies: List<CompactCompany> = emptyList(),
+    val searchedCompanies: List<SearchedCompany> = emptyList(),
     // 페이지 관리
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     val isNextAndSubmitEnabled: Boolean = false,
     // 사용자 입력 값
-    val company: CompactCompany? = null,
+    val company: SearchedCompany? = null,
     val jobRole: String = "",
     val employmentPeriod: WorkPeriod? = null,
     val rating: Ratings = Ratings(),
@@ -146,7 +151,7 @@ class CreateReviewDialogViewModel @Inject constructor(
                 searchCompanies(query = query)
             }
             Action.UpdateCompany -> {
-                val newCompany = value as? CompactCompany ?: return
+                val newCompany = value as? SearchedCompany ?: return
                 _uiState.update { state ->
                     val stateWithCompany = state.copy(
                         company = newCompany

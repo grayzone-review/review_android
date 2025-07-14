@@ -1,6 +1,5 @@
 package com.presentation.company_detail.Scene.review_detail_scene
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,37 +10,50 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.*
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapCommentButton
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapFollowCompanyButton
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapLikeReviewButton
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapReviewCard
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapWriteReviewButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
-import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.presentation.design_system.appbar.appbars.AppBarAction
+import com.presentation.design_system.appbar.appbars.AppBarState
+import com.presentation.design_system.appbar.appbars.AppBarViewModel
 import preset_ui.CSSpacerHorizontal
 import preset_ui.IconTextToggleButton
 import preset_ui.KakaoMapView
 import preset_ui.PrimaryIconTextButton
 import preset_ui.ReviewCard
-import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.StarFilled
 
 @Composable
 fun ReviewDetailScene(
-    viewModel: ReviewDetailViewModel = hiltViewModel()
+    viewModel: ReviewDetailViewModel,
+    appBarViewModel: AppBarViewModel
 ) {
     val uiState = viewModel.uiState
-
+    // 화면 진입 시 AppBar 상태 변경
+    LaunchedEffect(Unit) {
+        appBarViewModel.updateAppBarState(
+            AppBarState(
+                title = "리뷰 상세",
+                showBackButton = true,
+                actions = listOf(
+                    AppBarAction(
+                        icon = null,
+                        contentDescription = "수정",
+                        onClick = { /* 수정 액션 */ }
+                    )
+                )
+            )
+        )
+    }
     Content(viewModel = viewModel, detailUIState = uiState)
     CommentBottomSheet(detailUIState = uiState)
 }
@@ -49,58 +61,39 @@ fun ReviewDetailScene(
 @Composable
 fun Content(viewModel: ReviewDetailViewModel, detailUIState: DetailUIState) {
     val listState = rememberLazyListState()
-
-    Scaffold(
-        topBar = { TopAppBar(onBackButtonClick = { }) }
-    ) { innerpadding ->
-
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerpadding),
-        ) {
-            item { CompanyProfile(Modifier.padding(top = 16.dp)) }
-            item { StarRating(Modifier.padding(top = 16.dp)) }
-            item {
-                ProfileActionButtons(
-                    isFollowing   = detailUIState.isFollowingCompany,
-                    onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
-                    onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
-                    modifier      = Modifier.padding(top = 20.dp)
-                )
-            }
-            item { CompanyLocationMap(Modifier.padding(top = 20.dp)) }
-            item { GraySpacer(Modifier.padding(top = 20.dp)) }
-            itemsIndexed(
-                items = detailUIState.reviews,
-                key   = { _, item -> item.id }
-            ) { index, reviewItem ->
-                ReviewCard(
-                    review = reviewItem,
-                    isFullMode = detailUIState.isFullModeList[index],
-                    onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
-                    onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
-                    onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-                CSSpacerHorizontal(modifier = Modifier, height = 1.dp, color = CS.Gray.G20)
-            }
+    val localContext = LocalContext.current
+    
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        item { CompanyProfile(Modifier.padding(top = 16.dp)) }
+        item { StarRating(Modifier.padding(top = 16.dp)) }
+        item {
+            ProfileActionButtons(
+                isFollowing   = detailUIState.isFollowingCompany,
+                onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
+                onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
+                modifier      = Modifier.padding(top = 20.dp)
+            )
+        }
+        item { CompanyLocationMap(Modifier.padding(top = 20.dp)) }
+        item { GraySpacer(Modifier.padding(top = 20.dp)) }
+        itemsIndexed(
+            items = detailUIState.reviews,
+            key   = { _, item -> item.id }
+        ) { index, reviewItem ->
+            ReviewCard(
+                review = reviewItem,
+                isFullMode = detailUIState.isFullModeList[index],
+                onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
+                onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
+                onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
+            CSSpacerHorizontal(modifier = Modifier, height = 1.dp, color = CS.Gray.G20)
         }
     }
-}
-
-@Composable
-private fun TopAppBar(
-    onBackButtonClick: () -> Unit
-) {
-    DefaultTopAppBar(
-        title = "스타벅스 석촌역점",
-        leftNavigationIcon = {
-            BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
-                .clickable { onBackButtonClick() })
-        }
-    )
 }
 
 @Composable
