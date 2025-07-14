@@ -18,4 +18,7 @@ object NavigationRouteConstant {
 
     const val onboardingNestedRoute = "onboarding_nested_route"
     const val onboardingSceneRoute = "onboarding_scene_route"
+
+    const val mypageNestedRoute = "mypage_nested_route"
+    const val mypageSceneRoute = "mypage_scene_route"
 }
