@@ -1,4 +1,4 @@
-package com.presentation.mypage.scene
+package com.presentation.mypage.scene.mypage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +17,7 @@ enum class MyPageSection { ACCOUNT, SUPPORT, ACTIVITY, ETC }
 
 enum class MyPageMenu(
     val title:String,
-    val section:MyPageSection
+    val section: MyPageSection
 ) {
     UPDATE_PROFILE("내 정보 수정", MyPageSection.ACCOUNT),
     REPORT("신고하기", MyPageSection.ACCOUNT),

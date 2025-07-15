@@ -5,8 +5,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.presentation.mypage.scene.MyPageScene
-import com.presentation.mypage.scene.MyPageViewModel
+import com.presentation.mypage.scene.modify_user.ModifyUserScene
+import com.presentation.mypage.scene.modify_user.ModifyUserViewModel
+import com.presentation.mypage.scene.mypage.MyPageScene
+import com.presentation.mypage.scene.mypage.MyPageViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.FeatureAPI
 
@@ -24,6 +26,11 @@ internal object InternalMyPageAPI: FeatureAPI {
             composable(NavigationRouteConstant.mypageSceneRoute) {
                 val viewModel = hiltViewModel<MyPageViewModel>()
                 MyPageScene(viewModel = viewModel, navController = navController)
+            }
+
+            composable(NavigationRouteConstant.mypageModifyUserSceneRoute) {
+                val viewModel = hiltViewModel<ModifyUserViewModel>()
+                ModifyUserScene(viewModel = viewModel, navController = navController)
             }
         }
     }

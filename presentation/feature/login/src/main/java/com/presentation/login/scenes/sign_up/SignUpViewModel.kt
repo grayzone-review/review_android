@@ -7,6 +7,8 @@ import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.TermInfo
 import com.domain.usecase.UpAuthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import edit_profile_address_component.FieldState
+import edit_profile_address_component.NickNameField
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,16 +18,6 @@ import javax.inject.Inject
 data class TermCheck(
     val info: TermInfo,
     val isChecked: Boolean = false
-)
-
-enum class FieldState {
-    ClientError, Normal, ServerSuccess
-}
-// 빨, 기본, 성공
-data class NickNameField(
-    val value: String = "",
-    val fieldState: FieldState = FieldState.Normal,
-    val errorMessage: String = "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
 )
 
 data class SignUpUIState(

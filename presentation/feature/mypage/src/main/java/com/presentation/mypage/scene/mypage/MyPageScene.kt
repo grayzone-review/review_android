@@ -1,4 +1,4 @@
-package com.presentation.mypage.scene
+package com.presentation.mypage.scene.mypage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,8 +31,8 @@ import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
-import com.presentation.mypage.scene.MyPageViewModel.Action.DidTapMyPageMenu
-import com.presentation.mypage.scene.MyPageViewModel.Action.GetUser
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DidTapMyPageMenu
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.GetUser
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import preset_ui.icons.MyPageBell
 import preset_ui.icons.MyPageLogOut
@@ -44,7 +44,7 @@ import preset_ui.icons.MyPageWithdraw
 @Composable
 fun MyPageScene(
     viewModel: MyPageViewModel = hiltViewModel(),
-    navController: NavHostController,
+    navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var alertMenu by remember { mutableStateOf<MyPageMenu?>(null) }
@@ -54,8 +54,8 @@ fun MyPageScene(
             when(event) {
                 is MyPageUIEvent.NavigateTo -> {
                     val route = when(event.menu) {
-                        MyPageMenu.UPDATE_PROFILE -> "update_profile"
-                        MyPageMenu.REPORT         -> "report"
+                        MyPageMenu.UPDATE_PROFILE -> NavigationRouteConstant.mypageModifyUserSceneRoute
+                        MyPageMenu.REPORT -> "report"
                         MyPageMenu.REVIEW_HISTORY -> NavigationRouteConstant.archiveNestedRoute
                         else -> return@collect
                     }
@@ -68,19 +68,18 @@ fun MyPageScene(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(GetUser)
+    }
+
     alertMenu?.let { menu ->
         ActionConfirmDialog(
             menu = menu,
             onConfirm = {
-
                 alertMenu = null
             },
             onDismiss = { alertMenu = null }
         )
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
     }
 
     Scaffold(
@@ -114,10 +113,10 @@ fun MyPageMenuList(
 ) {
     val icons:Map<MyPageMenu,@Composable ()->Unit> = mapOf(
         MyPageMenu.UPDATE_PROFILE to { MyPagePerson(24.dp, 24.dp) },
-        MyPageMenu.REPORT         to { MyPageBell(24.dp, 24.dp) },
+        MyPageMenu.REPORT to { MyPageBell(24.dp, 24.dp) },
         MyPageMenu.REVIEW_HISTORY to { MyPagePen(24.dp, 24.dp) },
-        MyPageMenu.WITHDRAW       to { MyPageWithdraw(24.dp, 24.dp) },
-        MyPageMenu.LOGOUT         to { MyPageLogOut(24.dp, 24.dp) }
+        MyPageMenu.WITHDRAW to { MyPageWithdraw(24.dp, 24.dp) },
+        MyPageMenu.LOGOUT to { MyPageLogOut(24.dp, 24.dp) }
     )
 
     LazyColumn {
@@ -188,7 +187,7 @@ private fun NameRow(
 
 @Composable
 private fun ActionConfirmDialog(
-    menu:MyPageMenu,
+    menu: MyPageMenu,
     onConfirm:()->Unit,
     onDismiss:()->Unit
 ) {
