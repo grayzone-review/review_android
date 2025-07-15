@@ -55,7 +55,7 @@ fun MyPageScene(
                 is MyPageUIEvent.NavigateTo -> {
                     val route = when(event.menu) {
                         MyPageMenu.UPDATE_PROFILE -> NavigationRouteConstant.mypageModifyUserSceneRoute
-                        MyPageMenu.REPORT -> "report"
+                        MyPageMenu.REPORT -> NavigationRouteConstant.mypageReportSceneRoute
                         MyPageMenu.REVIEW_HISTORY -> NavigationRouteConstant.archiveNestedRoute
                         else -> return@collect
                     }

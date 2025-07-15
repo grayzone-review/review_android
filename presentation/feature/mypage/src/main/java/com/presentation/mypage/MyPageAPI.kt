@@ -11,6 +11,8 @@ import com.presentation.mypage.scene.modify_user.ModifyUserScene
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel
 import com.presentation.mypage.scene.mypage.MyPageScene
 import com.presentation.mypage.scene.mypage.MyPageViewModel
+import com.presentation.mypage.scene.report.ReportScene
+import com.presentation.mypage.scene.report.ReportViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.FeatureAPI
 
@@ -38,6 +40,11 @@ internal object InternalMyPageAPI: FeatureAPI {
             composable(MyPageNavRoute.SearchAddress.route) {
                 val viewModel = hiltViewModel<ModifySearchAddressViewModel>()
                 ModifySearchAddressScene(viewModel = viewModel, navController = navController)
+            }
+
+            composable(NavigationRouteConstant.mypageReportSceneRoute) {
+                val viewModel = hiltViewModel<ReportViewModel>()
+                ReportScene(viewModel = viewModel, navController = navController)
             }
         }
     }
