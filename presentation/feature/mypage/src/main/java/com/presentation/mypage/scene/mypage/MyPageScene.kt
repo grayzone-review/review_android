@@ -153,7 +153,7 @@ private fun MenuRow(
     ) {
         icons[menu]?.invoke()
         Spacer(Modifier.width(12.dp))
-        Text(text = menu.title, style = Typography.h3, color = CS.Gray.G90)
+        Text(text = menu.title, style = Typography.body1Regular, color = CS.Gray.G90)
     }
 }
 
