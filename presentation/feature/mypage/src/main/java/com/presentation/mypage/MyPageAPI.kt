@@ -5,6 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.presentation.mypage.scene.modify_user.ModifySearchAddressScene
+import com.presentation.mypage.scene.modify_user.ModifySearchAddressViewModel
 import com.presentation.mypage.scene.modify_user.ModifyUserScene
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel
 import com.presentation.mypage.scene.mypage.MyPageScene
@@ -31,6 +33,11 @@ internal object InternalMyPageAPI: FeatureAPI {
             composable(NavigationRouteConstant.mypageModifyUserSceneRoute) {
                 val viewModel = hiltViewModel<ModifyUserViewModel>()
                 ModifyUserScene(viewModel = viewModel, navController = navController)
+            }
+
+            composable(MyPageNavRoute.SearchAddress.route) {
+                val viewModel = hiltViewModel<ModifySearchAddressViewModel>()
+                ModifySearchAddressScene(viewModel = viewModel, navController = navController)
             }
         }
     }

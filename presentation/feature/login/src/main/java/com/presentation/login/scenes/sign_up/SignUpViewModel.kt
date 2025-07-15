@@ -50,6 +50,7 @@ class SignUpViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
+        val currentState = _uiState.value
         when (action) {
             Action.SetAccessToken -> {
                 val token = value as? String ?: return
@@ -68,7 +69,6 @@ class SignUpViewModel @Inject constructor(
                 }
             }
             Action.AddInterestTown -> {
-                val currentState = _uiState.value
                 val addedLegalDistrictInfo = value as? LegalDistrictInfo ?: return
                 if (currentState.interestTowns.any { it.id == addedLegalDistrictInfo.id }) return
                 _uiState.update {
@@ -99,7 +99,6 @@ class SignUpViewModel @Inject constructor(
                 }
             }
             Action.DidTapCheckDuplicateButton -> {
-                val currentState = _uiState.value
                 if (currentState.nickNameField.value.length < 2) return
                 viewModelScope.launch {
                     val result = upAuthUseCase.verifyNickName(nickname = currentState.nickNameField.value)
@@ -156,7 +155,6 @@ class SignUpViewModel @Inject constructor(
                 // TODO: WebView Navigate
             }
             Action.DidTapSubmitButton -> {
-                val currentState = _uiState.value
                 if (currentState.myTown == null) return
                 val agreements = currentState.terms
                     .filter { it.isChecked }

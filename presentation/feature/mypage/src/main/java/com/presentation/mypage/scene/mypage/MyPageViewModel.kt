@@ -2,6 +2,7 @@ package com.presentation.mypage.scene.mypage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.User
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -76,11 +77,11 @@ class MyPageViewModel @Inject constructor(
     private fun getMockUser(): User {
         return User(
             nickname = "서현웅",
-            mainRegion = "서울시 중랑구 면목동",
+            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
             interestedRegions = listOf(
-                "서울시 중랑구 면목동",
-                "서울시 중랑구 중곡동",
-                "서울시 중랑구 상봉동"
+                LegalDistrictInfo(1, "서울시 중랑구 면목동"),
+                LegalDistrictInfo(2, "서울시 중랑구 중곡동"),
+                LegalDistrictInfo(2, "서울시 중랑구 상봉동")
             )
         )
     }

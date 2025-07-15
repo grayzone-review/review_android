@@ -11,7 +11,7 @@ import com.presentation.login.scenes.search_address.SearchAddressViewModel
 import com.presentation.login.scenes.sign_up.SignUpScene
 import com.presentation.login.scenes.sign_up.SignUpViewModel
 
-object NavConstant {
+internal object NavConstant {
     enum class Mode(val value: String) { MY("my"), INTEREST("interest") }
     const val SIGN_UP_ROUTE = "sign_up"
     private const val SEARCH_ADDRESS_BASE = "search_address"
@@ -24,9 +24,9 @@ object NavConstant {
         "$SEARCH_ADDRESS_BASE?$ARGUMENT_TOWN=${Uri.encode(startQuery)}&$ARGUMENT_MODE=${mode.value}"
 }
 
-sealed class SignUpNavRoute(val route: String) {
-    object SignUp : SignUpNavRoute(NavConstant.SIGN_UP_ROUTE)
-    object SearchAddress : SignUpNavRoute(NavConstant.SEARCH_ADDRESS_ROUTE)
+internal sealed class SignUpNavRoute(val route: String) {
+    data object SignUp : SignUpNavRoute(NavConstant.SIGN_UP_ROUTE)
+    data object SearchAddress : SignUpNavRoute(NavConstant.SEARCH_ADDRESS_ROUTE)
 }
 
 @Composable

@@ -1,9 +1,10 @@
-package com.presentation.login.scenes.search_address
+package com.presentation.mypage.scene.modify_user
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.domain.entity.Region
-import com.presentation.login.scenes.sign_up.navgraph.NavConstant
+import com.presentation.mypage.NavConstant
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,9 +15,10 @@ data class SearchAddressUIState(
     val mode: String = ""
 )
 
-class SearchAddressViewModel @Inject constructor(
+@HiltViewModel
+class ModifySearchAddressViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+): ViewModel() {
     enum class Action {
         UpdateQueryFromSearching,
         UpdateQueryFromLocation
