@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,9 +50,15 @@ fun UpAlertIconDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 /* 아이콘 */
-                icon?.let {
+                icon?.let { bindIcon ->
                     Spacer(Modifier.height(23.dp))
-                    icon()
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(CS.PrimaryOrange.O40),
+                        contentAlignment = Alignment.Center
+                    ) { bindIcon() }
                     Spacer(Modifier.height(8.dp))
                 }
                 /* 제목 */

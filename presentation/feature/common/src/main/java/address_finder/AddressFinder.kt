@@ -42,6 +42,7 @@ import com.example.presentation.designsystem.typography.Typography
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.team.common.feature_api.extension.openAppSettings
+import common_ui.UpAlertIconDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import preset_ui.icons.CheckCircleFill
@@ -68,10 +69,10 @@ fun AddressFinder(
         }
     }
 
-    SettingAlertDialog(
+    SettingDialog(
         isShow = uiState.shouldShowSettingAlert,
-        onDismiss = { viewModel.handleAction(DismissSettingAlert) },
-        onOpenSettings = { context.openAppSettings() }
+        onConfirm = { context.openAppSettings() },
+        onCancel = { viewModel.handleAction(DismissSettingAlert) }
     )
 
     Column(
@@ -188,4 +189,26 @@ private fun FindMyLocationButton(
             Text(text = "내 위치 찾기", style = Typography.body1Bold)
         }
     }
+}
+
+@Composable
+private fun SettingDialog(
+    isShow: Boolean,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    if (!isShow) return
+
+    UpAlertIconDialog(
+        icon = { MapPinTintable(28.dp, 28.dp, tint = CS.Gray.White) },
+        title = "위치 권한 필요",
+        message = """
+            기능을 사용하려면 위치 권한이 필요합니다.
+            설정 > 권한에서 위치를 허용해주세요.
+        """.trimIndent(),
+        confirmText = "설정으로 이동",
+        cancelText = "취소",
+        onConfirm = onConfirm,
+        onCancel = onCancel
+    )
 }
