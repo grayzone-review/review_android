@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -91,8 +92,17 @@ fun MyPageScene(
         bottomBar = {
             UpBottomBar(
                 current = UpTab.MyPage, // 현재 탭에 맞게 설정
-                onTabSelected = {
-                    navController.navigate(NavigationRouteConstant.mainNestedRoute)
+                onTabSelected = { tab ->
+                    when (tab) {
+                        UpTab.Home -> {
+                            navController.navigate(NavigationRouteConstant.mainNestedRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        UpTab.MyPage -> {}
+                    }
                 },
                 onAddButtonClick = { /* TODO */ }
             )

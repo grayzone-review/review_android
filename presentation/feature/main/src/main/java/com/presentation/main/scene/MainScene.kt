@@ -1,5 +1,6 @@
 package com.presentation.main.scene
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import colors.CS
 import com.data.location.UpLocationService
@@ -53,6 +56,7 @@ import com.presentation.main.scene.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import kotlinx.coroutines.launch
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
 import preset_ui.icons.FollowPersonOnIcon
@@ -72,8 +76,13 @@ fun MainScene(
         rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(permissionState.allPermissionsGranted) {
+        Log.d("PermissionCheck", "LaunchedEffect triggered. Current state:")
+        Log.d("PermissionCheck", "allPermissionsGranted: ${permissionState.allPermissionsGranted}")
+        Log.d("PermissionCheck", "shouldShowRationale: ${permissionState.shouldShowRationale}")
+
         when {
             permissionState.allPermissionsGranted -> {
                 viewModel.handleAction(GetPopularFeeds)
@@ -111,8 +120,19 @@ fun MainScene(
             bottomBar = {
                 UpBottomBar(
                     current = UpTab.Home,
-                    onTabSelected = {
-                        navController.navigate(NavigationRouteConstant.mypageNestedRoute)
+                    onTabSelected = { tab ->
+                        when (tab) {
+                            UpTab.Home -> {
+                                scope.launch { scrollState.animateScrollTo(value = 0) }
+                            }
+                            UpTab.MyPage -> {
+                                navController.navigate(NavigationRouteConstant.mypageNestedRoute) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
                     },
                     onAddButtonClick = { /* TODO */ },
                 )

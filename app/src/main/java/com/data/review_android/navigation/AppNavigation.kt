@@ -12,7 +12,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRouteConstant.mypageNestedRoute
+        startDestination = NavigationRouteConstant.mainNestedRoute
     ) {
         navigationProvider.mainAPI.registerGraph(navController, this)
         navigationProvider.reviewAPI.registerGraph(navController, this)
