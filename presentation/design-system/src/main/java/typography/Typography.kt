@@ -30,6 +30,13 @@ object Typography {
         fontSize = 18.sp,
         lineHeight = 18.sp * 1.3f
     )
+    val h3Regular = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 18.sp * 1.3f
+    )
+
     var body1Bold = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,

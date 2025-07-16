@@ -6,6 +6,7 @@ import com.presentation.archive.ArchiveAPI
 import com.presentation.company_detail.ReviewAPI
 import com.presentation.login.LoginAPI
 import com.presentation.main.MainAPI
+import com.presentation.mypage.MyPageAPI
 import com.presentation.onboarding.OnBoardingAPI
 import dagger.Module
 import dagger.Provides
@@ -23,7 +24,8 @@ object AppModule {
         searchAPI: SearchAPI,
         loginAPI: LoginAPI,
         archiveAPI: ArchiveAPI,
-        onBoardingAPI: OnBoardingAPI
+        onBoardingAPI: OnBoardingAPI,
+        myPageAPI: MyPageAPI
     ): NavigationProvider {
         return NavigationProvider(
             mainAPI = mainAPI,
@@ -31,7 +33,8 @@ object AppModule {
             searchAPI = searchAPI,
             loginAPI = loginAPI,
             archiveAPI = archiveAPI,
-            onBoardingAPI = onBoardingAPI
+            onBoardingAPI = onBoardingAPI,
+            myPageAPI = myPageAPI
         )
     }
 }

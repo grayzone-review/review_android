@@ -65,6 +65,7 @@ dependencies {
     implementation(project(":presentation:feature:common"))
     implementation(project(":presentation:feature:archive"))
     implementation(project(":presentation:feature:onboarding"))
+    implementation(project(":presentation:feature:mypage"))
     implementation(project(":common"))
     implementation(project(":presentation:design-system"))
     implementation(project(":data:storage"))

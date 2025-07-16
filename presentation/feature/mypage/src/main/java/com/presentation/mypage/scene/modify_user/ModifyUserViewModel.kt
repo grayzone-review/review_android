@@ -1,10 +1,9 @@
-package com.presentation.login.scenes.sign_up
+package com.presentation.mypage.scene.modify_user
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.domain.entity.Agreement
 import com.domain.entity.LegalDistrictInfo
-import com.domain.entity.TermInfo
+import com.domain.entity.User
 import com.domain.usecase.UpAuthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edit_profile_address_component.FieldState
@@ -15,56 +14,49 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class TermCheck(
-    val info: TermInfo,
-    val isChecked: Boolean = false
-)
-
-data class SignUpUIState(
+data class ModifyUserUIState(
     val nickNameField: NickNameField = NickNameField(),
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
-    val terms: List<TermCheck> = emptyList(),
-    val isSubmitEnabled: Boolean = false,
-    val accessToken: String = ""
+    val isSubmitEnabled: Boolean = false
 )
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(
+class ModifyUserViewModel @Inject constructor(
     private val upAuthUseCase: UpAuthUseCase
 ) : ViewModel() {
     enum class Action {
-        GetTerms,
+        GetUser,
         AddInterestTown,
         SetMyTown,
         UpdateNickNameTextField,
         DidTapCheckDuplicateButton,
         DidTapRemoveInterestTownButton,
-        DidTapCheckBox,
-        DidTapDetailButton,
-        DidTapSubmitButton,
-        SetAccessToken
+        DidTapSubmitButton
     }
 
-    private var _uiState = MutableStateFlow(value = SignUpUIState())
+    private var _uiState = MutableStateFlow(value = ModifyUserUIState())
     val uiState = _uiState.asStateFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
-            Action.SetAccessToken -> {
-                val token = value as? String ?: return
-                _uiState.update {
-                    it.copy(accessToken = token)
-                }
-            }
-            Action.GetTerms -> {
+            Action.GetUser -> {
+                if (currentState.nickNameField.value.isNotEmpty()) return
                 viewModelScope.launch {
-                    val result = upAuthUseCase.terms()
-                    val termChecks = result.terms.map { TermCheck(it, false) }
+                    val user = getMockUser()
+                    val userNickNameField = NickNameField(
+                        value = user.nickname ?: "",
+                        fieldState = FieldState.ServerSuccess,
+                        errorMessage = ""
+                    )
                     _uiState.update {
-                        it.copy(terms = termChecks)
-                            .checkSubmitValidation()
+                        it.copy(
+                            nickNameField = userNickNameField,
+                            myTown = user.mainRegion,
+                            interestTowns = user.interestedRegions ?: emptyList(),
+                            isSubmitEnabled = true
+                        )
                     }
                 }
             }
@@ -88,7 +80,7 @@ class SignUpViewModel @Inject constructor(
                     FieldState.ClientError to "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
                 else
                     FieldState.Normal to ""
-                val updatedField = _uiState.value.nickNameField.copy(
+                val updatedField = currentState.nickNameField.copy(
                     value = newNickname,
                     fieldState = fieldState,
                     errorMessage = errorMessage
@@ -121,67 +113,25 @@ class SignUpViewModel @Inject constructor(
                     )
                 }
             }
-            Action.DidTapCheckBox -> {
-                val code = value as? TermCode ?: return      // ALL | SERVICE | PRIVACY | LOCATION
-
-                _uiState.update { state ->
-
-                    /* 현재 약관 리스트 */
-                    val updated = when (code) {
-                        TermCode.ALL -> {
-                            val toggle = !state.terms
-                                .filter { it.info.required }
-                                .all   { it.isChecked }
-                            state.terms.map { term ->
-                                if (term.info.required) term.copy(isChecked = toggle) else term
-                            }
-                        }
-                        else -> state.terms.map { term ->
-                            val termCode = when (term.info.code) {
-                                "serviceUse" -> TermCode.SERVICE
-                                "privacy"    -> TermCode.PRIVACY
-                                "location"   -> TermCode.LOCATION
-                                else         -> null
-                            }
-                            if (termCode == code) term.copy(isChecked = !term.isChecked) else term
-                        }
-                    }
-
-                    state.copy(terms = updated)
-                        .checkSubmitValidation()
-                }
-            }
-            Action.DidTapDetailButton -> {
-                // TODO: WebView Navigate
-            }
             Action.DidTapSubmitButton -> {
-                if (currentState.myTown == null) return
-                val agreements = currentState.terms
-                    .filter { it.isChecked }
-                    .mapNotNull { term ->
-                        when (term.info.code) {
-                            "serviceUse" -> Agreement.serviceUse
-                            "privacy" -> Agreement.privacy
-                            "location" -> Agreement.location
-                            else -> null
-                        }
-                    }
-                viewModelScope.launch {
-                    val result = upAuthUseCase.signUp(
-                        oauthToken = currentState.accessToken,
-                        mainRegionId = currentState.myTown.id,
-                        interestedRegionIds = currentState.interestTowns.map { it.id },
-                        nickname = currentState.nickNameField.value,
-                        agreements = agreements
-                    )
-                }
+                /* TODO: 수정 요청 */
             }
         }
     }
+
+    private fun getMockUser(): User {
+        return User(
+            nickname = "서현웅",
+            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
+            interestedRegions = listOf(
+                LegalDistrictInfo(1001, "서울시 중랑구 면목동"),
+                LegalDistrictInfo(2002, "서울시 중랑구 중곡동"),
+                LegalDistrictInfo(3003, "서울시 중랑구 상봉동")
+            )
+        )
+    }
 }
 
-private fun SignUpUIState.checkSubmitValidation(): SignUpUIState = copy(
-    isSubmitEnabled = nickNameField.fieldState == FieldState.ServerSuccess &&
-            myTown != null &&
-            terms.filter { it.info.required }.all { it.isChecked }
+private fun ModifyUserUIState.checkSubmitValidation(): ModifyUserUIState = copy(
+    isSubmitEnabled = nickNameField.fieldState == FieldState.ServerSuccess && myTown != null
 )

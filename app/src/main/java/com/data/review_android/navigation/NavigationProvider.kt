@@ -5,6 +5,7 @@ import com.presentation.archive.ArchiveAPI
 import com.presentation.company_detail.ReviewAPI
 import com.presentation.login.LoginAPI
 import com.presentation.main.MainAPI
+import com.presentation.mypage.MyPageAPI
 import com.presentation.onboarding.OnBoardingAPI
 
 data class NavigationProvider(
@@ -13,5 +14,6 @@ data class NavigationProvider(
     val searchAPI: SearchAPI,
     val loginAPI: LoginAPI,
     val archiveAPI: ArchiveAPI,
-    val onBoardingAPI: OnBoardingAPI
+    val onBoardingAPI: OnBoardingAPI,
+    val myPageAPI: MyPageAPI
 )
