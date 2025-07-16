@@ -258,13 +258,14 @@ fun MytownIcon(
 fun InfoIcon(
     width: Dp,
     height: Dp,
+    tint: Color,
     modifier: Modifier = Modifier,
 ) {
     Icon(
         painter = painterResource(com.presentation.design_system.R.drawable.info_fill),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
-        tint = Color.Unspecified
+        tint = tint
     )
 }
 

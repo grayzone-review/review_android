@@ -295,7 +295,7 @@ private fun ReportReasonModalSheet(
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = {},
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd   = 24.dp),
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             dragHandle = {},
             containerColor = CS.Gray.White
         ) {

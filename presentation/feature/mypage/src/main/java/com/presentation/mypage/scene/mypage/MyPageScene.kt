@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,6 +32,8 @@ import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DidTapMyPageMenu
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.GetUser
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.UpAlertIconDialog
+import preset_ui.icons.InfoIcon
 import preset_ui.icons.MyPageBell
 import preset_ui.icons.MyPageLogOut
 import preset_ui.icons.MyPagePen
@@ -73,13 +73,17 @@ fun MyPageScene(
     }
 
     alertMenu?.let { menu ->
-        ActionConfirmDialog(
-            menu = menu,
-            onConfirm = {
-                alertMenu = null
-            },
-            onDismiss = { alertMenu = null }
-        )
+        when (menu) {
+            MyPageMenu.WITHDRAW -> WithDrawAlert(
+                onConfirm = { /* TODO: 회원 탈퇴 후, Alert Dismiss */ },
+                onCancel = { alertMenu = null }
+            )
+            MyPageMenu.LOGOUT -> LogOutAlert(
+                onConfirm = { /* TODO: 로그 아웃, Alert Dismiss */ },
+                onCancel = { alertMenu = null }
+            )
+            else->{}
+        }
     }
 
     Scaffold(
@@ -122,16 +126,27 @@ fun MyPageMenuList(
     LazyColumn {
         item { NameRow(nickname) }
 
-        item { Spacer(Modifier.fillMaxWidth().height(8.dp).background(color = CS.Gray.G10)) }
+        item { Spacer(Modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .background(color = CS.Gray.G10)) }
 
         item { MenuRow(MyPageMenu.UPDATE_PROFILE, icons, onClick) }
         item { MenuRow(MyPageMenu.REPORT,         icons, onClick) }
 
-        item { Spacer(Modifier.fillMaxWidth().height(1.dp).padding(horizontal = 20.dp).background(color = CS.Gray.G20)) }
+        item { Spacer(Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .padding(horizontal = 20.dp)
+            .background(color = CS.Gray.G20)) }
 
         item { MenuRow(MyPageMenu.REVIEW_HISTORY, icons, onClick) }
 
-        item { Spacer(Modifier.fillMaxWidth().height(1.dp).padding(horizontal = 20.dp).background(color = CS.Gray.G20)) }
+        item { Spacer(Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .padding(horizontal = 20.dp)
+            .background(color = CS.Gray.G20)) }
 
         item { MenuRow(MyPageMenu.WITHDRAW, icons, onClick) }
         item { MenuRow(MyPageMenu.LOGOUT,   icons, onClick) }
@@ -186,28 +201,38 @@ private fun NameRow(
 }
 
 @Composable
-private fun ActionConfirmDialog(
-    menu: MyPageMenu,
-    onConfirm:()->Unit,
-    onDismiss:()->Unit
+fun WithDrawAlert(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
 ) {
-    val isWithdraw = menu == MyPageMenu.WITHDRAW
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onConfirm) { Text("확인") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("취소") }
-        },
-        title = { Text(if(isWithdraw) "회원 탈퇴" else "로그아웃") },
-        text = {
-            Text(
-                if(isWithdraw)
-                    "회원 탈퇴하시겠습니까?\n작성한 글과 댓글은 삭제되지 않습니다."
-                else
-                    "로그아웃하시겠습니까?"
-            )
-        }
+    UpAlertIconDialog(
+        icon = { InfoIcon(44.dp, 44.dp, tint = CS.PrimaryOrange.O40) },
+        title = "회원 탈퇴",
+        message = """
+        탈퇴 후, 현재 계정으로 작성한 글·댓글 등을
+        수정하거나 삭제할 수 없습니다.
+        지금 탈퇴하시겠습니까?
+    """.trimIndent(),
+        confirmText = "탈퇴하기",
+        cancelText = "취소",
+        onConfirm = onConfirm,
+        onCancel = onCancel
+    )
+}
+
+
+@Composable
+fun LogOutAlert(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    UpAlertIconDialog(
+        icon = null,
+        title = "로그아웃",
+        message = "로그아웃 하시겠습니까?",
+        confirmText = "로그아웃",
+        cancelText = "취소",
+        onConfirm = onConfirm,
+        onCancel = onCancel
     )
 }

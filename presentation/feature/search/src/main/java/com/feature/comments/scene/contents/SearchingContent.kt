@@ -98,7 +98,7 @@ private fun EmptyView(searchingContent: SearchingContent) {
     ) {
         Spacer(Modifier.height(95.dp))
         when (searchingContent) {
-            SearchingContent.Recent -> InfoIcon(48.dp, 48.dp)
+            SearchingContent.Recent -> InfoIcon(48.dp, 48.dp, CS.Gray.G30)
             SearchingContent.Searched -> SearchLineIcon(48.dp, 48.dp, tint = CS.Gray.G30)
         }
         Spacer(Modifier.height(12.dp))
