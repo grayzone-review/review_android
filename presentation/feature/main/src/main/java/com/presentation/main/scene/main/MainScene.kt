@@ -1,6 +1,5 @@
-package com.presentation.main.scene
+package com.presentation.main.scene.main
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,8 +50,10 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.presentation.design_system.appbar.appbars.LogoUserTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
-import com.presentation.main.scene.MainViewModel.Action.GetPopularFeeds
-import com.presentation.main.scene.MainViewModel.Action.ShowSettingAlert
+import com.presentation.main.NavConstant
+import com.presentation.main.scene.main.MainViewModel.Action.GetPopularFeeds
+import com.presentation.main.scene.main.MainViewModel.Action.GetUser
+import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
@@ -79,10 +80,6 @@ fun MainScene(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(permissionState.allPermissionsGranted) {
-        Log.d("PermissionCheck", "LaunchedEffect triggered. Current state:")
-        Log.d("PermissionCheck", "allPermissionsGranted: ${permissionState.allPermissionsGranted}")
-        Log.d("PermissionCheck", "shouldShowRationale: ${permissionState.shouldShowRationale}")
-
         when {
             permissionState.allPermissionsGranted -> {
                 viewModel.handleAction(GetPopularFeeds)
@@ -92,6 +89,10 @@ fun MainScene(
             }
             else -> permissionState.launchMultiplePermissionRequest()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(GetUser)
     }
 
     LaunchedEffect(Unit) {
@@ -112,7 +113,7 @@ fun MainScene(
         Scaffold(
             topBar = {
                 LogoUserTopAppBar(
-                    userName = "서현웅",
+                    userName = uiState.user.nickname ?: "",
                     onLogoClick = { },
                     onProfileClick = { }
                 )
@@ -160,9 +161,11 @@ fun MainScene(
                     .fillMaxWidth()
                     .height(8.dp)
                     .background(CS.Gray.G10))
-                RecentReviewSection(
+                ReviewSection(
                     reviews = uiState.popularFeeds,
-                    onMoreClick = { }
+                    onMoreClick = { navController.navigate(NavConstant
+                        .destFeed(section = NavConstant.Section.Popular))
+                    }
                 )
             }
         }
@@ -361,7 +364,7 @@ private fun LocationBannerButton(
 }
 
 @Composable
-fun RecentReviewSection(
+fun ReviewSection(
     reviews: List<ReviewFeed>,
     onMoreClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -381,7 +384,7 @@ fun RecentReviewSection(
             }
             Spacer(Modifier.weight(1f))
             TextButton(onClick = onMoreClick) {
-                Text(text = "더보기")
+                Text(text = "더보기", style = Typography.captionRegular, color = CS.Gray.G50)
                 RightArrowIcon(14.dp, 14.dp, tint = CS.Gray.G50)
             }
         }

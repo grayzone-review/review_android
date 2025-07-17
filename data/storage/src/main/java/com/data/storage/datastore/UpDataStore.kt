@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +14,7 @@ val Context.datastore: DataStore<Preferences> by preferencesDataStore(name = "up
 internal sealed class UpDataStoreKey<T>(val key: Preferences.Key<T>) {
     object RecentQueries : UpDataStoreKey<String>(stringPreferencesKey("recent_queries"))
     object RecentCompanyIDs: UpDataStoreKey<String>(stringPreferencesKey("recent_company"))
+    object LastKnownLocation: UpDataStoreKey<String>(stringPreferencesKey("last_known_location"))
 }
 
 internal object UpDataStore {

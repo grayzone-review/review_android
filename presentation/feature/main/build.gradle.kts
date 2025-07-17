@@ -46,9 +46,10 @@ dependencies {
     implementation(project(":presentation:feature:common"))
     implementation(project(":presentation:design-system"))
     implementation(project(":data:location"))
-    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation(project(":data:storage"))
 
+    implementation(Location.permission)
+    implementation(Location.gmsLocationService)
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)

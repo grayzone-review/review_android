@@ -43,6 +43,8 @@ dependencies {
     implementation(project(":presentation:design-system"))
     implementation(project(":data:location"))
 
+    implementation(Location.permission)
+    implementation(Location.gmsLocationService)
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)

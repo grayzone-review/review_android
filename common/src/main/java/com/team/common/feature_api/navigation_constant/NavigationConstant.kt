@@ -9,6 +9,7 @@ object NavigationRouteConstant {
 
     const val mainNestedRoute = "main_nested_route"
     const val mainSceneRoute = "main_scene_route"
+    const val mainFeedSceneRoute = "main_feed_scene_route"
 
     const val loginNestedRoute = "login_nested_route"
     const val loginSceneRoute = "login_scene_route"

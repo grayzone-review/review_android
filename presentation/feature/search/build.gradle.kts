@@ -44,7 +44,10 @@ dependencies {
     implementation(project(":presentation:design-system"))
     implementation(project(":data:storage"))
     implementation(project(":domain:usecase"))
+    implementation(project(":data:location"))
 
+    implementation(Location.permission)
+    implementation(Location.gmsLocationService)
     implementation(DaggerHilt.hilt)
     implementation("androidx.compose.foundation:foundation-android:1.7.2")
     kapt(DaggerHilt.hiltCompiler)
