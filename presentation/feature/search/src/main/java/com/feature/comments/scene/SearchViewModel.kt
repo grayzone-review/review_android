@@ -1,6 +1,5 @@
 package com.feature.comments.scene
 
-import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.data.storage.datastore.UpDataStoreService
@@ -72,7 +71,6 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             }
             SearchInterfaceAction.DidTapIMEDone -> {
                 val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
-                Log.d("여길드가나?", queries.toString())
                 queries.add(index = 0, element = searchUIState.value.searchBarValue.text)
                 UpDataStoreService.recentQueries = queries.joinToString(",")
                 _searchUISate.update {
@@ -89,6 +87,11 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         when (contentAction) {
             ContentAction.DidTapRecentQueryButton -> {
                 text?.let { query ->
+                    val recentQueries = UpDataStoreService.recentQueries
+                        .split(",")
+                        .filter { it.isNotBlank() && it != query }
+                    val newQueries = listOf(query) + recentQueries
+                    UpDataStoreService.recentQueries = newQueries.joinToString(",")
                     _searchUISate.update {
                         it.copy(
                             searchBarValue = TextFieldValue(text = query),
