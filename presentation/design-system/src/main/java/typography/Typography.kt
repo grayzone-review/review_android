@@ -4,6 +4,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import typography.Pretendard
+import typography.ZenDots
 
 object Typography {
     val h1 = TextStyle(
@@ -84,5 +85,13 @@ object Typography {
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
         lineHeight = 12.sp * 1.5f
+    )
+
+    // ZenDots
+    val zenDotsTitle = TextStyle(
+        fontFamily = ZenDots,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 22.sp * 1.3f
     )
 }

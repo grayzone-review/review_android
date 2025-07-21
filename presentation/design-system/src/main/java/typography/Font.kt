@@ -16,3 +16,7 @@ val Pretendard = FontFamily(
     Font(R.font.pretendard_extrabold, FontWeight.ExtraBold),
     Font(R.font.pretendard_black, FontWeight.Black)
 )
+
+val ZenDots = FontFamily(
+    Font(R.font.zendots_regular)
+)

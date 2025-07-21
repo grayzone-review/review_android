@@ -119,8 +119,8 @@ fun MainScene(
             topBar = {
                 LogoUserTopAppBar(
                     userName = uiState.user.nickname ?: "",
-                    onLogoClick = { },
-                    onProfileClick = { }
+                    onLogoClick = { scope.launch { scrollState.animateScrollTo(value = 0) } },
+                    onProfileClick = { navController.navigate(NavigationRouteConstant.mypageModifyUserSceneRoute) }
                 )
             },
             bottomBar = {
@@ -168,7 +168,6 @@ fun MainScene(
                     .fillMaxWidth()
                     .height(8.dp)
                     .background(CS.Gray.G10))
-                // 인기피드
                 ReviewSection(
                     title = "지금 인기 있는 리뷰",
                     reviews = uiState.popularFeeds,
@@ -176,7 +175,6 @@ fun MainScene(
                         .destFeed(section = NavConstant.Section.Popular))
                     }
                 )
-                // 내동네피드
                 if (uiState.myTownFeeds.isNotEmpty()) {
                     ReviewSection(
                         title = "우리 동네 최근 리뷰",
@@ -186,8 +184,6 @@ fun MainScene(
                         }
                     )
                 }
-
-                // 관심동네피드
                 if (uiState.interestRegionsFeeds.isNotEmpty()) {
                     ReviewSection(
                         title = "관심 동네 최근 리뷰",
