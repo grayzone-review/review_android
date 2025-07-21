@@ -9,6 +9,7 @@ import com.domain.entity.Review
 import com.domain.usecase.CompanyDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,7 +19,6 @@ data class DetailUIState(
     val company: Company = Company(),
     val reviews: List<Review> = emptyList(),
     val isFullModeList: List<Boolean> = emptyList(),
-    val isFollowingCompany: Boolean = false,
     val showBottomSheet: Boolean = false
 )
 
@@ -45,7 +45,7 @@ class CompanyDetailViewModel @Inject constructor(
     private var _uiState = MutableStateFlow(DetailUIState(
         companyID = companyIDArgument?.takeIf { it > 0 }
     ))
-    val uiState: DetailUIState get() = _uiState.value
+    val uiState = _uiState.asStateFlow()
 
     fun handleAction(action: Action, index: Int? = null) {
         val currentState = _uiState.value
@@ -53,13 +53,22 @@ class CompanyDetailViewModel @Inject constructor(
             Action.GetCompany -> {
                 viewModelScope.launch {
                     val result = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
-                    Log.d("리저", result.toString())
                     _uiState.update { it.copy(company = result) }
                 }
             }
             Action.DidTapFollowCompanyButton -> {
-                _uiState.update {
-                    it.copy(isFollowingCompany = !currentState.isFollowingCompany)
+                viewModelScope.launch {
+                    currentState.company.following?.let { followStatus ->
+                        val result = if (!followStatus) {
+                            companyDetailUseCase.followCompany(companyID = currentState.companyID ?: 0)
+                        } else {
+                            companyDetailUseCase.unfollowCompany(companyID = currentState.companyID ?: 0)
+                        }
+                        if (result.success) {
+                            val company = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
+                            _uiState.update { it.copy(company = company) }
+                        }
+                    }
                 }
             }
             Action.DidTapWriteReviewButton -> {

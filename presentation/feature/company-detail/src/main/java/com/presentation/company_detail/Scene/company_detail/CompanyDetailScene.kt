@@ -15,6 +15,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -45,7 +47,7 @@ fun CompanyDetailScene(
     viewModel: CompanyDetailViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    val uiState = viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.handleAction(GetCompany)
@@ -67,14 +69,24 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            item { CompanyProfile(Modifier.padding(top = 16.dp)) }
-            item { StarRating(Modifier.padding(top = 16.dp)) }
+            item {
+                CompanyProfile(
+                    company = detailUIState.company,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+            item {
+                StarRating(
+                    company = detailUIState.company,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
             item {
                 ProfileActionButtons(
-                    isFollowing   = detailUIState.isFollowingCompany,
+                    company = detailUIState.company,
                     onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
                     onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
-                    modifier      = Modifier.padding(top = 20.dp)
+                    modifier = Modifier.padding(top = 20.dp)
                 )
             }
             item { CompanyLocationMap(
@@ -114,33 +126,38 @@ private fun TopAppBar(
 }
 
 @Composable
-fun CompanyProfile(modifier: Modifier) {
+fun CompanyProfile(company: Company, modifier: Modifier) {
+    val companyAddress = company.siteFullAddress
+        ?.takeIf { it.isNotEmpty() }
+        ?: company.roadNameAddress?.takeIf { it.isNotEmpty() }
+        ?: ""
+
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = "스타벅스 석촌역점", color = CS.Gray.G90, style = Typography.h3)
-        Text(text = "서울특별시 송파구 백제고분로 358 1층", color = CS.Gray.G50, style = Typography.captionRegular)
+        Text(text = company.companyName ?: "", color = CS.Gray.G90, style = Typography.h3)
+        Text(text = companyAddress, color = CS.Gray.G50, style = Typography.captionRegular)
     }
 }
 
 @Composable
-fun StarRating(modifier: Modifier) {
+fun StarRating(company: Company, modifier: Modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(2.5.dp),
         modifier = modifier
             .padding(horizontal = 20.dp)
     ) {
         StarFilled(width = 24.dp, height = 24.dp)
-        Text(text = "4.5", color = CS.Gray.G90, style = Typography.h1)
+        Text(text = "%.1f".format(company.totalRating), color = CS.Gray.G90, style = Typography.h1)
     }
 }
 
 @Composable
 fun ProfileActionButtons(
-    isFollowing: Boolean,
+    company: Company,
     onFollowClick: () -> Unit,
     onReviewClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -153,7 +170,7 @@ fun ProfileActionButtons(
     ) {
         IconTextToggleButton(
             text = "팔로우",
-            enabled = isFollowing,
+            enabled = company.following ?: false,
             onClick = onFollowClick,
             modifier = Modifier
                 .weight(1f)

@@ -6,7 +6,9 @@ import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.response.APIResponse
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
@@ -45,4 +47,14 @@ interface UpAPIService {
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
         @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
     ): APIResponse<ReviewFeedResponseDTO>
+
+    @POST(UpEndpoint.Path.FOLLOW_COMPANY)
+    suspend fun followCompany(
+        @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
+    ): APIResponse<Unit>
+
+    @DELETE(UpEndpoint.Path.FOLLOW_COMPANY)
+    suspend fun unfollowCompany(
+        @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
+    ): APIResponse<Unit>
 }
