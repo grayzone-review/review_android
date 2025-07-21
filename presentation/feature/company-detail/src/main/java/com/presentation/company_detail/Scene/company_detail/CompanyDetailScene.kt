@@ -36,7 +36,7 @@ import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import preset_ui.CSSpacerHorizontal
 import preset_ui.IconTextToggleButton
-import preset_ui.KakaoMapView
+import preset_ui.KakaoMapWithPin
 import preset_ui.PrimaryIconTextButton
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
@@ -197,7 +197,7 @@ fun ProfileActionButtons(
 
 @Composable
 fun CompanyLocationMap(company: Company, modifier: Modifier) {
-    KakaoMapView(
+    KakaoMapWithPin(
         modifier = modifier
             .height(179.dp)
             .fillMaxWidth()
