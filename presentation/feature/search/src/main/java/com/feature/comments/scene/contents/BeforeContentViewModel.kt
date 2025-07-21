@@ -1,6 +1,5 @@
 package com.feature.comments.scene.contents
 
-import androidx.compose.ui.util.fastJoinToString
 import androidx.lifecycle.ViewModel
 import com.data.storage.datastore.UpDataStoreService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +22,10 @@ class BeforeContentViewModel @Inject constructor() : ViewModel() {
     fun handleAction(action: Action, index: Int? = null) {
         when (action) {
             Action.DidAppear -> {
-                val queries = UpDataStoreService.recentQueries.split(",")
+                val queries = UpDataStoreService.recentQueries
+                    .split(",")
+                    .filter { it.isNotBlank() }
+                if (queries.isEmpty()) return
                 _recentQueries.update { queries }
             }
             Action.DidTapQueryTagDeleteButton -> {

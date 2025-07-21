@@ -152,7 +152,7 @@ fun MainScene(
                     .background(Color.White)
             ) {
                 TextFieldButton(
-                    onClickTextFieldButton = { }
+                    onClickTextFieldButton = { navController.navigate(NavigationRouteConstant.searchNestedRoute) }
                 )
                 DashBoardButtons(
                     onSearchClick = {},
@@ -205,7 +205,7 @@ fun TextFieldButton(
     Column(modifier = Modifier.padding(20.dp)) {
         IconTextFieldOutlined(
             text = "재직자들의 리뷰 찾아보기",
-            onClick = { }
+            onClick = onClickTextFieldButton
         )
     }
 }

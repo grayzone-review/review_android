@@ -1,10 +1,10 @@
 package com.feature.comments.scene
 
+import android.util.Log
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.data.storage.datastore.UpDataStoreService
 import com.feature.comments.scene.contents.TagButtonData
-import com.feature.comments.scene.contents.TagButtonType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -72,6 +72,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             }
             SearchInterfaceAction.DidTapIMEDone -> {
                 val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
+                Log.d("여길드가나?", queries.toString())
                 queries.add(index = 0, element = searchUIState.value.searchBarValue.text)
                 UpDataStoreService.recentQueries = queries.joinToString(",")
                 _searchUISate.update {
