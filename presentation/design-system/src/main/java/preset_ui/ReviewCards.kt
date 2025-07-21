@@ -92,7 +92,7 @@ fun RatingSummary(review: Review, modifier: Modifier) {
         val halfStars = starCounts.half
         val emptyStars = starCounts.empty
 
-        Text(text = avgScore.toString(), color = CS.Gray.G90, style = Typography.h3)
+        Text(text = "%.1f".format(avgScore), color = CS.Gray.G90, style = Typography.h3)
         repeat(fullStars) {
             StarFilled(width = 20.dp, height = 20.dp)
         }

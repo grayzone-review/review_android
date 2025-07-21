@@ -3,7 +3,7 @@ package com.presentation.main.scene.main
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.data.location.UpLocationService
+import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
@@ -56,7 +56,7 @@ class MainViewModel @Inject constructor(
             }
             Action.GetPopularFeeds -> {
                 viewModelScope.launch {
-                    val (latitude, longitude) = UpLocationService.fetchCurrentLocation() ?: return@launch
+                    val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
                     val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
                     _uiState.update { it.copy(popularFeeds = popularFeeds) }
                     Log.d("오냐?", "${latitude} ${longitude} / ${popularFeeds.size}")

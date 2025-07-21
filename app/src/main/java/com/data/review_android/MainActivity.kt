@@ -35,6 +35,10 @@ class MainActivity : ComponentActivity() {
         TokenStoreService.init(context = applicationContext)
         UpLocationService.init(context = applicationContext)
 
+        /* TODO: 제거 */
+        UpDataStoreService.lastKnownLocation = "37.5665,126.9780"
+
+
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)
         val dimView = findViewById<FrameLayout>(R.id.dimView)
         val inputBarView = findViewById<ComposeView>(R.id.inputBarView)

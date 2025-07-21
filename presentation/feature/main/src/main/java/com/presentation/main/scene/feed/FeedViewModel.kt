@@ -1,5 +1,6 @@
 package com.presentation.main.scene.feed
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,9 +51,7 @@ class FeedViewModel @Inject constructor(
                 }
             }
             Action.GetFeeds -> {
-                val locationValue = UpDataStoreService.lastKnownLocation.split(",").toMutableList()
-                val latitude = locationValue[0].toDouble()
-                val longitude = locationValue[1].toDouble()
+                val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
 
                 viewModelScope.launch {
                     val result = when (section) {
@@ -61,6 +60,7 @@ class FeedViewModel @Inject constructor(
                         else                                       -> reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
                     }
                     _uiState.update { it.copy(reviewFeeds = result) }
+                    Log.d("리저트", result.size.toString())
                 }
             }
             Action.ShowSettingAlert -> {
