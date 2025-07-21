@@ -1,11 +1,11 @@
 package com.presentation.company_detail.di
 
+import com.presentation.company_detail.CompanyDetailAPI
+import com.presentation.company_detail.CompanyDetailAPIImpl
+import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import com.presentation.company_detail.ReviewAPI
-import com.presentation.company_detail.ReviewAPIImpl
-import dagger.Module
 
 
 @InstallIn(SingletonComponent::class)
@@ -13,8 +13,8 @@ import dagger.Module
 object UIModule {
 
     @Provides
-    fun provideReviewAPI(): ReviewAPI {
-        return ReviewAPIImpl()
+    fun provideCompanyDetailAPI(): CompanyDetailAPI {
+        return CompanyDetailAPIImpl()
     }
 
 }

@@ -15,7 +15,7 @@ fun AppNavGraph(
         startDestination = NavigationRouteConstant.mainNestedRoute
     ) {
         navigationProvider.mainAPI.registerGraph(navController, this)
-        navigationProvider.reviewAPI.registerGraph(navController, this)
+        navigationProvider.companyDetailAPI.registerGraph(navController, this)
         navigationProvider.searchAPI.registerGraph(navController, this)
         navigationProvider.loginAPI.registerGraph(navController, this)
         navigationProvider.archiveAPI.registerGraph(navController, this)

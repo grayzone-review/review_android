@@ -5,14 +5,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailScene
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailScene
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.FeatureAPI
 
-interface ReviewAPI: FeatureAPI { }
+interface CompanyDetailAPI: FeatureAPI { }
 
-internal object InternalReviewAPI: FeatureAPI {
+internal object InternalCompanyDetailAPI: FeatureAPI {
     override fun registerGraph(
         navController: NavHostController,
         navGraphBuilder: NavGraphBuilder
@@ -22,15 +22,15 @@ internal object InternalReviewAPI: FeatureAPI {
             route = NavigationRouteConstant.reviewDetailNestedRoute
         ) {
             composable(NavigationRouteConstant.reviewDetailSceneRoute) {
-                val viewModel = hiltViewModel<ReviewDetailViewModel>()
-                ReviewDetailScene(viewModel = viewModel)
+                val viewModel = hiltViewModel<CompanyDetailViewModel>()
+                CompanyDetailScene(viewModel = viewModel)
             }
         }
     }
 }
 
-class ReviewAPIImpl: ReviewAPI {
+class CompanyDetailAPIImpl: CompanyDetailAPI {
     override fun registerGraph(navController: NavHostController, navGraphBuilder: NavGraphBuilder) {
-        InternalReviewAPI.registerGraph(navController, navGraphBuilder)
+        InternalCompanyDetailAPI.registerGraph(navController, navGraphBuilder)
     }
 }

@@ -1,4 +1,4 @@
-package com.presentation.company_detail.Scene.review_detail_scene
+package com.presentation.company_detail.Scene.company_detail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapCommentButton
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapFollowCompanyButton
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapLikeReviewButton
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapReviewCard
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel.Action.DidTapWriteReviewButton
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapCommentButton
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapFollowCompanyButton
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapLikeReviewButton
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapReviewCard
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapWriteReviewButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
@@ -37,8 +37,8 @@ import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.StarFilled
 
 @Composable
-fun ReviewDetailScene(
-    viewModel: ReviewDetailViewModel = hiltViewModel()
+fun CompanyDetailScene(
+    viewModel: CompanyDetailViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
 
@@ -47,18 +47,18 @@ fun ReviewDetailScene(
 }
 
 @Composable
-fun Content(viewModel: ReviewDetailViewModel, detailUIState: DetailUIState) {
+fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState) {
     val listState = rememberLazyListState()
 
     Scaffold(
         topBar = { TopAppBar(onBackButtonClick = { }) }
-    ) { innerpadding ->
+    ) { innerPadding ->
 
         LazyColumn(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerpadding),
+                .padding(innerPadding),
         ) {
             item { CompanyProfile(Modifier.padding(top = 16.dp)) }
             item { StarRating(Modifier.padding(top = 16.dp)) }

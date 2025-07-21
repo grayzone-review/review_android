@@ -3,7 +3,7 @@ package com.data.review_android.di
 import com.data.review_android.navigation.NavigationProvider
 import com.feature.comments.SearchAPI
 import com.presentation.archive.ArchiveAPI
-import com.presentation.company_detail.ReviewAPI
+import com.presentation.company_detail.CompanyDetailAPI
 import com.presentation.login.LoginAPI
 import com.presentation.main.MainAPI
 import com.presentation.mypage.MyPageAPI
@@ -20,7 +20,7 @@ object AppModule {
     @Provides
     fun provideNavigationProvider(
         mainAPI: MainAPI,
-        reviewAPI: ReviewAPI,
+        reviewAPI: CompanyDetailAPI,
         searchAPI: SearchAPI,
         loginAPI: LoginAPI,
         archiveAPI: ArchiveAPI,
@@ -29,7 +29,7 @@ object AppModule {
     ): NavigationProvider {
         return NavigationProvider(
             mainAPI = mainAPI,
-            reviewAPI = reviewAPI,
+            companyDetailAPI = reviewAPI,
             searchAPI = searchAPI,
             loginAPI = loginAPI,
             archiveAPI = archiveAPI,

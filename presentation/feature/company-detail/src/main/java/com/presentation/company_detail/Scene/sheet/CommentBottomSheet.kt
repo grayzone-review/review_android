@@ -1,8 +1,6 @@
 package com.presentation.company_detail.Scene.sheet
 
 import BottomSheetHelper
-import BottomSheetStateListener
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -54,22 +51,29 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import colors.CS
-import com.example.presentation.designsystem.typography.Typography
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.*
-import preset_ui.CSSpacerHorizontal
 import androidx.hilt.navigation.compose.hiltViewModel
+import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
-import com.presentation.company_detail.Scene.review_detail_scene.DetailUIState
+import com.example.presentation.designsystem.typography.Typography
+import com.presentation.company_detail.Scene.company_detail.DetailUIState
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidAppear
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapCancelReplyButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowMoreRepliesButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
+import preset_ui.CSSpacerHorizontal
 import preset_ui.icons.CloseLine
 import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
 import preset_ui.icons.SendDisable
 import preset_ui.icons.Sendable
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CommentBottomSheet(
     detailUIState: DetailUIState,

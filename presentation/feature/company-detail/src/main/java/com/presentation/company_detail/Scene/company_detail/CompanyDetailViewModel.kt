@@ -1,4 +1,4 @@
-package com.presentation.company_detail.Scene.review_detail_scene
+package com.presentation.company_detail.Scene.company_detail
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -18,7 +18,7 @@ data class DetailUIState(
 )
 
 @HiltViewModel
-class ReviewDetailViewModel @Inject constructor() : ViewModel() {
+class CompanyDetailViewModel @Inject constructor() : ViewModel() {
     enum class Action {
         DidTapFollowCompanyButton,
         DidTapWriteReviewButton,

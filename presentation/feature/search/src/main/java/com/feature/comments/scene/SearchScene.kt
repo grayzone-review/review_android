@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import colors.CS
-import com.domain.entity.Company
 import com.domain.entity.CompactCompany
+import com.domain.entity.Company
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapFilterButtons
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapRecentQueryButton
@@ -100,13 +100,19 @@ fun SearchScene(
             onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, text = it) },
             onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) },
             onClickRecentCompany = { company -> 
-                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", company.id.toString())
+                )
             },
             onClickSearchedCompany = { company -> 
-                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", company.id.toString())
+                )
             },
             onClickSearchResultCompany = { company ->
-                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", company.id.toString())
+                )
             }
         )
 
