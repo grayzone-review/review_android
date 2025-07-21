@@ -1,5 +1,6 @@
 package com.presentation.main.scene.main
 
+import address_finder.AddressFinderViewModel.Action
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,6 +27,7 @@ sealed interface MainUIEvent {
 data class MainUIState(
     val user: User = User(),
     val isShowCreateReviewDialog: Boolean = false,
+    val isShowSettingAlertDialog: Boolean = false,
     val popularFeeds: List<ReviewFeed> = emptyList(),
     val myTownFeeds: List<ReviewFeed> = emptyList(),
     val interestRegionsFeeds: List<ReviewFeed> = emptyList()
@@ -38,7 +40,10 @@ class MainViewModel @Inject constructor(
     enum class Action {
         GetUser,
         GetPopularFeeds,
-        ShowSettingAlert
+        GetMyTownFeeds,
+        GetInterestRegionsFeeds,
+        ShowSettingAlert,
+        DismissSettingAlert
     }
 
     private var _uiState = MutableStateFlow(value = MainUIState())
@@ -62,10 +67,27 @@ class MainViewModel @Inject constructor(
                     Log.d("오냐?", "${latitude} ${longitude} / ${popularFeeds.size}")
                 }
             }
-            Action.ShowSettingAlert -> {
+            Action.GetMyTownFeeds -> {
                 viewModelScope.launch {
-                    _event.emit(MainUIEvent.ShowSettingAlert)
+                    val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
+                    val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
+                    _uiState.update { it.copy(myTownFeeds = myTownFeeds) }
+                    Log.d("오냐?", "${latitude} ${longitude} / ${myTownFeeds.size}")
                 }
+            }
+            Action.GetInterestRegionsFeeds -> {
+                viewModelScope.launch {
+                    val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
+                    val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
+                    _uiState.update { it.copy(interestRegionsFeeds = interestRegionsFeeds) }
+                    Log.d("오냐?", "${latitude} ${longitude} / ${interestRegionsFeeds.size}")
+                }
+            }
+            Action.ShowSettingAlert -> {
+                _uiState.update { it.copy(isShowSettingAlertDialog = true) }
+            }
+            Action.DismissSettingAlert -> {
+                _uiState.update { it.copy(isShowSettingAlertDialog = false) }
             }
         }
     }

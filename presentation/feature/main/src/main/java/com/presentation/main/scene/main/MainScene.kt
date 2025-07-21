@@ -1,5 +1,6 @@
 package com.presentation.main.scene.main
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,18 +52,23 @@ import com.presentation.design_system.appbar.appbars.LogoUserTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.main.NavConstant
+import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
+import com.presentation.main.scene.main.MainViewModel.Action.GetInterestRegionsFeeds
+import com.presentation.main.scene.main.MainViewModel.Action.GetMyTownFeeds
 import com.presentation.main.scene.main.MainViewModel.Action.GetPopularFeeds
 import com.presentation.main.scene.main.MainViewModel.Action.GetUser
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.UpAlertIconDialog
 import kotlinx.coroutines.launch
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
 import preset_ui.icons.FollowPersonOnIcon
 import preset_ui.icons.LocationBanner
 import preset_ui.icons.MainMapPinIcon
+import preset_ui.icons.MapPinTintable
 import preset_ui.icons.RightArrowIcon
 import preset_ui.icons.StarFilled
 
@@ -79,10 +85,17 @@ fun MainScene(
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(GetUser)
+    }
+
     LaunchedEffect(permissionState.allPermissionsGranted) {
+        Log.d("머지?", permissionState.permissions.toString())
         when {
             permissionState.allPermissionsGranted -> {
                 viewModel.handleAction(GetPopularFeeds)
+                viewModel.handleAction(GetMyTownFeeds)
+                viewModel.handleAction(GetInterestRegionsFeeds)
             }
             permissionState.shouldShowRationale -> {
                 viewModel.handleAction(ShowSettingAlert)
@@ -91,19 +104,11 @@ fun MainScene(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.event.collect { mainUIEvent ->
-            when (mainUIEvent) {
-                MainUIEvent.ShowSettingAlert -> {
-                    context.openAppSettings()
-                }
-            }
-        }
-    }
+    SettingDialog(
+        isShow = uiState.isShowSettingAlertDialog,
+        onConfirm = { context.openAppSettings() },
+        onCancel = { viewModel.handleAction(DismissSettingAlert)}
+    )
 
     Box(
         Modifier
@@ -154,19 +159,44 @@ fun MainScene(
                     onMyReviewClick = { },
                     onFollowClick = { }
                 )
-                LocationBannerButton(
-                    onClick = { }
-                )
+                if (uiState.user.interestedRegions.isNullOrEmpty()) {
+                    LocationBannerButton(
+                        onClick = { }
+                    )
+                }
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
                     .background(CS.Gray.G10))
+                // 인기피드
                 ReviewSection(
+                    title = "지금 인기 있는 리뷰",
                     reviews = uiState.popularFeeds,
                     onMoreClick = { navController.navigate(NavConstant
                         .destFeed(section = NavConstant.Section.Popular))
                     }
                 )
+                // 내동네피드
+                if (uiState.myTownFeeds.isNotEmpty()) {
+                    ReviewSection(
+                        title = "우리 동네 최근 리뷰",
+                        reviews = uiState.myTownFeeds,
+                        onMoreClick = { navController.navigate(NavConstant
+                            .destFeed(section = NavConstant.Section.MyTown))
+                        }
+                    )
+                }
+
+                // 관심동네피드
+                if (uiState.interestRegionsFeeds.isNotEmpty()) {
+                    ReviewSection(
+                        title = "관심 동네 최근 리뷰",
+                        reviews = uiState.interestRegionsFeeds,
+                        onMoreClick = { navController.navigate(NavConstant
+                            .destFeed(section = NavConstant.Section.InterestRegions))
+                        }
+                    )
+                }
             }
         }
     }
@@ -364,7 +394,8 @@ private fun LocationBannerButton(
 }
 
 @Composable
-fun ReviewSection(
+private fun ReviewSection(
+    title: String,
     reviews: List<ReviewFeed>,
     onMoreClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -378,7 +409,7 @@ fun ReviewSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "지금 인기 있는 리뷰", style = Typography.h3, color = CS.Gray.G90)
+                Text(text = title, style = Typography.h3, color = CS.Gray.G90)
                 Spacer(Modifier.width(4.dp))
                 Chat2Fill(20.dp, 20.dp, tint = CS.PrimaryOrange.O40)
             }
@@ -457,4 +488,26 @@ private fun ReviewCard(
             )
         }
     }
+}
+
+@Composable
+private fun SettingDialog(
+    isShow: Boolean,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    if (!isShow) return
+
+    UpAlertIconDialog(
+        icon = { MapPinTintable(28.dp, 28.dp, tint = CS.Gray.White) },
+        title = "위치 권한 필요",
+        message = """
+            기능을 사용하려면 위치 권한이 필요합니다.
+            설정 > 권한에서 위치를 허용해주세요.
+        """.trimIndent(),
+        confirmText = "설정으로 이동",
+        cancelText = "취소",
+        onConfirm = onConfirm,
+        onCancel = onCancel
+    )
 }
