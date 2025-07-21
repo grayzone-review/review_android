@@ -134,6 +134,15 @@ fun RecentCompanyItem(
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val companyAddress = company.siteFullAddress
+        ?.takeIf { it.isNotEmpty() }
+        ?: company.roadNameAddress?.takeIf { it.isNotEmpty() }
+        ?: ""
+
+    val companyName = company.companyName
+        ?.takeIf { it.isNotEmpty() }
+        ?: ""
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -168,18 +177,10 @@ fun RecentCompanyItem(
             ) {
                 ClockIcon(width = 20.dp, height = 20.dp, tint = CS.Gray.G50)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = company.companyName,
-                    style = Typography.body1Bold,
-                    color = CS.Gray.G90
-                )
+                Text(text = companyName, style = Typography.body1Bold, color = CS.Gray.G90)
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = if (company.siteFullAddress.isNotEmpty()) company.siteFullAddress else company.roadNameAddress,
-                style = Typography.body2Regular,
-                color = CS.Gray.G50
-            )
+            Text(text = companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
         }
         CloseLine(
             width = 20.dp,

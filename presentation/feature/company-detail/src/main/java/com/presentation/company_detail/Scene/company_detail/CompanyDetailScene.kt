@@ -14,17 +14,21 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import colors.CS
+import com.domain.entity.Company
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapCommentButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapFollowCompanyButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapLikeReviewButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapReviewCard
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapWriteReviewButton
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetCompany
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
@@ -38,22 +42,25 @@ import preset_ui.icons.StarFilled
 
 @Composable
 fun CompanyDetailScene(
-    viewModel: CompanyDetailViewModel = hiltViewModel()
+    viewModel: CompanyDetailViewModel = hiltViewModel(),
+    navController: NavHostController
 ) {
     val uiState = viewModel.uiState
 
-    Content(viewModel = viewModel, detailUIState = uiState)
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(GetCompany)
+    }
+    Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
     CommentBottomSheet(detailUIState = uiState)
 }
 
 @Composable
-fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState) {
+fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, navController: NavHostController) {
     val listState = rememberLazyListState()
 
     Scaffold(
-        topBar = { TopAppBar(onBackButtonClick = { }) }
+        topBar = { TopAppBar(onBackButtonClick = { navController.popBackStack() }) }
     ) { innerPadding ->
-
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -70,7 +77,10 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState) {
                     modifier      = Modifier.padding(top = 20.dp)
                 )
             }
-            item { CompanyLocationMap(Modifier.padding(top = 20.dp)) }
+            item { CompanyLocationMap(
+                company = detailUIState.company,
+                modifier = Modifier.padding(top = 20.dp))
+            }
             item { GraySpacer(Modifier.padding(top = 20.dp)) }
             itemsIndexed(
                 items = detailUIState.reviews,
@@ -169,17 +179,14 @@ fun ProfileActionButtons(
 }
 
 @Composable
-fun CompanyLocationMap(modifier: Modifier) {
-    val latitude  = 37.51278
-    val longitude = 126.95306
-
+fun CompanyLocationMap(company: Company, modifier: Modifier) {
     KakaoMapView(
         modifier = modifier
             .height(179.dp)
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        latitude = latitude,
-        longitude = longitude
+        latitude = company.latitude ?: 37.566535,
+        longitude = company.longitude ?: 126.9779692
     )
 }
 

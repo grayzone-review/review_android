@@ -18,12 +18,6 @@ import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.MapView
 import com.kakao.vectormap.camera.CameraUpdateFactory
-import com.kakao.vectormap.label.LabelOptions
-import com.kakao.vectormap.label.LabelStyle
-import com.kakao.vectormap.label.LabelStyles
-import com.presentation.design_system.R
-import java.lang.Exception
-import java.util.UUID
 
 @Composable
 fun KakaoMapView(
@@ -57,17 +51,17 @@ fun KakaoMapView(
                     object : KakaoMapReadyCallback() {
                         override fun onMapReady(kakaoMap: KakaoMap) {
                             try {
-                                // null 체크와 함께 처리
-                                kakaoMap.labelManager?.let { labelManager ->
-                                    val labelStyle = LabelStyle.from(R.drawable.map_pin)
-                                    val labelStyles = LabelStyles.from(labelStyle)
-                                    val style = labelManager.addLabelStyles(labelStyles)
-
-                                    val options = LabelOptions.from(LatLng.from(latitude, longitude))
-                                        .setStyles(style)
-
-                                    labelManager.layer?.addLabel(options)
-                                }
+                                // 카카오 라벨 레거시!!!
+//                                kakaoMap.labelManager?.let { labelManager ->
+//                                    val labelStyle = LabelStyle.from(R.drawable.map_pin)
+//                                    val labelStyles = LabelStyles.from(labelStyle)
+//                                    val style = labelManager.addLabelStyles(labelStyles)
+//
+//                                    val options = LabelOptions.from(LatLng.from(latitude, longitude))
+//                                        .setStyles(style)
+//
+//                                    labelManager.layer?.addLabel(options)
+//                                }
 
                                 // 카메라 이동
                                 val cameraUpdate = CameraUpdateFactory.newCenterPosition(

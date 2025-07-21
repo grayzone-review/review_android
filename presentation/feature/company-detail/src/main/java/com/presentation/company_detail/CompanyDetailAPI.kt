@@ -23,7 +23,7 @@ internal object InternalCompanyDetailAPI: FeatureAPI {
         ) {
             composable(NavigationRouteConstant.reviewDetailSceneRoute) {
                 val viewModel = hiltViewModel<CompanyDetailViewModel>()
-                CompanyDetailScene(viewModel = viewModel)
+                CompanyDetailScene(viewModel = viewModel, navController = navController)
             }
         }
     }
