@@ -41,6 +41,16 @@ interface UpAPIService {
         @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
     ): APIResponse<Unit>
 
+    @POST(UpEndpoint.Path.LIKE_REVIEW)
+    suspend fun likeReview(
+        @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int
+    ): APIResponse<Unit>
+
+    @DELETE(UpEndpoint.Path.LIKE_REVIEW)
+    suspend fun unlikeReview(
+        @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int
+    ): APIResponse<Unit>
+
     @GET(UpEndpoint.Path.SEARCH_LEGAL_DISTRICTS)
     suspend fun searchLegalDistrict(
         @Query(UpEndpoint.Query.KEYWORD) keyword: String,

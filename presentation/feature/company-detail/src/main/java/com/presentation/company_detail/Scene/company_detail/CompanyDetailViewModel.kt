@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.domain.entity.Company
 import com.domain.entity.Review
 import com.domain.usecase.CompanyDetailUseCase
+import com.domain.usecase.ReviewUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,7 +29,8 @@ data class DetailUIState(
 @HiltViewModel
 class CompanyDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val companyDetailUseCase: CompanyDetailUseCase
+    private val companyDetailUseCase: CompanyDetailUseCase,
+    private val reviewUseCase: ReviewUseCase
 ) : ViewModel() {
     enum class Action {
         GetCompany,
@@ -78,9 +80,7 @@ class CompanyDetailViewModel @Inject constructor(
                 }
             }
             Action.GetReviewsMore -> {
-                Log.d("구간1", "")
                 if(currentState.isLoading || !currentState.hasNext) return
-                Log.d("구간2", "")
                 val nextPage = currentState.currentPage
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
@@ -115,17 +115,27 @@ class CompanyDetailViewModel @Inject constructor(
                 Log.d("버튼탭", "리뷰 버튼이 탭 되었음")
             }
             Action.DidTapLikeReviewButton -> {
-                index?.let { wrappedIndex ->
-                    val updatedReviews = currentState.reviews.toMutableList()
-                    val isLiked = updatedReviews[wrappedIndex].liked ?: false
-                    updatedReviews[wrappedIndex] = updatedReviews[wrappedIndex].copy(
-                        liked = isLiked,
-                        likeCount = (if (updatedReviews[wrappedIndex].liked == true)
-                            updatedReviews[wrappedIndex].likeCount?.minus(1)
-                        else
-                            updatedReviews[wrappedIndex].likeCount?.plus(1))?.coerceAtLeast(0)
-                    )
-                    _uiState.update { it.copy(reviews = updatedReviews) }
+                index?.let { idx ->
+                    viewModelScope.launch {
+                        val targetReview = currentState.reviews[idx]
+                        val shouldLike = targetReview.liked != true
+                        val result = if (shouldLike) {
+                            reviewUseCase.likeReview(reviewID = targetReview.id ?: 0)
+                        } else {
+                            reviewUseCase.unlikeReview(reviewID = targetReview.id ?: 0)
+                        }
+                        if (result.success) {
+                            val updatedReview = targetReview.copy(
+                                liked = shouldLike,
+                                likeCount = (targetReview.likeCount ?: 0) + if (shouldLike) 1 else -1
+                            )
+                            _uiState.update { state ->
+                                state.copy(
+                                    reviews = state.reviews.toMutableList().also { it[idx] = updatedReview }
+                                )
+                            }
+                        }
+                    }
                 }
             }
             Action.DidTapReviewCard -> {

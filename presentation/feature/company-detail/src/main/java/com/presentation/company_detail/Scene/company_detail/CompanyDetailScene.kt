@@ -1,6 +1,5 @@
 package com.presentation.company_detail.Scene.company_detail
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,7 +74,6 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
             .distinctUntilChanged()
             .collect { shouldLoadMore ->
                 if (shouldLoadMore && !detailUIState.isLoading) {
-                    Log.d("구간3", "")
                     viewModel.handleAction(GetReviewsMore)
                 }
             }

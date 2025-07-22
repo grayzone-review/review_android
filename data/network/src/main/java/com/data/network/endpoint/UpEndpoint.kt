@@ -22,6 +22,7 @@ object UpEndpoint {
         const val MY_TOWN_REVIEWS = "/api/reviews/main-region"
         const val INTEREST_REGIONS_REVIEWS = "/api/reviews/interested-region"
         const val FOLLOW_COMPANY = "/api/companies/{companyId}/follows"
+        const val LIKE_REVIEW = "/api/reviews/{reviewId}/likes"
     }
 
     object Query {
@@ -31,5 +32,6 @@ object UpEndpoint {
         const val SIZE          = "size"
         const val PAGE          = "page"
         const val COMPANY_ID    = "companyId"
+        const val REVIEW_ID     = "reviewId"
     }
 }

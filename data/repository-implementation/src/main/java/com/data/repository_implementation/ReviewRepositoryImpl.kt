@@ -2,6 +2,7 @@ package com.data.repository_implementation
 
 import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAPIService
+import com.domain.entity.LikeReviewResult
 import com.domain.entity.ReviewFeed
 import com.domain.repository_interface.ReviewRepository
 import javax.inject.Inject
@@ -9,6 +10,20 @@ import javax.inject.Inject
 class ReviewRepositoryImpl @Inject constructor(
     private val upAPIService: UpAPIService
 ): ReviewRepository {
+    override suspend fun likeReview(
+        reviewID: Int
+    ): LikeReviewResult {
+        val result = upAPIService.likeReview(reviewId = reviewID)
+        return LikeReviewResult(message = result.message, success = result.success)
+    }
+
+    override suspend fun unlikeReview(
+        reviewID: Int
+    ): LikeReviewResult {
+        val result = upAPIService.unlikeReview(reviewId = reviewID)
+        return LikeReviewResult(message = result.message, success = result.success)
+    }
+
     override suspend fun popularReviewFeeds(
         latitude: Double,
         longitude: Double
