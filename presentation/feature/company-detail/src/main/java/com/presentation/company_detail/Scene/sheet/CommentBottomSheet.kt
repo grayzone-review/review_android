@@ -155,7 +155,7 @@ fun CommentBottomSheet(
 }
 
 @Composable
-fun CommentList(
+private fun CommentList(
     listState: LazyListState,
     comments: List<Comment>,
     repliesMap: Map<Int, List<Reply>>,
@@ -196,7 +196,7 @@ fun CommentList(
 }
 
 @Composable
-fun CommentCard(
+private fun CommentCard(
     comment: Comment,
     replies: List<Reply>,
     onAddReplyClick: () -> Unit,
@@ -221,7 +221,7 @@ fun CommentCard(
 }
 
 @Composable
-fun CommentContent(comment: Comment) {
+private fun CommentContent(comment: Comment) {
     Column(
         modifier = Modifier.padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -232,7 +232,7 @@ fun CommentContent(comment: Comment) {
 }
 
 @Composable
-fun AddReplyButton(onAddReplyClick: () -> Unit) {
+private fun AddReplyButton(onAddReplyClick: () -> Unit) {
     Column(
         modifier = Modifier.padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -253,7 +253,7 @@ fun AddReplyButton(onAddReplyClick: () -> Unit) {
 }
 
 @Composable
-fun ShowRepliesButton(comment: Comment, onShowRepliesClick: () -> Unit) {
+private fun ShowRepliesButton(comment: Comment, onShowRepliesClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 12.dp)
@@ -285,7 +285,7 @@ fun ShowRepliesButton(comment: Comment, onShowRepliesClick: () -> Unit) {
 }
 
 @Composable
-fun ReplyList(replies: List<Reply>, targetComment: Comment) {
+private fun ReplyList(replies: List<Reply>, targetComment: Comment) {
     val sortedDescReplies = replies.sortedByDescending { it.createdAt }
     Column(
         modifier = Modifier
@@ -301,7 +301,7 @@ fun ReplyList(replies: List<Reply>, targetComment: Comment) {
 }
 
 @Composable
-fun ReplyCard(reply: Reply, targetComment: Comment) {
+private fun ReplyCard(reply: Reply, targetComment: Comment) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
@@ -332,7 +332,7 @@ fun ReplyCard(reply: Reply, targetComment: Comment) {
 }
 
 @Composable
-fun SecretCard() {
+private fun SecretCard() {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
@@ -353,7 +353,7 @@ fun SecretCard() {
 
 
 @Composable
-fun SheetTitle(modifier: Modifier) {
+private fun SheetTitle(modifier: Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -370,7 +370,7 @@ fun SheetTitle(modifier: Modifier) {
 }
 
 @Composable
-fun InputBar(
+private fun InputBar(
     inputState: CommentInputState,
     onTextChange: (String) -> Unit,
     onLockClick: () -> Unit,
@@ -408,7 +408,7 @@ fun InputBar(
 }
 
 @Composable
-fun CommentInputBar(
+private fun CommentInputBar(
     inputState: CommentInputState,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -465,7 +465,7 @@ fun CommentInputBar(
 }
 
 @Composable
-fun commentDecorationBox(
+private fun commentDecorationBox(
     inputState: CommentInputState,
     isFocused: Boolean,
     onLockClick: () -> Unit,

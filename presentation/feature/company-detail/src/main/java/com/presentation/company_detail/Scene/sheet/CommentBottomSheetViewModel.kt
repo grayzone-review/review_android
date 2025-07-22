@@ -39,7 +39,6 @@ class CommentBottomSheetViewModel @Inject constructor(
         GetComments,
         GetCommentsMore,
         DidUpdateCommentText,
-        DidCloseBottomSheet,
         DidTapSecretButton,
         DidTapSendButton,
         DidTapWriteReplyButton,
@@ -104,9 +103,6 @@ class CommentBottomSheetViewModel @Inject constructor(
                     it.copy(text = newText, isSendable = isValid(newText))
                 }
             }
-            Action.DidCloseBottomSheet -> {
-                // TODO: 초기화
-            }
             Action.DidTapSecretButton -> {
                 _uiState.update { it.copy(isSecret = !it.isSecret) }
             }
@@ -166,9 +162,10 @@ class CommentBottomSheetViewModel @Inject constructor(
                 viewModelScope.launch {
                     val result = reviewUseCase.commentReplies(commentID = commentID, page = 0)
                     _uiState.update {
-                        val newReplies = result.replies
+                        val sortedReplies = result.replies
+                            .sortedByDescending { it.createdAt }
                         it.copy(
-                            repliesMap = currentState.repliesMap + (commentID to newReplies)
+                            repliesMap = currentState.repliesMap + (commentID to sortedReplies)
                         )
                     }
                 }
@@ -201,6 +198,5 @@ class CommentBottomSheetViewModel @Inject constructor(
 
     fun reset() {
         _uiState.value = CommentInputState()
-//        _isLoading.value = false
     }
 }
