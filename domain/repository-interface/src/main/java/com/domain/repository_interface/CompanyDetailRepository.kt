@@ -9,7 +9,8 @@ interface CompanyDetailRepository {
         companyID: Int
     ): Company
     suspend fun companyReviews(
-        companyID: Int
+        companyID: Int,
+        page: Int
     ): Reviews
     suspend fun followCompany(
         companyID: Int

@@ -1,5 +1,6 @@
 package com.presentation.company_detail.Scene.company_detail
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -32,9 +34,11 @@ import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewMod
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapWriteReviewButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetCompany
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviews
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviewsMore
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import kotlinx.coroutines.flow.distinctUntilChanged
 import preset_ui.CSSpacerHorizontal
 import preset_ui.IconTextToggleButton
 import preset_ui.KakaoMapWithPin
@@ -61,6 +65,21 @@ fun CompanyDetailScene(
 @Composable
 fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, navController: NavHostController) {
     val listState = rememberLazyListState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val total = listState.layoutInfo.totalItemsCount
+            lastVisible >= total - 3 && total > 0
+        }
+            .distinctUntilChanged()
+            .collect { shouldLoadMore ->
+                if (shouldLoadMore && !detailUIState.isLoading) {
+                    Log.d("구간3", "")
+                    viewModel.handleAction(GetReviewsMore)
+                }
+            }
+    }
 
     Scaffold(
         topBar = { TopAppBar(onBackButtonClick = { navController.popBackStack() }) }

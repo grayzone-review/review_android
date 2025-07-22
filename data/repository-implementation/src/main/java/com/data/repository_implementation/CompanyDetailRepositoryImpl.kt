@@ -18,8 +18,8 @@ class CompanyDetailRepositoryImpl @Inject constructor(
         return responseDTO.data?.toDomain()!!
     }
 
-    override suspend fun companyReviews(companyID: Int): Reviews {
-        val responseDTO = upApiService.getCompanyReviews(companyID = companyID)
+    override suspend fun companyReviews(companyID: Int, page: Int): Reviews {
+        val responseDTO = upApiService.getCompanyReviews(companyID = companyID, page = page)
         return responseDTO.data?.toDomain()!!
     }
 

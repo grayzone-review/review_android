@@ -27,7 +27,8 @@ interface UpAPIService {
 
     @GET(UpEndpoint.Path.COMPANY_REVIEW)
     suspend fun getCompanyReviews(
-        @Path(UpEndpoint.Query.COMPANY_ID) companyID: Int
+        @Path(UpEndpoint.Query.COMPANY_ID) companyID: Int,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<CompanyReviewsResponseDTO>
 
     @POST(UpEndpoint.Path.FOLLOW_COMPANY)

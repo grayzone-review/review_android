@@ -19,7 +19,10 @@ data class DetailUIState(
     val company: Company = Company(),
     val reviews: List<Review> = emptyList(),
     val isFullModeList: List<Boolean> = emptyList(),
-    val showBottomSheet: Boolean = false
+    val showBottomSheet: Boolean = false,
+    val currentPage: Int = 0,
+    val hasNext: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -30,6 +33,7 @@ class CompanyDetailViewModel @Inject constructor(
     enum class Action {
         GetCompany,
         GetReviews,
+        GetReviewsMore,
         DidTapFollowCompanyButton,
         DidTapWriteReviewButton,
         DidTapLikeReviewButton,
@@ -58,13 +62,37 @@ class CompanyDetailViewModel @Inject constructor(
                 }
             }
             Action.GetReviews -> {
+                if (currentState.isLoading) return
                 viewModelScope.launch {
-                    val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0)
-                    result.currentPage
-                    result.hasNext
-                    _uiState.update { it.copy(
-                        reviews = result.reviews ?: emptyList(),
-                        isFullModeList = List(result.reviews?.size ?: 0) { false })
+                    _uiState.update { it.copy(isLoading = true) }
+                    val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = 0)
+                    _uiState.update {
+                        it.copy(
+                            reviews = result.reviews ?: emptyList(),
+                            isFullModeList = it.isFullModeList + List(result.reviews?.size ?: 0) { false },
+                            isLoading = false,
+                            currentPage = currentState.currentPage + 1,
+                            hasNext = result.hasNext ?: false
+                        )
+                    }
+                }
+            }
+            Action.GetReviewsMore -> {
+                Log.d("구간1", "")
+                if(currentState.isLoading || !currentState.hasNext) return
+                Log.d("구간2", "")
+                val nextPage = currentState.currentPage
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true) }
+                    val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = nextPage)
+                    _uiState.update {
+                        it.copy(
+                            reviews = result.reviews ?: emptyList(),
+                            isFullModeList = it.isFullModeList + List(result.reviews?.size ?: 0) { false },
+                            isLoading = false,
+                            currentPage = currentState.currentPage + 1,
+                            hasNext = result.hasNext ?: false
+                        )
                     }
                 }
             }

@@ -11,7 +11,8 @@ interface CompanyDetailUseCase {
         companyID: Int
     ): Company
     suspend fun companyReviews(
-        companyID: Int
+        companyID: Int,
+        page: Int
     ): Reviews
     suspend fun followCompany(
         companyID: Int
@@ -28,8 +29,8 @@ class CompanyDetailUseCaseImpl @Inject constructor(
         return companyDetailRepository.getCompanyInfo(companyID = companyID)
     }
 
-    override suspend fun companyReviews(companyID: Int): Reviews {
-        return companyDetailRepository.companyReviews(companyID = companyID)
+    override suspend fun companyReviews(companyID: Int, page: Int): Reviews {
+        return companyDetailRepository.companyReviews(companyID = companyID, page = page)
     }
 
     override suspend fun followCompany(companyID: Int): FollowCompanyResult {
