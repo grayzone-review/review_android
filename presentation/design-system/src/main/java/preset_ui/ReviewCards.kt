@@ -73,7 +73,7 @@ fun WriterProfile(review: Review, modifier: Modifier) {
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
         Text(text = review.employmentPeriod ?: "", color = CS.Gray.G50, style = Typography.captionRegular)
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
-        Text(text = createdAt ?: "", color = CS.Gray.G50, style = Typography.captionRegular)
+        Text(text = createdAt, color = CS.Gray.G50, style = Typography.captionRegular)
     }
 }
 
@@ -183,8 +183,7 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
     val starCounts = Utility.calculateStarCounts(score)
 
     Row(
-        modifier = modifier
-            .width(118.dp),
+        modifier = modifier.width(118.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -210,9 +209,9 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
 @Composable
 fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = Modifier, onLikeReviewButtonClick: () -> Unit, onCommentButtonClick: () -> Unit ) {
     val textContentItems: List<Pair<String, String>> = listOf(
-        "장점"     to (review.advantagePoint ?: ""),
-        "단점"     to (review.disadvantagePoint ?: ""),
-        "바라는점"  to (review.managementFeedback ?: "")
+        "장점" to (review.advantagePoint ?: ""),
+        "단점" to (review.disadvantagePoint ?: ""),
+        "바라는점" to (review.managementFeedback ?: "")
     )
     Column(
         modifier = modifier
@@ -252,8 +251,7 @@ fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = 
 @Composable
 fun ReviewTextContentTitle(title: String) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = title, color = CS.Gray.G90, style = Typography.h3)
     }
@@ -275,10 +273,10 @@ fun ReviewSectionRow(item: Pair<String, String>) {
 @Composable
 fun TagChip(tag: String) {
     val (backgroundColor, textColor) = when (tag) {
-        "장점"     -> CS.SemanticBlue.B10 to CS.SemanticBlue.B50
-        "단점"     -> CS.SemanticRed.R10  to CS.SemanticRed.R50
-        "바라는점" -> CS.Gray.G10          to CS.Gray.G50
-        else       -> CS.Gray.G10        to CS.Gray.G80
+        "장점" -> CS.SemanticBlue.B10 to CS.SemanticBlue.B50
+        "단점" -> CS.SemanticRed.R10 to CS.SemanticRed.R50
+        "바라는점" -> CS.Gray.G10 to CS.Gray.G50
+        else -> CS.Gray.G10 to CS.Gray.G80
     }
 
     Surface(

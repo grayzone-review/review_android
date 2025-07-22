@@ -1,12 +1,19 @@
 package com.data.network.api_service
 
+import RequestModel.WriteCommentRequestModel
+import RequestModel.WriteReplyRequestModel
+import com.data.dto.ResponseModel.search.CommentDto
+import com.data.dto.ResponseModel.search.CommentsDTO
 import com.data.dto.ResponseModel.search.CompanyInfoResponseDTO
 import com.data.dto.ResponseModel.search.CompanyReviewsResponseDTO
 import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
+import com.data.dto.ResponseModel.search.RepliesResponseDTO
+import com.data.dto.ResponseModel.search.ReplyDto
 import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.response.APIResponse
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -50,6 +57,30 @@ interface UpAPIService {
     suspend fun unlikeReview(
         @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int
     ): APIResponse<Unit>
+
+    @GET(UpEndpoint.Path.REVIEW_COMMENT)
+    suspend fun reviewComments(
+        @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int,
+        @Query(UpEndpoint.Query.PAGE) page: Int
+    ): APIResponse<CommentsDTO>
+
+    @POST(UpEndpoint.Path.REVIEW_COMMENT)
+    suspend fun writeComment(
+        @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int,
+        @Body requestModel: WriteCommentRequestModel
+    ): APIResponse<CommentDto>
+
+    @GET(UpEndpoint.Path.COMMENT_REPLIES)
+    suspend fun commentReplies(
+        @Path(UpEndpoint.Query.COMMENT_ID) commentId: Int,
+        @Query(UpEndpoint.Query.PAGE) page: Int
+    ): APIResponse<RepliesResponseDTO>
+
+    @POST(UpEndpoint.Path.COMMENT_REPLIES)
+    suspend fun writeReply(
+        @Path(UpEndpoint.Query.COMMENT_ID) commentId: Int,
+        @Body requestModel: WriteReplyRequestModel
+    ): APIResponse<ReplyDto>
 
     @GET(UpEndpoint.Path.SEARCH_LEGAL_DISTRICTS)
     suspend fun searchLegalDistrict(

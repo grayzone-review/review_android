@@ -1,8 +1,14 @@
 package com.data.repository_implementation
 
+import RequestModel.WriteCommentRequestModel
+import RequestModel.WriteReplyRequestModel
 import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAPIService
+import com.domain.entity.Comment
+import com.domain.entity.Comments
 import com.domain.entity.LikeReviewResult
+import com.domain.entity.Replies
+import com.domain.entity.Reply
 import com.domain.entity.ReviewFeed
 import com.domain.repository_interface.ReviewRepository
 import javax.inject.Inject
@@ -24,6 +30,42 @@ class ReviewRepositoryImpl @Inject constructor(
         return LikeReviewResult(message = result.message, success = result.success)
     }
 
+    override suspend fun reviewComments(
+        reviewID: Int,
+        page: Int
+    ): Comments {
+        val result = upAPIService.reviewComments(reviewId = reviewID, page = page)
+        return result.data?.toDomain()!!
+    }
+
+    override suspend fun writeComment(
+        reviewID: Int,
+        content: String,
+        isSecret: Boolean
+    ): Comment {
+        val requestDTO = WriteCommentRequestModel(comment = content, secret = isSecret)
+        val result = upAPIService.writeComment(reviewId = reviewID, requestModel = requestDTO)
+        return result.data?.toDomain()!!
+    }
+
+    override suspend fun commentReplies(
+        commentID: Int,
+        page: Int
+    ): Replies {
+        val result = upAPIService.commentReplies(commentId = commentID, page = page)
+        return result.data?.toDomain()!!
+    }
+    
+    override suspend fun writeReply(
+        commentID: Int,
+        content: String,
+        isSecret: Boolean
+    ): Reply {
+        val requestDTO = WriteReplyRequestModel(comment = content, secret = isSecret)
+        val result = upAPIService.writeReply(commentId = commentID, requestModel = requestDTO)
+        return result.data?.toDomain()!!
+    }
+    
     override suspend fun popularReviewFeeds(
         latitude: Double,
         longitude: Double

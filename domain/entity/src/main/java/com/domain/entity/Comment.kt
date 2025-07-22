@@ -7,7 +7,7 @@ data class Comments(
 )
 
 data class Comment(
-    val id: Long,
+    val id: Int,
     val comment: String,
     val authorName: String,
     val createdAt: String,

@@ -58,7 +58,7 @@ fun CompanyDetailScene(
         viewModel.handleAction(GetReviews)
     }
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
-    CommentBottomSheet(detailUIState = uiState)
+    CommentBottomSheet(reviewID = uiState.companyID ?: 0, isShow = uiState.showBottomSheet)
 }
 
 @Composable

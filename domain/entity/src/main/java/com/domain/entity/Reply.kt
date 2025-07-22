@@ -7,7 +7,7 @@ data class Replies(
 )
 
 data class Reply(
-    val id: Long,
+    val id: Int,
     val comment: String,
     val authorName: String,
     val createdAt: String,
