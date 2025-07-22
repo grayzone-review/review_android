@@ -13,19 +13,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class CommentInputState(
-    val reviewID: Int = 0,
-    val comments: List<Comment> = emptyList(),
-    val repliesMap: Map<Int, List<Reply>> = emptyMap(),
-    val text: String = "",
-    val isSecret: Boolean = false,
-    val isSendable: Boolean = false,
-    val replyToComment: Comment? = null,
-    val isReplying: Boolean = false,
-    val shouldClearFocus: Boolean = false,
+    val reviewID: Int = 0,                                  // 회사 리뷰 ID
+    val comments: List<Comment> = emptyList(),              // 전체 댓글 목록
+    val repliesMap: Map<Int, List<Reply>> = emptyMap(),     // (댓글 ID) to 답글 목록
 
-    val currentPage: Int = 0,
-    val hasNext: Boolean = false,
-    val isLoading: Boolean = false
+    /* 지금 작성 중인 텍스트 필드 값 + 각종 설정 */
+    val text: String = "",                      // 텍필 텍스트
+    val isSecret: Boolean = false,              // 비밀글 여부를 체크
+    val isSendable: Boolean = false,            // 제출 가능 여부를 체크
+    val replyToComment: Comment? = null,        // 답글을 작성 중 이라면, 답글을 남기고 있는 댓글
+    val isReplying: Boolean = false,            // 답글을 작성 중인지 여부
+    val shouldClearFocus: Boolean = false,      // 텍스트 필드가 포커스 소유 하는지 여부
+
+    val currentPage: Int = 0,                   // 댓글의 현재 페이지
+    val hasNext: Boolean = false,               // 댓글의 다음 페이지 존재 여부
+    val isLoading: Boolean = false              // 댓글을 가져 오는 중인지 여부
 )
 
 @HiltViewModel
@@ -41,7 +43,7 @@ class CommentBottomSheetViewModel @Inject constructor(
         DidTapSecretButton,
         DidTapSendButton,
         DidTapWriteReplyButton,
-        DidTapShowMoreRepliesButton,
+        DidTapShowRepliesButton,
         DidBeginTextEditing,
         DidTapCancelReplyButton,
         DidTapOutSideOfTextField,
@@ -51,7 +53,7 @@ class CommentBottomSheetViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CommentInputState())
     val uiState = _uiState.asStateFlow()
 
-    fun handleAction(action: Action, value: Any? = null, text: String? = null, commentID: Int? = null) {
+    fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
             Action.SetReviewID -> {
@@ -64,8 +66,10 @@ class CommentBottomSheetViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = true) }
                     val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = 0)
                     _uiState.update {
+                        val sortedComments = result.comments
+                            .sortedByDescending { comment -> comment.createdAt }
                         it.copy(
-                            comments = result.comments,
+                            comments = sortedComments,
                             isLoading = false,
                             currentPage = currentState.currentPage + 1,
                             hasNext = result.hasNext
@@ -80,8 +84,10 @@ class CommentBottomSheetViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = true) }
                     val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = nextPage)
                     _uiState.update {
+                        val sortedComments = result.comments
+                            .sortedByDescending { comment -> comment.createdAt }
                         it.copy(
-                            comments = result.comments,
+                            comments = sortedComments,
                             isLoading = false,
                             currentPage = currentState.currentPage + 1,
                             hasNext = result.hasNext
@@ -93,11 +99,9 @@ class CommentBottomSheetViewModel @Inject constructor(
                 _uiState.update { it.copy(isSendable = isValid(it.text)) }
             }
             Action.DidUpdateCommentText -> {
-                text?.let { newText ->
-                    _uiState.update { it.copy(
-                        text = newText,
-                        isSendable = isValid(newText)
-                    )}
+                val newText = value as? String ?: return
+                _uiState.update {
+                    it.copy(text = newText, isSendable = isValid(newText))
                 }
             }
             Action.DidCloseBottomSheet -> {
@@ -107,32 +111,68 @@ class CommentBottomSheetViewModel @Inject constructor(
                 _uiState.update { it.copy(isSecret = !it.isSecret) }
             }
             Action.DidTapSendButton -> {
-                if (_uiState.value.isSendable) {
-                    // TODO: 전송 요청 로직
+                if (!currentState.isSendable) return
+                viewModelScope.launch {
+                    /* 1. 댓글, 답글 여부에 따른 액션 */
+                    if (currentState.isReplying) {
+                        val comment = currentState.replyToComment ?: return@launch
+                        val commentId = comment.id
+                        val result = reviewUseCase.writeReply(
+                            commentID = currentState.replyToComment?.id ?: 0,
+                            content = currentState.text,
+                            isSecret = currentState.isSecret
+                        )
+                        val updatedList = (currentState.repliesMap[commentId].orEmpty() + result)
+                            .sortedByDescending { it.createdAt }
+                        val updatedRepliesMap = currentState.repliesMap + (commentId to updatedList)
+                        _uiState.update { it.copy(repliesMap = updatedRepliesMap) }
+                    } else {
+                        val result = reviewUseCase.writeComment(
+                            reviewID = currentState.reviewID,
+                            content = currentState.text,
+                            isSecret = currentState.isSecret
+                        )
+                        val updatedComments = listOf(result) + currentState.comments
+                        updatedComments.sortedByDescending { comment -> comment.createdAt }
+                        _uiState.update { it.copy(comments = updatedComments) }
+                    }
+                    /* 2. 입력 상태 초기화 */
+                    _uiState.update {
+                        it.copy(
+                            text = "",
+                            isSecret = false,
+                            isSendable = isValid(text = it.text),
+                            replyToComment = null,
+                            isReplying = false,
+                            shouldClearFocus = false
+                        )
+                    }
                 }
             }
             Action.DidTapWriteReplyButton -> {
-//                commentID?.let { targetID ->
-//                    val targetComment = _comments.value.first { it.id == targetID }
-//                    _uiState.update {
-//                        it.copy(
-//                            isReplying = true,
-//                            replyToComment = targetComment,
-//                            isSendable = isValid(text = it.text),
-//                            isSecret = targetComment.secret
-//                        )
-//                    }
-//                }
+                val commentID = value as? Int ?: return
+                val targetComment = currentState.comments.first { it.id == commentID }
+                _uiState.update {
+                    it.copy(
+                        isReplying = true,
+                        replyToComment = targetComment,
+                        isSendable = isValid(text = it.text),
+                        isSecret = targetComment.secret
+                    )
+                }
             }
-            Action.DidTapShowMoreRepliesButton -> {
-//                commentID?.let {
-//                    val commentId: Int = it
-//                    val currentMap = _repliesMap.value.toMutableMap()
-//                    currentMap[commentId] = generateMockReplies(commentID = commentId)
-//                    _repliesMap.value = currentMap.toMap()
-//                }
+            Action.DidTapShowRepliesButton -> {
+                val commentID = value as? Int ?: return
+                viewModelScope.launch {
+                    val result = reviewUseCase.commentReplies(commentID = commentID, page = 0)
+                    _uiState.update {
+                        val newReplies = result.replies
+                        it.copy(
+                            repliesMap = currentState.repliesMap + (commentID to newReplies)
+                        )
+                    }
+                }
             }
-
             Action.DidTapCancelReplyButton -> {
                 _uiState.update {
                     it.copy(
@@ -143,18 +183,10 @@ class CommentBottomSheetViewModel @Inject constructor(
                 }
             }
             Action.DidTapOutSideOfTextField -> {
-                _uiState.update {
-                    it.copy(
-                        shouldClearFocus = true
-                    )
-                }
+                _uiState.update { it.copy(shouldClearFocus = true) }
             }
             Action.DidClearFocusState -> {
-                _uiState.update {
-                    it.copy(
-                        shouldClearFocus = false
-                    )
-                }
+                _uiState.update { it.copy(shouldClearFocus = false) }
             }
         }
     }

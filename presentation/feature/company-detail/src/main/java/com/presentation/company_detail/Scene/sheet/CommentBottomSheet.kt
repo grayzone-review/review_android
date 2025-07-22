@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -64,7 +66,7 @@ import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.A
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowMoreRepliesButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetComments
@@ -73,6 +75,7 @@ import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.A
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import preset_ui.CSSpacerHorizontal
 import preset_ui.icons.CloseLine
 import preset_ui.icons.RockClose
@@ -89,6 +92,8 @@ fun CommentBottomSheet(
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(isShow) {
         if (isShow) {
@@ -102,19 +107,27 @@ fun CommentBottomSheet(
                         .imePadding()
                 ) {
                     // 콘텐츠 영역
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
                         SheetTitle(modifier = Modifier.padding(top = 24.dp))
                         CommentList(
+                            listState = listState,
                             comments = uiState.comments,
                             repliesMap = uiState.repliesMap,
                             onAddReplyClick = {
                                 focusRequester.requestFocus()
-                                viewModel.handleAction(DidTapWriteReplyButton, commentID = it)
+                                viewModel.handleAction(DidTapWriteReplyButton, it)
+                                coroutineScope.launch {
+                                    val scrollTarget = uiState.comments.indexOfFirst { comment -> comment.id == it }
+                                    listState.animateScrollToItem(index = scrollTarget)
+                                }
                             },
-                            onShowMoreRepliesClick = { viewModel.handleAction(DidTapShowMoreRepliesButton, commentID = it) },
+                            onShowRepliesClick = {
+                                viewModel.handleAction(DidTapShowRepliesButton, it)
+                                coroutineScope.launch {
+                                    val scrollTarget = uiState.comments.indexOfFirst { comment -> comment.id == it }
+                                    listState.animateScrollToItem(index = scrollTarget)
+                                }
+                            },
                             onLoadMoreComment = { viewModel.handleAction(GetCommentsMore) }
                         )
                     }
@@ -123,7 +136,7 @@ fun CommentBottomSheet(
             BottomSheetHelper.setInputBar {
                 InputBar(
                     inputState = uiState,
-                    onTextChange = { viewModel.handleAction(DidUpdateCommentText, text = it) },
+                    onTextChange = { viewModel.handleAction(DidUpdateCommentText, it) },
                     onLockClick = { viewModel.handleAction(DidTapSecretButton) },
                     onSendClick = { viewModel.handleAction(DidTapSendButton) },
                     didBeginTextEditing = { viewModel.handleAction(DidBeginTextEditing) },
@@ -143,14 +156,14 @@ fun CommentBottomSheet(
 
 @Composable
 fun CommentList(
+    listState: LazyListState,
     comments: List<Comment>,
     repliesMap: Map<Int, List<Reply>>,
     onAddReplyClick: (Int) -> Unit,
-    onShowMoreRepliesClick: (Int) -> Unit,
+    onShowRepliesClick: (Int) -> Unit,
     onLoadMoreComment: () -> Unit
 ) {
     val nestedScrollConnection = rememberNestedScrollInteropConnection()
-    val listState = rememberLazyListState()
 
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -176,7 +189,7 @@ fun CommentList(
                 comment = comment,
                 replies = replies,
                 onAddReplyClick = { onAddReplyClick(comment.id) },
-                onShowMoreRepliesClick = { onShowMoreRepliesClick(comment.id) }
+                onShowRepliesClick = { onShowRepliesClick(comment.id) }
             )
         }
     }
@@ -187,7 +200,7 @@ fun CommentCard(
     comment: Comment,
     replies: List<Reply>,
     onAddReplyClick: () -> Unit,
-    onShowMoreRepliesClick: () -> Unit
+    onShowRepliesClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -200,7 +213,7 @@ fun CommentCard(
         AddReplyButton(onAddReplyClick = onAddReplyClick)
         if (comment.replyCount > 0 && replies.isEmpty()) {
             Spacer(modifier = Modifier.height(12.dp))
-            ShowMoreButton(comment = comment, onShowMoreRepliesClick = onShowMoreRepliesClick)
+            ShowRepliesButton(comment = comment, onShowRepliesClick = onShowRepliesClick)
         } else {
             ReplyList(replies = replies, targetComment = comment)
         }
@@ -240,7 +253,7 @@ fun AddReplyButton(onAddReplyClick: () -> Unit) {
 }
 
 @Composable
-fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
+fun ShowRepliesButton(comment: Comment, onShowRepliesClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 12.dp)
@@ -254,7 +267,7 @@ fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
-            onClick = onShowMoreRepliesClick,
+            onClick = onShowRepliesClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = CS.Gray.G50
@@ -279,7 +292,7 @@ fun ReplyList(replies: List<Reply>, targetComment: Comment) {
             .fillMaxWidth()
     ) {
         sortedDescReplies.forEach { reply ->
-            if (reply.secret)
+            if (!reply.secret)
                 ReplyCard(reply = reply, targetComment = targetComment)
             else
                 SecretCard()

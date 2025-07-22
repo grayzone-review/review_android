@@ -1,5 +1,6 @@
 package com.presentation.company_detail.Scene.company_detail
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.navigation.NavHostController
 import colors.CS
 import com.domain.entity.Company
 import com.example.presentation.designsystem.typography.Typography
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidCloseBottomSheet
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapCommentButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapFollowCompanyButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapLikeReviewButton
@@ -57,6 +59,14 @@ fun CompanyDetailScene(
         viewModel.handleAction(GetCompany)
         viewModel.handleAction(GetReviews)
     }
+    BackHandler {
+        if (uiState.showBottomSheet) {
+            viewModel.handleAction(DidCloseBottomSheet)
+        } else {
+            navController.popBackStack()
+        }
+    }
+
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
     CommentBottomSheet(reviewID = uiState.companyID ?: 0, isShow = uiState.showBottomSheet)
 }
