@@ -1,6 +1,7 @@
 package com.data.network.api_service
 
 import com.data.dto.ResponseModel.search.CompanyInfoResponseDTO
+import com.data.dto.ResponseModel.search.CompanyReviewsResponseDTO
 import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
 import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
@@ -21,8 +22,23 @@ interface UpAPIService {
 
     @GET(UpEndpoint.Path.COMPANY_INFO)
     suspend fun getCompanyInfo(
-        @Path("companyID") companyID: Int
+        @Path(UpEndpoint.Query.COMPANY_ID) companyID: Int
     ): APIResponse<CompanyInfoResponseDTO>
+
+    @GET(UpEndpoint.Path.COMPANY_REVIEW)
+    suspend fun getCompanyReviews(
+        @Path(UpEndpoint.Query.COMPANY_ID) companyID: Int
+    ): APIResponse<CompanyReviewsResponseDTO>
+
+    @POST(UpEndpoint.Path.FOLLOW_COMPANY)
+    suspend fun followCompany(
+        @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
+    ): APIResponse<Unit>
+
+    @DELETE(UpEndpoint.Path.FOLLOW_COMPANY)
+    suspend fun unfollowCompany(
+        @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
+    ): APIResponse<Unit>
 
     @GET(UpEndpoint.Path.SEARCH_LEGAL_DISTRICTS)
     suspend fun searchLegalDistrict(
@@ -47,14 +63,4 @@ interface UpAPIService {
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
         @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
     ): APIResponse<ReviewFeedResponseDTO>
-
-    @POST(UpEndpoint.Path.FOLLOW_COMPANY)
-    suspend fun followCompany(
-        @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
-    ): APIResponse<Unit>
-
-    @DELETE(UpEndpoint.Path.FOLLOW_COMPANY)
-    suspend fun unfollowCompany(
-        @Path(UpEndpoint.Query.COMPANY_ID) companyId: Int
-    ): APIResponse<Unit>
 }

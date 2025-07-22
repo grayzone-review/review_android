@@ -205,7 +205,7 @@ private fun ReviewList(
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(reviews, key = { it.id }) { item ->
+        items(reviews, key = { it.id ?: 0 }) { item ->
             ReviewCard(review = item)
         }
     }
@@ -222,7 +222,7 @@ private fun ReviewCard(
                 .padding(vertical = 16.dp, horizontal = 20.dp)
         ) {
             Text(
-                text = review.title,
+                text = review.title ?: "",
                 style = Typography.body1Bold,
                 color = CS.Gray.G80,
                 maxLines = 2,
@@ -236,17 +236,17 @@ private fun ReviewCard(
             ) {
                 Text(text = "김밥천국", style = Typography.captionRegular, color = CS.Gray.G50)
                 Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
-                Text(text = review.jobRole, style = Typography.captionRegular, color = CS.Gray.G50)
+                Text(text = review.jobRole ?: "", style = Typography.captionRegular, color = CS.Gray.G50)
                 Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
                 Text(
-                    text = review.createdAt.substring(0, 7).replace("-", ".") + " 작성",
+                    text = review.createdAt?.substring(0, 7)?.replace("-", ".") + " 작성",
                     style = Typography.captionRegular,
                     color = CS.Gray.G50
                 )
             }
             Spacer(Modifier.height(16.dp))
             /* ───── 평점 숫자 + 별 ★ ───── */
-            val avgRating = review.ratings.roundedAverage()
+            val avgRating = review.ratings?.roundedAverage() ?: 0.0
             val starCounts = Utility.calculateStarCounts(totalScore = avgRating)
 
             Row(

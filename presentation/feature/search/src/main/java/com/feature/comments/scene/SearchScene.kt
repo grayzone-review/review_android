@@ -1,5 +1,6 @@
 package com.feature.comments.scene
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -104,7 +105,8 @@ fun SearchScene(
                     .replace("{companyId}", company.id.toString())
                 )
             },
-            onClickSearchedCompany = { company -> 
+            onClickSearchedCompany = { company ->
+                Log.d("아이디상황", company.id.toString())
                 navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
                     .replace("{companyId}", company.id.toString())
                 )

@@ -29,6 +29,7 @@ class CompanyDetailViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         GetCompany,
+        GetReviews,
         DidTapFollowCompanyButton,
         DidTapWriteReviewButton,
         DidTapLikeReviewButton,
@@ -56,6 +57,17 @@ class CompanyDetailViewModel @Inject constructor(
                     _uiState.update { it.copy(company = result) }
                 }
             }
+            Action.GetReviews -> {
+                viewModelScope.launch {
+                    val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0)
+                    result.currentPage
+                    result.hasNext
+                    _uiState.update { it.copy(
+                        reviews = result.reviews ?: emptyList(),
+                        isFullModeList = List(result.reviews?.size ?: 0) { false })
+                    }
+                }
+            }
             Action.DidTapFollowCompanyButton -> {
                 viewModelScope.launch {
                     currentState.company.following?.let { followStatus ->
@@ -77,12 +89,13 @@ class CompanyDetailViewModel @Inject constructor(
             Action.DidTapLikeReviewButton -> {
                 index?.let { wrappedIndex ->
                     val updatedReviews = currentState.reviews.toMutableList()
+                    val isLiked = updatedReviews[wrappedIndex].liked ?: false
                     updatedReviews[wrappedIndex] = updatedReviews[wrappedIndex].copy(
-                        liked = !updatedReviews[wrappedIndex].liked,
-                        likeCount = (if (updatedReviews[wrappedIndex].liked)
-                            updatedReviews[wrappedIndex].likeCount - 1
+                        liked = isLiked,
+                        likeCount = (if (updatedReviews[wrappedIndex].liked == true)
+                            updatedReviews[wrappedIndex].likeCount?.minus(1)
                         else
-                            updatedReviews[wrappedIndex].likeCount + 1).coerceAtLeast(0)
+                            updatedReviews[wrappedIndex].likeCount?.plus(1))?.coerceAtLeast(0)
                     )
                     _uiState.update { it.copy(reviews = updatedReviews) }
                 }

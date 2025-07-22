@@ -450,7 +450,7 @@ private fun ReviewCard(
             modifier = Modifier.padding(top = 20.dp).padding(horizontal = 20.dp)
         ) {
             Text(
-                text = review.title,
+                text = review.title ?: "",
                 style = Typography.body1Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -463,7 +463,7 @@ private fun ReviewCard(
         }
         Text(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-            text = review.advantagePoint,
+            text = review.advantagePoint ?: "",
             style = Typography.captionRegular,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis
@@ -478,7 +478,7 @@ private fun ReviewCard(
         ) {
             Text(text = company.companyName, style = Typography.captionRegular, color = CS.Gray.G50)
             Text(
-                text = review.createdAt.substring(0, 7).replace("-", ".") + " 작성",
+                text = review.createdAt?.substring(0, 7)?.replace("-", ".") + " 작성",
                 style = Typography.captionRegular,
                 color = CS.Gray.G50
             )

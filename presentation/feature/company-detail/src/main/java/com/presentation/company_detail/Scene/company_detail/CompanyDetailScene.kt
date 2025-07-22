@@ -31,6 +31,7 @@ import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewMod
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapReviewCard
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapWriteReviewButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetCompany
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviews
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
@@ -51,6 +52,7 @@ fun CompanyDetailScene(
 
     LaunchedEffect(Unit) {
         viewModel.handleAction(GetCompany)
+        viewModel.handleAction(GetReviews)
     }
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
     CommentBottomSheet(detailUIState = uiState)
@@ -95,8 +97,7 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
             }
             item { GraySpacer(Modifier.padding(top = 20.dp)) }
             itemsIndexed(
-                items = detailUIState.reviews,
-                key   = { _, item -> item.id }
+                items = detailUIState.reviews
             ) { index, reviewItem ->
                 ReviewCard(
                     review = reviewItem,

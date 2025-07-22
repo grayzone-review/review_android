@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.domain.entity.Review
+import com.domain.entity.roundedAverage
 import com.example.presentation.designsystem.typography.Typography
 import com.team.common.feature_api.utility.Utility
 import preset_ui.icons.ChatLine
@@ -64,21 +65,21 @@ fun WriterProfile(review: Review, modifier: Modifier) {
             .height(18.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = review.author, color = CS.Gray.G50, style = Typography.captionRegular)
+        val createdAt = review.createdAt?.substring(0, 7)?.replace("-", ".") + " 작성"
+
+        Text(text = review.author ?: "", color = CS.Gray.G50, style = Typography.captionRegular)
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
-        Text(text = review.jobRole, color = CS.Gray.G50, style = Typography.captionRegular)
+        Text(text = review.jobRole ?: "", color = CS.Gray.G50, style = Typography.captionRegular)
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
-        Text(text = review.employmentPeriod, color = CS.Gray.G50, style = Typography.captionRegular)
+        Text(text = review.employmentPeriod ?: "", color = CS.Gray.G50, style = Typography.captionRegular)
         CSSpacerVertical(modifier = Modifier, width = 1.dp, color = CS.Gray.G20)
-        Text(text = review.createdAt, color = CS.Gray.G50, style = Typography.captionRegular)
+        Text(text = createdAt ?: "", color = CS.Gray.G50, style = Typography.captionRegular)
     }
 }
 
 @Composable
 fun RatingSummary(review: Review, modifier: Modifier) {
-    val avgScore = with(review.ratings) {
-        (companyCulture + management + salary + welfare + workLifeBalance) / 5
-    }
+    val avgScore = review.ratings?.roundedAverage() ?: 0.0
 
     Row(
         modifier = modifier
@@ -110,11 +111,11 @@ fun RatingBox(review: Review, modifier: Modifier = Modifier) {
     val shape = RoundedCornerShape(8.dp)
     val ratings = review.ratings
     val ratingItems: List<Pair<String, Double>> = listOf(
-        "급여"    to ratings.salary,
-        "사내문화"  to ratings.companyCulture,
-        "복지"    to ratings.welfare,
-        "경영진"   to ratings.management,
-        "워라밸"   to ratings.workLifeBalance
+        "급여"     to (ratings?.salary ?: 0.0),
+        "사내문화" to (ratings?.companyCulture ?: 0.0),
+        "복지"     to (ratings?.welfare ?: 0.0),
+        "경영진"    to (ratings?.management ?: 0.0),
+        "워라밸"    to (ratings?.workLifeBalance ?: 0.0)
     )
 
     Box(
@@ -209,16 +210,16 @@ fun RatingBoxCell(item: Pair<String, Double>, modifier: Modifier) {
 @Composable
 fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = Modifier, onLikeReviewButtonClick: () -> Unit, onCommentButtonClick: () -> Unit ) {
     val textContentItems: List<Pair<String, String>> = listOf(
-        "장점"     to review.advantagePoint,
-        "단점"     to review.disadvantagePoint,
-        "바라는점"  to review.managementFeedback
+        "장점"     to (review.advantagePoint ?: ""),
+        "단점"     to (review.disadvantagePoint ?: ""),
+        "바라는점"  to (review.managementFeedback ?: "")
     )
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
     ) {
-        ReviewTextContentTitle(title = review.title)
+        ReviewTextContentTitle(title = review.title ?: "")
         Spacer(Modifier.height(16.dp))
         for ((index, sectionItem) in textContentItems.withIndex()) {
             if (!isFullMode && index > 0) {
@@ -234,14 +235,14 @@ fun ReviewTextContent(review: Review, isFullMode: Boolean, modifier: Modifier = 
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            InteractionButton(count = review.likeCount, modifier = Modifier, onClick = onLikeReviewButtonClick) {
-                if (review.liked) {
+            InteractionButton(count = review.likeCount ?: 0, modifier = Modifier, onClick = onLikeReviewButtonClick) {
+                if (review.liked == true) {
                     LikeHeartFill(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
                 } else {
                     LikeHeartLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
                 }
             }
-            InteractionButton(count = review.commentCount, modifier = Modifier, onClick = onCommentButtonClick) {
+            InteractionButton(count = review.commentCount ?: 0, modifier = Modifier, onClick = onCommentButtonClick) {
                 ChatLine(width = 24.dp, height = 24.dp, modifier = Modifier.padding(all = 10.dp))
             }
         }

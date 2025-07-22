@@ -5,6 +5,7 @@ import com.data.network.api_service.UpAPIService
 import com.data.network.mapper.CompanyDetailRequestMapper
 import com.domain.entity.Company
 import com.domain.entity.FollowCompanyResult
+import com.domain.entity.Reviews
 import com.domain.repository_interface.CompanyDetailRepository
 import javax.inject.Inject
 
@@ -14,6 +15,11 @@ class CompanyDetailRepositoryImpl @Inject constructor(
 ): CompanyDetailRepository {
     override suspend fun getCompanyInfo(companyID: Int): Company {
         val responseDTO = upApiService.getCompanyInfo(companyID = companyID)
+        return responseDTO.data?.toDomain()!!
+    }
+
+    override suspend fun companyReviews(companyID: Int): Reviews {
+        val responseDTO = upApiService.getCompanyReviews(companyID = companyID)
         return responseDTO.data?.toDomain()!!
     }
 
