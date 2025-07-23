@@ -1,6 +1,7 @@
 package com.feature.comments.scene.contents
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -31,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +54,7 @@ import com.feature.comments.scene.contents.TagButtonType.Interest
 import com.feature.comments.scene.contents.TagButtonType.MyTown
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import preset_ui.icons.AroundIcon
 import preset_ui.icons.FollowAddOffIcon
 import preset_ui.icons.FollowPersonOnIcon
@@ -233,12 +237,14 @@ private fun SearchedResultItem(
 }
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CompanyFilterChips(
     selectedTagButtonType: TagButtonType?,
     onClick: (TagButtonType) -> Unit
 ) {
     val allTagButtons = TagButtonType.entries.toList()
+    val listState = rememberLazyListState()
 
     Column(
         modifier = Modifier
@@ -248,6 +254,7 @@ fun CompanyFilterChips(
             .padding(vertical = 10.dp)
     ) {
         LazyRow(
+            state = listState,
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -260,8 +267,10 @@ fun CompanyFilterChips(
                 }
             }
 
-            items(allTagButtons) { buttonType ->
+            itemsIndexed(allTagButtons) { index, buttonType ->
                 val isSelected = selectedTagButtonType == buttonType
+                val coroutineScope = rememberCoroutineScope()
+
                 Surface(
                     shape = RoundedCornerShape(100.dp),
                     color = if (isSelected) CS.PrimaryOrange.O40 else CS.Gray.White,
@@ -271,7 +280,10 @@ fun CompanyFilterChips(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { onClick(buttonType) }
+                        ) {
+                            onClick(buttonType)
+                            coroutineScope.launch { listState.animateScrollToItem(index) }
+                        }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
