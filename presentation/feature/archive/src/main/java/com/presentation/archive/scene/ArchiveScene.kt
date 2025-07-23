@@ -38,14 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
-import com.domain.entity.CompactCompany
-import com.domain.entity.Review
-import com.domain.entity.roundedAverage
+import com.domain.entity.MyArchiveCompany
+import com.domain.entity.MyArchiveReview
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetCompanyFollowList
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetInterestReviews
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetMyReviews
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetStats
-import com.presentation.archive.scene.ArchiveViewModel.Action.GetWroteReviews
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetUser
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.team.common.feature_api.utility.Utility
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -63,7 +63,9 @@ fun ArchiveScene(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
+        viewModel.handleAction(GetUser)
         viewModel.handleAction(GetStats)
+        viewModel.handleAction(GetMyReviews)
     }
 
     Scaffold(
@@ -78,12 +80,12 @@ fun ArchiveScene(
                 .height(8.dp)
                 .background(color = CS.Gray.G10))
             ArchiveCollection(
-                wroteReviews = uiState.wroteReviews,
+                wroteReviews = uiState.myReviews,
                 interestReviews = uiState.interestReviews,
                 followCompanies = uiState.followCompanies,
                 onTabChange = {
                     when (it) {
-                        CollectionTab.REVIEW -> { viewModel.handleAction(GetWroteReviews) }
+                        CollectionTab.REVIEW -> { viewModel.handleAction(GetMyReviews) }
                         CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews)}
                         CollectionTab.BOOKMARK -> { viewModel.handleAction(GetCompanyFollowList) }
                     }
@@ -130,9 +132,9 @@ private fun StatsRow(
 enum class CollectionTab(val rawValue: String) { REVIEW("리뷰"), INTEREST("관심 리뷰"), BOOKMARK("즐겨찾기") }
 @Composable
 fun ArchiveCollection(
-    wroteReviews: List<Review>,
-    interestReviews: List<Review>,
-    followCompanies: List<CompactCompany>,
+    wroteReviews: List<MyArchiveReview>,
+    interestReviews: List<MyArchiveReview>,
+    followCompanies: List<MyArchiveCompany>,
     onTabChange: (CollectionTab) -> Unit
 ) {
     val tabs = CollectionTab.entries
@@ -199,7 +201,7 @@ fun ArchiveCollection(
 
 @Composable
 private fun ReviewList(
-    reviews: List<Review>
+    reviews: List<MyArchiveReview>
 ) {
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),
@@ -213,7 +215,7 @@ private fun ReviewList(
 
 @Composable
 private fun ReviewCard(
-    review: Review
+    review: MyArchiveReview
 ) {
     Column(Modifier.fillMaxWidth()) {
         Column(
@@ -246,7 +248,7 @@ private fun ReviewCard(
             }
             Spacer(Modifier.height(16.dp))
             /* ───── 평점 숫자 + 별 ★ ───── */
-            val avgRating = review.ratings?.roundedAverage() ?: 0.0
+            val avgRating = review.totalRating
             val starCounts = Utility.calculateStarCounts(totalScore = avgRating)
 
             Row(
@@ -285,7 +287,7 @@ private fun ReviewCard(
 
 @Composable
 private fun CompanyList(
-    companies: List<CompactCompany>
+    companies: List<MyArchiveCompany>
 ) {
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),
@@ -299,7 +301,7 @@ private fun CompanyList(
 
 @Composable
 private fun CompanyCard(
-    company: CompactCompany
+    company: MyArchiveCompany
 ) {
     Column(Modifier.fillMaxWidth()) {
 
