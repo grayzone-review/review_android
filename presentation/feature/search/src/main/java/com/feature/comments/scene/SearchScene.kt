@@ -50,7 +50,7 @@ import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidFocus
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapCancelButton
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapClearButton
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapIMEDone
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUnfocusSearchBar
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUnFocusSearchBar
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUpdateSearchBarValue
 import com.feature.comments.scene.contents.AfterContent
 import com.feature.comments.scene.contents.AfterContentViewModel
@@ -76,6 +76,7 @@ fun SearchScene(
 
     Column(Modifier
         .fillMaxSize()
+        .background(color = CS.Gray.White)
         .addFocusCleaner(focusManager = focusManager)
     ) {
         Appbar(
@@ -85,7 +86,7 @@ fun SearchScene(
         SearchTextField(
             searchUIState = searchUIState,
             onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, text = it) },
-            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnfocusSearchBar) },
+            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnFocusSearchBar) },
             onClickClearButton = { viewModel.handleAction(DidTapClearButton) },
             onClickCancelButton = {
                 focusManager.clearFocus()
@@ -98,8 +99,8 @@ fun SearchScene(
         )
         Content(
             searchUIState = searchUIState,
-            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, text = it) },
-            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) },
+            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, it) },
+            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, it) },
             onClickRecentCompany = { company -> 
                 navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
                     .replace("{companyId}", company.id.toString())

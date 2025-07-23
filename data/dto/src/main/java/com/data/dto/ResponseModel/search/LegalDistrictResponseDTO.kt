@@ -10,7 +10,7 @@ data class LegalDistrictResponseDTO(
 )
 
 data class LegalDistrict(
-    val id: Long,
+    val id: Int,
     val name: String,
 )
 

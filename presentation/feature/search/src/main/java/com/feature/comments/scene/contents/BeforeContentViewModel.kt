@@ -29,9 +29,13 @@ class BeforeContentViewModel @Inject constructor() : ViewModel() {
                 _recentQueries.update { queries }
             }
             Action.DidTapQueryTagDeleteButton -> {
-                index?.let {
-                    val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
-                    queries.removeAt(index = it)
+                index?.let { idx ->
+                    val queries = UpDataStoreService.recentQueries
+                        .split(",")
+                        .filter { it.isNotBlank() }
+                        .toMutableList()
+
+                    queries.removeAt(index = idx)
                     UpDataStoreService.recentQueries = queries.joinToString(",")
                     _recentQueries.update { queries }
                 }

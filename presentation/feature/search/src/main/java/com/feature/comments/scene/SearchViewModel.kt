@@ -19,7 +19,8 @@ enum class SearchPhase {
 data class SearchUIState(
     val searchBarValue: TextFieldValue = TextFieldValue(""),
     val hasFocus: Boolean = false,
-    val phase: SearchPhase = SearchPhase.Before
+    val phase: SearchPhase = SearchPhase.Before,
+    val selectedTagButton: TagButtonData? = null
 )
 
 @HiltViewModel
@@ -27,7 +28,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     enum class SearchInterfaceAction {
         DidUpdateSearchBarValue,
         DidFocusSearchBar,
-        DidUnfocusSearchBar,
+        DidUnFocusSearchBar,
         DidTapClearButton,
         DidTapCancelButton,
         DidTapIMEDone
@@ -55,7 +56,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                     )
                 }
             }
-            SearchInterfaceAction.DidUnfocusSearchBar -> {
+            SearchInterfaceAction.DidUnFocusSearchBar -> {
                 _searchUISate.update { it.copy(hasFocus = false) }
             }
             SearchInterfaceAction.DidTapClearButton -> {
@@ -83,31 +84,30 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun handleAction(contentAction: ContentAction, text: String? = null, tagButtonData: TagButtonData? = null) {
+    fun handleAction(contentAction: ContentAction, value: Any? = null) {
         when (contentAction) {
             ContentAction.DidTapRecentQueryButton -> {
-                text?.let { query ->
-                    val recentQueries = UpDataStoreService.recentQueries
-                        .split(",")
-                        .filter { it.isNotBlank() && it != query }
-                    val newQueries = listOf(query) + recentQueries
-                    UpDataStoreService.recentQueries = newQueries.joinToString(",")
-                    _searchUISate.update {
-                        it.copy(
-                            searchBarValue = TextFieldValue(text = query),
-                            phase = SearchPhase.Searching
-                        )
-                    }
+                val query = value as? String ?: return
+                val recentQueries = UpDataStoreService.recentQueries
+                    .split(",")
+                    .filter { it.isNotBlank() && it != query }
+                val newQueries = listOf(query) + recentQueries
+                UpDataStoreService.recentQueries = newQueries.joinToString(",")
+                _searchUISate.update {
+                    it.copy(
+                        searchBarValue = TextFieldValue(text = query),
+                        phase = SearchPhase.Searching
+                    )
                 }
             }
             ContentAction.DidTapFilterButtons -> {
-                tagButtonData?.let { buttonData ->
-                    _searchUISate.update {
-                        it.copy(
-                            searchBarValue = TextFieldValue(text = "#${buttonData.label}"),
-                            phase = SearchPhase.After
-                        )
-                    }
+                val selectedTagButtonData = value as? TagButtonData ?: return
+                _searchUISate.update {
+                    it.copy(
+                        searchBarValue = TextFieldValue(text = "#${selectedTagButtonData.label}"),
+                        selectedTagButton = selectedTagButtonData,
+                        phase = SearchPhase.After
+                    )
                 }
             }
         }

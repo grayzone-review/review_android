@@ -7,10 +7,14 @@ import com.data.dto.ResponseModel.search.CommentsDTO
 import com.data.dto.ResponseModel.search.CompanyInfoResponseDTO
 import com.data.dto.ResponseModel.search.CompanyReviewsResponseDTO
 import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
+import com.data.dto.ResponseModel.search.MyArchiveCompaniesResponseDTO
+import com.data.dto.ResponseModel.search.MyArchiveReviewsResponseDTO
 import com.data.dto.ResponseModel.search.RepliesResponseDTO
 import com.data.dto.ResponseModel.search.ReplyDto
 import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
+import com.data.dto.ResponseModel.search.UserInfoResponseDTO
+import com.data.dto.ResponseModel.search.UserInteractionResponseDTO
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.response.APIResponse
 import retrofit2.http.Body
@@ -105,4 +109,25 @@ interface UpAPIService {
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
         @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
     ): APIResponse<ReviewFeedResponseDTO>
+
+    @GET(UpEndpoint.Path.MY_INFO)
+    suspend fun userInfo(
+    ): APIResponse<UserInfoResponseDTO>
+
+    @GET(UpEndpoint.Path.MY_INTERACTION_COUNT)
+    suspend fun myInteractionCounts(
+    ): APIResponse<UserInteractionResponseDTO>
+
+    @GET(UpEndpoint.Path.MY_REVIEWS)
+    suspend fun myReviews(
+    ): APIResponse<MyArchiveReviewsResponseDTO>
+
+    @GET(UpEndpoint.Path.MY_INTERESTS)
+    suspend fun myInterestReviews(
+    ): APIResponse<MyArchiveReviewsResponseDTO>
+
+    @GET(UpEndpoint.Path.MY_FOLLOW)
+    suspend fun myFollowCompanies(
+    ): APIResponse<MyArchiveCompaniesResponseDTO>
+
 }

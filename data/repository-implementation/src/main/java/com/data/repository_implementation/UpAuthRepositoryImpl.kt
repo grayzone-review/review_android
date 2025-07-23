@@ -26,8 +26,8 @@ class UpAuthRepositoryImpl @Inject constructor(
 
     override suspend fun signUp(
         oauthToken: String,
-        mainRegionId: Long,
-        interestedRegionIds: List<Long>,
+        mainRegionId: Int,
+        interestedRegionIds: List<Int>,
         nickname: String,
         agreements: List<Agreement>
     ): SignUpResult {

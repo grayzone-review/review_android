@@ -153,9 +153,9 @@ fun MainScene(
                     onClickTextFieldButton = { navController.navigate(NavigationRouteConstant.searchNestedRoute) }
                 )
                 DashBoardButtons(
-                    onSearchClick = {},
-                    onMyReviewClick = { },
-                    onFollowClick = { }
+                    onSearchClick = { navController.navigate(NavigationRouteConstant.searchNestedRoute) },
+                    onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) },
+                    onFollowClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
                 )
                 if (uiState.user.interestedRegions.isNullOrEmpty()) {
                     LocationBannerButton(

@@ -90,7 +90,8 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
     }
 
     Scaffold(
-        topBar = { TopAppBar(onBackButtonClick = { navController.popBackStack() }) }
+        topBar = { TopAppBar(onBackButtonClick = { navController.popBackStack() }) },
+        containerColor = CS.Gray.White
     ) { innerPadding ->
         LazyColumn(
             state = listState,
