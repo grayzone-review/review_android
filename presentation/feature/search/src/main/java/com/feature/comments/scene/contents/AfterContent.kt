@@ -1,6 +1,5 @@
 package com.feature.comments.scene.contents
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,6 +44,7 @@ import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchUIState
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidRequestLoadMore
+import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidTapFollowCompanyButton
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidUpdateSearchQuery
 import com.feature.comments.scene.contents.TagButtonType.Around
 import com.feature.comments.scene.contents.TagButtonType.Interest
@@ -74,7 +74,8 @@ fun AfterContent(
         selectedTagButtonType = selectedTagButtonData,
         onLoadMore = { viewModel.handleAction(DidRequestLoadMore, currentQuery) },
         onClickSearchResult = { onClickSearchResult(it) },
-        onClickTagButton = { onClickTagButtonAtAfterContent(it) }
+        onClickTagButton = { onClickTagButtonAtAfterContent(it) },
+        onClickFollowButton = { viewModel.handleAction(DidTapFollowCompanyButton, it) }
     )
 
     LaunchedEffect(searchUIState.searchBarValue.text) {
@@ -88,7 +89,8 @@ private fun SearchResultList(
     selectedTagButtonType: TagButtonType?,
     onLoadMore: () -> Unit,
     onClickSearchResult: (CompactCompany) -> Unit,
-    onClickTagButton: (TagButtonType) -> Unit
+    onClickTagButton: (TagButtonType) -> Unit,
+    onClickFollowButton: (CompactCompany) -> Unit
 ) {
     val listState = rememberLazyListState()
     val searchedCompanies = uiState.searchedCompanies
@@ -103,7 +105,7 @@ private fun SearchResultList(
             }
             .distinctUntilChanged()
             .collect { isEnd ->
-                if (isEnd) { onLoadMore(); Log.d("바닥찍음", "여기") }
+                if (isEnd) { onLoadMore() }
             }
     }
 
@@ -130,16 +132,9 @@ private fun SearchResultList(
                 SearchedResultItem(
                     company = company,
                     onClickSearchResult = { onClickSearchResult(company) },
-                    onFollowClick = { }
+                    onFollowClick = { onClickFollowButton(company) }
                 )
             }
-//
-//            // 마지막 아이템이 보일 때 추가 데이터 로딩
-//            item {
-//                LaunchedEffect(Unit) {
-//                    onLoadMore()
-//                }
-//            }
         }
     }
 }
@@ -206,7 +201,10 @@ private fun SearchedResultItem(
                 Box(
                     modifier = Modifier
                         .size(32.dp)
-                        .clickable { onFollowClick() },
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { onFollowClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     if (company.following) FollowPersonOnIcon(32.dp, 32.dp) else FollowAddOffIcon(32.dp, 32.dp)

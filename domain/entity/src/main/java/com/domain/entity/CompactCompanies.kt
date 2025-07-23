@@ -8,7 +8,7 @@ data class CompactCompanies(
 )
 
 data class CompactCompany(
-    val id: Long,
+    val id: Int,
     val companyName: String,
     val companyAddress: String,
     val totalRating: Double,

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.CompactCompany
+import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.SearchCompaniesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,11 +25,13 @@ data class AfterContentUIState(
 
 @HiltViewModel
 class AfterContentViewModel @Inject constructor(
-    private val searchCompaniesUseCase: SearchCompaniesUseCase
+    private val searchCompaniesUseCase: SearchCompaniesUseCase,
+    private val companyDetailUseCase: CompanyDetailUseCase
 ) : ViewModel() {
     enum class Action {
         DidUpdateSearchQuery,
-        DidRequestLoadMore
+        DidRequestLoadMore,
+        DidTapFollowCompanyButton
     }
 
     private val _uiState = MutableStateFlow(AfterContentUIState())
@@ -81,6 +84,24 @@ class AfterContentViewModel @Inject constructor(
                             hasNext = result.hasNext,
                             isLoading = false
                         )
+                    }
+                }
+            }
+            Action.DidTapFollowCompanyButton -> {
+                viewModelScope.launch {
+                    val tappedCompany = value as? CompactCompany ?: return@launch
+                    val targetIndex = currentState.searchedCompanies.indexOfFirst { it.id == tappedCompany.id }
+                    val targetCompanyFollowingState = currentState.searchedCompanies[targetIndex].following
+                    val result = if (!targetCompanyFollowingState) {
+                        companyDetailUseCase.followCompany(companyID = tappedCompany.id)
+                    } else {
+                        companyDetailUseCase.unfollowCompany(companyID = tappedCompany.id)
+                    }
+                    if (result.success) {
+                        val updated = currentState.searchedCompanies
+                            .toMutableList()
+                            .apply { this[targetIndex] = this[targetIndex].copy(following = !targetCompanyFollowingState) }
+                        _uiState.update { it.copy(searchedCompanies = updated) }
                     }
                 }
             }
