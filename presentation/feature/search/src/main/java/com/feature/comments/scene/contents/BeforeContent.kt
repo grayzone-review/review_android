@@ -28,20 +28,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import com.feature.comments.scene.contents.BeforeContentViewModel.Action.DidAppear
+import com.feature.comments.scene.contents.BeforeContentViewModel.Action.DidTapQueryTagDeleteButton
 import preset_ui.icons.AroundIcon
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.InterestIcon
 import preset_ui.icons.MytownIcon
-import com.feature.comments.scene.contents.BeforeContentViewModel.Action.*
-import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun BeforeContent(
     viewModel: BeforeContentViewModel = hiltViewModel(),
     onClickTag: (String) -> Unit,
-    onClickFilterButton: (TagButtonData) -> Unit
+    onClickFilterButton: (TagButtonType) -> Unit
 ) {
     val recentQueries by viewModel.recentQueries.collectAsState()
 
@@ -142,9 +143,9 @@ data class TagButtonData(
 @Composable
 fun FilterButtons(
     title: String,
-    onClick: (TagButtonData) -> Unit
+    onClick: (TagButtonType) -> Unit
 ) {
-    val buttons = remember { TagButtonType.values().map { it.toData() } }
+    val buttons = TagButtonType.entries.toList()
 
     Column(
         modifier = Modifier
@@ -172,8 +173,8 @@ fun FilterButtons(
 
 @Composable
 fun TagButtonItem(
-    data: TagButtonData,
-    onClick: (TagButtonData) -> Unit
+    data: TagButtonType,
+    onClick: (TagButtonType) -> Unit
 ) {
     val shape = RoundedCornerShape(8.dp)
     Row(

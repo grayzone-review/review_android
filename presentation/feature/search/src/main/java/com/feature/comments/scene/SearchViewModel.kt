@@ -3,7 +3,7 @@ package com.feature.comments.scene
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.data.storage.datastore.UpDataStoreService
-import com.feature.comments.scene.contents.TagButtonData
+import com.feature.comments.scene.contents.TagButtonType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +20,7 @@ data class SearchUIState(
     val searchBarValue: TextFieldValue = TextFieldValue(""),
     val hasFocus: Boolean = false,
     val phase: SearchPhase = SearchPhase.Before,
-    val selectedTagButton: TagButtonData? = null
+    val selectedTagButtonType: TagButtonType? = null
 )
 
 @HiltViewModel
@@ -66,6 +66,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
+                        selectedTagButtonType = null,
                         phase = SearchPhase.Before
                     )
                 }
@@ -85,6 +86,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     }
 
     fun handleAction(contentAction: ContentAction, value: Any? = null) {
+        val currentState = _searchUISate.value
         when (contentAction) {
             ContentAction.DidTapRecentQueryButton -> {
                 val query = value as? String ?: return
@@ -101,13 +103,23 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 }
             }
             ContentAction.DidTapFilterButtons -> {
-                val selectedTagButtonData = value as? TagButtonData ?: return
-                _searchUISate.update {
-                    it.copy(
-                        searchBarValue = TextFieldValue(text = "#${selectedTagButtonData.label}"),
-                        selectedTagButton = selectedTagButtonData,
-                        phase = SearchPhase.After
-                    )
+                val newSelectedTagButtonType = value as? TagButtonType ?: return
+                if (currentState.selectedTagButtonType == newSelectedTagButtonType) {
+                    _searchUISate.update {
+                        it.copy(
+                            searchBarValue = TextFieldValue(text = ""),
+                            selectedTagButtonType = null,
+                            phase = SearchPhase.After
+                        )
+                    }
+                } else {
+                    _searchUISate.update {
+                        it.copy(
+                            searchBarValue = TextFieldValue(text = "#${newSelectedTagButtonType.label}"),
+                            selectedTagButtonType = newSelectedTagButtonType,
+                            phase = SearchPhase.After
+                        )
+                    }
                 }
             }
         }

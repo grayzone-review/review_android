@@ -1,5 +1,6 @@
 package com.feature.comments.scene.contents
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,9 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
@@ -43,6 +44,13 @@ import colors.CS
 import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchUIState
+import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidRequestLoadMore
+import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidUpdateSearchQuery
+import com.feature.comments.scene.contents.TagButtonType.Around
+import com.feature.comments.scene.contents.TagButtonType.Interest
+import com.feature.comments.scene.contents.TagButtonType.MyTown
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import preset_ui.icons.AroundIcon
 import preset_ui.icons.FollowAddOffIcon
 import preset_ui.icons.FollowPersonOnIcon
@@ -54,33 +62,55 @@ import preset_ui.icons.StarFilled
 fun AfterContent(
     viewModel: AfterContentViewModel = hiltViewModel(),
     searchUIState: SearchUIState,
-    onClickSearchResult: (CompactCompany) -> Unit
+    onClickSearchResult: (CompactCompany) -> Unit,
+    onClickTagButtonAtAfterContent: (TagButtonType) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val currntQuery = searchUIState.searchBarValue.text
+    val currentQuery = searchUIState.searchBarValue.text
+    val selectedTagButtonData = searchUIState.selectedTagButtonType
 
     SearchResultList(
         uiState = uiState,
-        onLoadMore = { viewModel.handleAction(AfterContentViewModel.Action.DidRequestLoadMore, query = currntQuery) },
-        onClickSearchResult = { onClickSearchResult(it) }
+        selectedTagButtonType = selectedTagButtonData,
+        onLoadMore = { viewModel.handleAction(DidRequestLoadMore, currentQuery) },
+        onClickSearchResult = { onClickSearchResult(it) },
+        onClickTagButton = { onClickTagButtonAtAfterContent(it) }
     )
 
     LaunchedEffect(searchUIState.searchBarValue.text) {
-        viewModel.handleAction(AfterContentViewModel.Action.DidUpdateSearchQuery, query = currntQuery)
+        viewModel.handleAction(DidUpdateSearchQuery, currentQuery)
     }
 }
 
 @Composable
 private fun SearchResultList(
     uiState: AfterContentUIState,
+    selectedTagButtonType: TagButtonType?,
     onLoadMore: () -> Unit,
-    onClickSearchResult: (CompactCompany) -> Unit
+    onClickSearchResult: (CompactCompany) -> Unit,
+    onClickTagButton: (TagButtonType) -> Unit
 ) {
-    var selected by remember { mutableStateOf("우리 동네 업체") }
+    val listState = rememberLazyListState()
     val searchedCompanies = uiState.searchedCompanies
     val totalCount = uiState.totalCount
 
-    CompanyFilterChips(selected = selected, onClick = { selected = it })
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo }
+            .map { layout ->
+                val total = layout.totalItemsCount
+                val lastVisible = layout.visibleItemsInfo.lastOrNull()?.index ?: -1
+                lastVisible >= total - 1 && total > 0
+            }
+            .distinctUntilChanged()
+            .collect { isEnd ->
+                if (isEnd) { onLoadMore(); Log.d("바닥찍음", "여기") }
+            }
+    }
+
+    CompanyFilterChips(
+        selectedTagButtonType = selectedTagButtonType,
+        onClick = { onClickTagButton(it) }
+    )
 
     Column(
         modifier = Modifier
@@ -89,6 +119,7 @@ private fun SearchResultList(
     ) {
         ResultCountText(totalCount = totalCount)
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -102,13 +133,13 @@ private fun SearchResultList(
                     onFollowClick = { }
                 )
             }
-            
-            // 마지막 아이템이 보일 때 추가 데이터 로딩
-            item {
-                LaunchedEffect(Unit) {
-                    onLoadMore()
-                }
-            }
+//
+//            // 마지막 아이템이 보일 때 추가 데이터 로딩
+//            item {
+//                LaunchedEffect(Unit) {
+//                    onLoadMore()
+//                }
+//            }
         }
     }
 }
@@ -206,10 +237,10 @@ private fun SearchedResultItem(
 
 @Composable
 fun CompanyFilterChips(
-    selected: String,
-    onClick: (String) -> Unit
+    selectedTagButtonType: TagButtonType?,
+    onClick: (TagButtonType) -> Unit
 ) {
-    val items = listOf("우리 동네 업체", "내 근처 업체", "관심 동네 업체")
+    val allTagButtons = TagButtonType.entries.toList()
 
     Column(
         modifier = Modifier
@@ -231,8 +262,8 @@ fun CompanyFilterChips(
                 }
             }
 
-            items(items) { label ->
-                val isSelected = label == selected
+            items(allTagButtons) { buttonType ->
+                val isSelected = selectedTagButtonType == buttonType
                 Surface(
                     shape = RoundedCornerShape(100.dp),
                     color = if (isSelected) CS.PrimaryOrange.O40 else CS.Gray.White,
@@ -242,19 +273,19 @@ fun CompanyFilterChips(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
-                        ) { onClick(label) }
+                        ) { onClick(buttonType) }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     ) {
-                        when (label) {
-                            "우리 동네 업체" -> MytownIcon(isOn = !isSelected, 18.dp, 18.dp)
-                            "내 근처 업체" -> AroundIcon(isOn = !isSelected, 18.dp, 18.dp)
-                            "관심 동네 업체" -> InterestIcon(isOn = !isSelected, 18.dp, 18.dp)
+                        when (buttonType) {
+                            Around -> { MytownIcon(isOn = !isSelected, 18.dp, 18.dp) }
+                            MyTown -> { AroundIcon(isOn = !isSelected, 18.dp, 18.dp) }
+                            Interest -> { InterestIcon(isOn = !isSelected, 18.dp, 18.dp) }
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = label, style = Typography.captionSemiBold, color = if (isSelected) CS.Gray.White else CS.Gray.G70)
+                        Text(text = buttonType.label, style = Typography.captionSemiBold, color = if (isSelected) CS.Gray.White else CS.Gray.G70)
                     }
                 }
             }
