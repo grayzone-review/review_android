@@ -112,11 +112,13 @@ fun ReportScene(
                 onClick = { scope.launch { sheetState.expand() } }
             )
             Spacer(modifier = Modifier.height(15.dp))
-            ReportedUserNameField(
-                value = uiState.reportedUserNickname,
-                onValueChange = { viewModel.handleAction(UpdateReportedUserNickName, it) }
-            )
-            Spacer(modifier = Modifier.height(15.dp))
+            if (uiState.reason != ReportReason.BUG) {
+                ReportedUserNameField(
+                    value = uiState.reportedUserNickname,
+                    onValueChange = { viewModel.handleAction(UpdateReportedUserNickName, it) }
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+            }
             ReportReasonDetailField(
                 value = uiState.detailReason,
                 onValueChange = { viewModel.handleAction(UpdateDetailReason, it) },
