@@ -26,8 +26,7 @@ class ArchiveViewModel @Inject constructor(
     private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
-        GetUser,
-        GetStats,
+        OnAppear,
         GetMyReviews,
         GetInterestReviews,
         GetCompanyFollowList
@@ -38,14 +37,11 @@ class ArchiveViewModel @Inject constructor(
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
-            Action.GetUser -> {
+            Action.OnAppear -> {
                 viewModelScope.launch {
-                    val result = userUseCase.userInfo()
-                    _uiState.update { it.copy(user = result) }
-                }
-            }
-            Action.GetStats -> {
-                viewModelScope.launch {
+                    val userResult = userUseCase.userInfo()
+                    _uiState.update { it.copy(user = userResult) }
+
                     val result = userUseCase.myInteractionCounts()
                     val stats = listOf(
                         "작성 리뷰 수" to result.myReviewCount,
@@ -53,6 +49,7 @@ class ArchiveViewModel @Inject constructor(
                         "즐겨찾기" to result.followCompanyCount
                     )
                     _uiState.update { it.copy(stats = stats) }
+
                 }
             }
             Action.GetMyReviews -> {

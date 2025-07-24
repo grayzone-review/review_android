@@ -44,8 +44,7 @@ import com.example.presentation.designsystem.typography.Typography
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetCompanyFollowList
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetInterestReviews
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetMyReviews
-import com.presentation.archive.scene.ArchiveViewModel.Action.GetStats
-import com.presentation.archive.scene.ArchiveViewModel.Action.GetUser
+import com.presentation.archive.scene.ArchiveViewModel.Action.OnAppear
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.team.common.feature_api.utility.Utility
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -63,13 +62,11 @@ fun ArchiveScene(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
-        viewModel.handleAction(GetStats)
-        viewModel.handleAction(GetMyReviews)
+        viewModel.handleAction(OnAppear)
     }
 
     Scaffold(
-        topBar = { TopAppBar(onBackButtonClick = { }) }
+        topBar = { TopAppBar(title = uiState.user.nickname ?: "", onBackButtonClick = { navController.popBackStack() }) }
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
@@ -97,10 +94,11 @@ fun ArchiveScene(
 
 @Composable
 private fun TopAppBar(
+    title: String,
     onBackButtonClick: () -> Unit
 ) {
     DefaultTopAppBar(
-        title = "웅아계정53",
+        title = title,
         leftNavigationIcon = {
             BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
                 .clickable { onBackButtonClick() })

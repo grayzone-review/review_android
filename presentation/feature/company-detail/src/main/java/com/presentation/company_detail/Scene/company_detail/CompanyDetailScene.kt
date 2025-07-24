@@ -90,7 +90,7 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
     }
 
     Scaffold(
-        topBar = { TopAppBar(onBackButtonClick = { navController.popBackStack() }) },
+        topBar = { TopAppBar(title = detailUIState.company.companyName ?: "", onBackButtonClick = { navController.popBackStack() }) },
         containerColor = CS.Gray.White
     ) { innerPadding ->
         LazyColumn(
@@ -143,10 +143,11 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
 
 @Composable
 private fun TopAppBar(
+    title: String,
     onBackButtonClick: () -> Unit
 ) {
     DefaultTopAppBar(
-        title = "스타벅스 석촌역점",
+        title = title,
         leftNavigationIcon = {
             BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
                 .clickable { onBackButtonClick() })

@@ -1,7 +1,5 @@
 package com.presentation.main.scene.main
 
-import address_finder.AddressFinderViewModel.Action
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
@@ -39,10 +37,8 @@ class MainViewModel @Inject constructor(
     private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
-        GetUser,
-        GetPopularFeeds,
-        GetMyTownFeeds,
-        GetInterestRegionsFeeds,
+        OnAppear,
+        GetFeeds,
         ShowSettingAlert,
         DismissSettingAlert
     }
@@ -54,34 +50,25 @@ class MainViewModel @Inject constructor(
 
     fun handleAction(action: Action) {
         when (action) {
-            Action.GetUser -> {
+            Action.OnAppear -> {
                 viewModelScope.launch {
                     val result = userUseCase.userInfo()
                     _uiState.update { it.copy(user = result) }
                 }
             }
-            Action.GetPopularFeeds -> {
+            Action.GetFeeds -> {
                 viewModelScope.launch {
                     val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
                     val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
-                    _uiState.update { it.copy(popularFeeds = popularFeeds) }
-                    Log.d("오냐?", "${latitude} ${longitude} / ${popularFeeds.size}")
-                }
-            }
-            Action.GetMyTownFeeds -> {
-                viewModelScope.launch {
-                    val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
                     val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
-                    _uiState.update { it.copy(myTownFeeds = myTownFeeds) }
-                    Log.d("오냐?", "${latitude} ${longitude} / ${myTownFeeds.size}")
-                }
-            }
-            Action.GetInterestRegionsFeeds -> {
-                viewModelScope.launch {
-                    val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
                     val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
-                    _uiState.update { it.copy(interestRegionsFeeds = interestRegionsFeeds) }
-                    Log.d("오냐?", "${latitude} ${longitude} / ${interestRegionsFeeds.size}")
+                    _uiState.update {
+                        it.copy(
+                            popularFeeds = popularFeeds,
+                            myTownFeeds = myTownFeeds,
+                            interestRegionsFeeds = interestRegionsFeeds
+                        )
+                    }
                 }
             }
             Action.ShowSettingAlert -> {

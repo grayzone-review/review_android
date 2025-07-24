@@ -52,10 +52,8 @@ import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.main.NavConstant
 import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
-import com.presentation.main.scene.main.MainViewModel.Action.GetInterestRegionsFeeds
-import com.presentation.main.scene.main.MainViewModel.Action.GetMyTownFeeds
-import com.presentation.main.scene.main.MainViewModel.Action.GetPopularFeeds
-import com.presentation.main.scene.main.MainViewModel.Action.GetUser
+import com.presentation.main.scene.main.MainViewModel.Action.GetFeeds
+import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
@@ -85,15 +83,13 @@ fun MainScene(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
     }
 
     LaunchedEffect(permissionState.allPermissionsGranted) {
         when {
             permissionState.allPermissionsGranted -> {
-                viewModel.handleAction(GetPopularFeeds)
-                viewModel.handleAction(GetMyTownFeeds)
-                viewModel.handleAction(GetInterestRegionsFeeds)
+                viewModel.handleAction(GetFeeds)
             }
             permissionState.shouldShowRationale -> {
                 viewModel.handleAction(ShowSettingAlert)
@@ -116,9 +112,9 @@ fun MainScene(
         Scaffold(
             topBar = {
                 LogoUserTopAppBar(
-                    userName = uiState.user.nickname ?: "",
+                    userName = "${uiState.user.nickname}님",
                     onLogoClick = { scope.launch { scrollState.animateScrollTo(value = 0) } },
-                    onProfileClick = { navController.navigate(NavigationRouteConstant.mypageModifyUserSceneRoute) }
+                    onProfileClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
                 )
             },
             bottomBar = {
@@ -157,9 +153,10 @@ fun MainScene(
                     onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) },
                     onFollowClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
                 )
+                Spacer(modifier = Modifier.fillMaxWidth().height(20.dp))
                 if (uiState.user.interestedRegions.isNullOrEmpty()) {
                     LocationBannerButton(
-                        onClick = { }
+                        onClick = { navController.navigate(NavigationRouteConstant.mypageModifyUserSceneRoute) }
                     )
                 }
                 Spacer(modifier = Modifier
@@ -171,7 +168,9 @@ fun MainScene(
                     reviews = uiState.popularFeeds,
                     onMoreClick = { navController.navigate(NavConstant
                         .destFeed(section = NavConstant.Section.Popular))
-                    }
+                    },
+                    onClickItem = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                        .replace("{companyId}", it.compactCompany.id.toString())) }
                 )
                 if (uiState.myTownFeeds.isNotEmpty()) {
                     ReviewSection(
@@ -179,7 +178,9 @@ fun MainScene(
                         reviews = uiState.myTownFeeds,
                         onMoreClick = { navController.navigate(NavConstant
                             .destFeed(section = NavConstant.Section.MyTown))
-                        }
+                        },
+                        onClickItem = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.compactCompany.id.toString())) }
                     )
                 }
                 if (uiState.interestRegionsFeeds.isNotEmpty()) {
@@ -188,7 +189,9 @@ fun MainScene(
                         reviews = uiState.interestRegionsFeeds,
                         onMoreClick = { navController.navigate(NavConstant
                             .destFeed(section = NavConstant.Section.InterestRegions))
-                        }
+                        },
+                        onClickItem = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.compactCompany.id.toString())) }
                     )
                 }
             }
@@ -354,7 +357,6 @@ private fun LocationBannerButton(
             .height(142.dp)
             .clickable(onClick = onClick)
             .background(Color.White)
-            .padding(top = 20.dp)
             .padding(horizontal = 20.dp)
     ) {
 
@@ -392,6 +394,7 @@ private fun ReviewSection(
     title: String,
     reviews: List<ReviewFeed>,
     onMoreClick: () -> Unit,
+    onClickItem: (ReviewFeed) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -419,7 +422,11 @@ private fun ReviewSection(
         ) {
             items(reviews) { item ->
                 val cardWidth = LocalContext.current.screenWidthDp * 0.861
-                ReviewCard(reviewFeed = item, modifier = Modifier.width(cardWidth.dp))
+                ReviewCard(reviewFeed = item, modifier = Modifier
+                    .width(cardWidth.dp)
+                    .height(186.dp)
+                    .clickable { onClickItem(item) }
+                )
             }
         }
     }
@@ -445,7 +452,9 @@ private fun ReviewCard(
         /* 제목 + 별점 */
         Row(
             verticalAlignment = Alignment.Top,
-            modifier = Modifier.padding(top = 20.dp).padding(horizontal = 20.dp)
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .padding(horizontal = 20.dp)
         ) {
             Text(
                 text = review.title ?: "",
@@ -470,7 +479,8 @@ private fun ReviewCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 20.dp),
+                .padding(horizontal = 20.dp)
+                .padding(top = 8.dp, bottom = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
