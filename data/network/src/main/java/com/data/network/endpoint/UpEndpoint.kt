@@ -34,9 +34,8 @@ object UpEndpoint {
         const val NEARBY_COMPANY = "/api/companies/nearby"
         const val MAIN_REGION_COMPANY = "/api/companies/main-region"
         const val INTEREST_REGIONS_COMPANY = "/api/companies/interested-region"
-
-        const val ACCOUNT_RESIGN = "/api/users/me"
         const val REPORT = "/api/reports"
+        const val REISSUE = "/api/auth/reissue"
     }
 
     object Query {

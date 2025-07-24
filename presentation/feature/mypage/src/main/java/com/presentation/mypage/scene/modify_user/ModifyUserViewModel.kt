@@ -3,8 +3,8 @@ package com.presentation.mypage.scene.modify_user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.LegalDistrictInfo
-import com.domain.entity.User
 import com.domain.usecase.UpAuthUseCase
+import com.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edit_profile_address_component.FieldState
 import edit_profile_address_component.NickNameField
@@ -23,10 +23,11 @@ data class ModifyUserUIState(
 
 @HiltViewModel
 class ModifyUserViewModel @Inject constructor(
-    private val upAuthUseCase: UpAuthUseCase
+    private val upAuthUseCase: UpAuthUseCase,
+    private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
-        GetUser,
+        OnAppear,
         AddInterestTown,
         SetMyTown,
         UpdateNickNameTextField,
@@ -41,20 +42,20 @@ class ModifyUserViewModel @Inject constructor(
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
-            Action.GetUser -> {
+            Action.OnAppear -> {
                 if (currentState.nickNameField.value.isNotEmpty()) return
                 viewModelScope.launch {
-                    val user = getMockUser()
+                    val result = userUseCase.userInfo()
                     val userNickNameField = NickNameField(
-                        value = user.nickname ?: "",
+                        value = result.nickname ?: "",
                         fieldState = FieldState.ServerSuccess,
                         errorMessage = ""
                     )
                     _uiState.update {
                         it.copy(
                             nickNameField = userNickNameField,
-                            myTown = user.mainRegion,
-                            interestTowns = user.interestedRegions ?: emptyList(),
+                            myTown = result.mainRegion,
+                            interestTowns = result.interestedRegions ?: emptyList(),
                             isSubmitEnabled = true
                         )
                     }
@@ -114,21 +115,9 @@ class ModifyUserViewModel @Inject constructor(
                 }
             }
             Action.DidTapSubmitButton -> {
-                /* TODO: 수정 요청 */
+                /* TODO */
             }
         }
-    }
-
-    private fun getMockUser(): User {
-        return User(
-            nickname = "서현웅",
-            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-            interestedRegions = listOf(
-                LegalDistrictInfo(1001, "서울시 중랑구 면목동"),
-                LegalDistrictInfo(2002, "서울시 중랑구 중곡동"),
-                LegalDistrictInfo(3003, "서울시 중랑구 상봉동")
-            )
-        )
     }
 }
 

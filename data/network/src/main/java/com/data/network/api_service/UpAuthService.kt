@@ -1,9 +1,12 @@
 package com.data.network.api_service
 
 import RequestModel.AuthLoginRequestModel
+import RequestModel.LogOutRequestModel
+import RequestModel.ReissueRequestModel
 import RequestModel.SignUpRequestModel
 import RequestModel.VerifyNicknameRequestModel
 import com.data.dto.ResponseModel.search.AuthLoginResponseDTO
+import com.data.dto.ResponseModel.search.ReissueResponseDTO
 import com.data.dto.ResponseModel.search.TermsResponseDTO
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.response.APIResponse
@@ -30,4 +33,14 @@ interface UpAuthService {
     @GET(UpEndpoint.Path.TERM)
     suspend fun term(
     ):APIResponse<TermsResponseDTO>
+
+    @POST(UpEndpoint.Path.AUTH_LOGOUT)
+    suspend fun logout(
+        @Body body: LogOutRequestModel
+    ): APIResponse<Unit>
+
+    @POST(UpEndpoint.Path.REISSUE)
+    suspend fun reissueToken(
+        @Body body: ReissueRequestModel
+    ): APIResponse<ReissueResponseDTO>
 }

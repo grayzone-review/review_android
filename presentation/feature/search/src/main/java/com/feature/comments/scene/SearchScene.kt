@@ -90,7 +90,7 @@ fun SearchScene(
     ) {
         Appbar(
             searchUIState = searchUIState,
-            onBackButtonClick = { }
+            onBackButtonClick = { navController.popBackStack() }
         )
         SearchTextField(
             searchUIState = searchUIState,

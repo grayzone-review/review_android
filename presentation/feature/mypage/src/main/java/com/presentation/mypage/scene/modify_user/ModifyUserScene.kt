@@ -29,7 +29,7 @@ import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.AddI
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidTapCheckDuplicateButton
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidTapSubmitButton
-import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.GetUser
+import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.OnAppear
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.SetMyTown
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.UpdateNickNameTextField
 import com.team.common.feature_api.extension.addFocusCleaner
@@ -54,7 +54,7 @@ fun ModifyUserScene(
         .collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
     }
 
     LaunchedEffect(selectedAddress, mode) {

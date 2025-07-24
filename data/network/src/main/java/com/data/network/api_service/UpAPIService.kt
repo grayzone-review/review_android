@@ -1,10 +1,15 @@
 package com.data.network.api_service
 
+import RequestModel.CreateCompanyReviewRequestModel
+import RequestModel.ModifyUserRequestModel
+import RequestModel.ReportRequestModel
+import RequestModel.ResignRequestModel
 import RequestModel.WriteCommentRequestModel
 import RequestModel.WriteReplyRequestModel
 import com.data.dto.ResponseModel.search.CommentDto
 import com.data.dto.ResponseModel.search.CommentsDTO
 import com.data.dto.ResponseModel.search.CompanyInfoResponseDTO
+import com.data.dto.ResponseModel.search.CompanyReviewDTO
 import com.data.dto.ResponseModel.search.CompanyReviewsResponseDTO
 import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
 import com.data.dto.ResponseModel.search.MyArchiveCompaniesResponseDTO
@@ -21,6 +26,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
@@ -41,6 +47,12 @@ interface UpAPIService {
         @Path(UpEndpoint.Query.COMPANY_ID) companyID: Int,
         @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<CompanyReviewsResponseDTO>
+
+    @POST(UpEndpoint.Path.COMPANY_REVIEW)
+    suspend fun createCompanyReview(
+        @Path(UpEndpoint.Query.COMPANY_ID) companyID: Int,
+        @Body requestModel: CreateCompanyReviewRequestModel
+    ): APIResponse<CompanyReviewDTO>
 
     @POST(UpEndpoint.Path.FOLLOW_COMPANY)
     suspend fun followCompany(
@@ -110,10 +122,6 @@ interface UpAPIService {
         @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
     ): APIResponse<ReviewFeedResponseDTO>
 
-    @GET(UpEndpoint.Path.MY_INFO)
-    suspend fun userInfo(
-    ): APIResponse<UserInfoResponseDTO>
-
     @GET(UpEndpoint.Path.MY_INTERACTION_COUNT)
     suspend fun myInteractionCounts(
     ): APIResponse<UserInteractionResponseDTO>
@@ -150,4 +158,24 @@ interface UpAPIService {
         @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
         @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<SearchCompaniesResponseDTO>
+
+    @GET(UpEndpoint.Path.MY_INFO)
+    suspend fun userInfo(
+    ): APIResponse<UserInfoResponseDTO>
+
+    @PUT(UpEndpoint.Path.MY_INFO)
+    suspend fun modifyUserInfo(
+        @Body requestModel: ModifyUserRequestModel
+    ): APIResponse<Unit>
+
+    @DELETE(UpEndpoint.Path.MY_INFO)
+    suspend fun resign(
+        @Body requestModel: ResignRequestModel
+    ): APIResponse<Unit>
+
+    @PUT(UpEndpoint.Path.REPORT)
+    suspend fun report(
+        @Body requestModel: ReportRequestModel
+    ): APIResponse<Unit>
+
 }

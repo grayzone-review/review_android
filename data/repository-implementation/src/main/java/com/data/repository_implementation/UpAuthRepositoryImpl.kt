@@ -1,12 +1,16 @@
 package com.data.repository_implementation
 
 import RequestModel.AuthLoginRequestModel
+import RequestModel.LogOutRequestModel
+import RequestModel.ReissueRequestModel
 import RequestModel.SignUpRequestModel
 import RequestModel.VerifyNicknameRequestModel
 import com.data.dto.ResponseModel.search.toDomain
 import com.data.network.api_service.UpAuthService
 import com.domain.entity.Agreement
+import com.domain.entity.LogOutResult
 import com.domain.entity.LoginResult
+import com.domain.entity.ReissueResult
 import com.domain.entity.SignUpResult
 import com.domain.entity.Terms
 import com.domain.entity.VerifyNickNameResult
@@ -56,5 +60,20 @@ class UpAuthRepositoryImpl @Inject constructor(
         return responseDTO.data!!.toDomain()
     }
 
+    override suspend fun logout(
+        refreshToken: String
+    ): LogOutResult {
+        val requestDTO = LogOutRequestModel(refreshToken = refreshToken)
+        val responseDTO = upAuthService.logout(body = requestDTO)
+        return LogOutResult(success = responseDTO.success, message = responseDTO.message)
+    }
+
+    override suspend fun reissueToken(
+        refreshToken: String
+    ): ReissueResult {
+        val requestDTO = ReissueRequestModel(refreshToken = refreshToken)
+        val responseDTO = upAuthService.reissueToken(body = requestDTO)
+        return ReissueResult(accessToken = responseDTO.data?.accessToken!!, refreshToken = responseDTO.data?.refreshToken!!)
+    }
 
 }
