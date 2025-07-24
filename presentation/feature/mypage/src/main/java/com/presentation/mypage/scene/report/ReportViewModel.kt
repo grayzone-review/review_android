@@ -2,15 +2,21 @@ package com.presentation.mypage.scene.report
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.User
+import com.domain.usecase.UserUseCase
 import com.presentation.mypage.scene.report.type.ReportReason
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface ReportUIEvent {
+    data object Pop : ReportUIEvent
+}
 
 data class ReportUIState(
     val user: User = User(),
@@ -22,9 +28,10 @@ data class ReportUIState(
 
 @HiltViewModel
 class ReportViewModel @Inject constructor(
+    private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
-        GetUser,
+        OnAppear,
         UpdateSelectReason,
         UpdateReportedUserNickName,
         UpdateDetailReason,
@@ -33,13 +40,16 @@ class ReportViewModel @Inject constructor(
 
     private var _uiState = MutableStateFlow(value = ReportUIState())
     val uiState = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<ReportUIEvent>()
+    val event = _event.asSharedFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
+        val currentState = _uiState.value
         when (action) {
-            Action.GetUser -> {
+            Action.OnAppear -> {
                 viewModelScope.launch {
-                    val user = getMockUser()
-                    _uiState.update { it.copy(user = user) }
+                    val result = userUseCase.userInfo()
+                    _uiState.update { it.copy(user = result) }
                 }
             }
             Action.UpdateSelectReason -> {
@@ -64,22 +74,19 @@ class ReportViewModel @Inject constructor(
                 }
             }
             Action.Submit -> {
-                /* TODO: Submit API
-                *   제출 후, 성공하면 event로 PopTo 를 방출한다. */
+                viewModelScope.launch {
+                    val result = userUseCase.report(
+                        reporterName = currentState.user.nickname ?: "",
+                        targetName = currentState.reportedUserNickname,
+                        reportType = currentState.reason?.rawValue ?: "",
+                        description = currentState.detailReason
+                    )
+                    if (result.success) {
+                        _event.emit(ReportUIEvent.Pop)
+                    }
+                }
             }
         }
-    }
-
-    private fun getMockUser(): User {
-        return User(
-            nickname = "서현웅",
-            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-            interestedRegions = listOf(
-                LegalDistrictInfo(1001, "서울시 중랑구 면목동"),
-                LegalDistrictInfo(2002, "서울시 중랑구 중곡동"),
-                LegalDistrictInfo(3003, "서울시 중랑구 상봉동")
-            )
-        )
     }
 }
 

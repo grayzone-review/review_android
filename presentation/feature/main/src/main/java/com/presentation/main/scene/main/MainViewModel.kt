@@ -5,10 +5,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
-import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
 import com.domain.usecase.ReviewUseCase
+import com.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +35,8 @@ data class MainUIState(
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val reviewUseCase: ReviewUseCase
+    private val reviewUseCase: ReviewUseCase,
+    private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
         GetUser,
@@ -55,8 +56,8 @@ class MainViewModel @Inject constructor(
         when (action) {
             Action.GetUser -> {
                 viewModelScope.launch {
-                    val user = getMockUser()
-                    _uiState.update { it.copy(user = user) }
+                    val result = userUseCase.userInfo()
+                    _uiState.update { it.copy(user = result) }
                 }
             }
             Action.GetPopularFeeds -> {
@@ -90,17 +91,5 @@ class MainViewModel @Inject constructor(
                 _uiState.update { it.copy(isShowSettingAlertDialog = false) }
             }
         }
-    }
-
-    private fun getMockUser(): User {
-        return User(
-            nickname = "서현웅",
-            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-            interestedRegions = listOf(
-                LegalDistrictInfo(1001, "서울시 중랑구 면목동"),
-                LegalDistrictInfo(2002, "서울시 중랑구 중곡동"),
-                LegalDistrictInfo(3003, "서울시 중랑구 상봉동")
-            )
-        )
     }
 }

@@ -31,7 +31,7 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DidTapMyPageMenu
-import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.GetUser
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.OnAppear
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.UpAlertIconDialog
 import preset_ui.icons.InfoIcon
@@ -70,7 +70,7 @@ fun MyPageScene(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
     }
 
     alertMenu?.let { menu ->

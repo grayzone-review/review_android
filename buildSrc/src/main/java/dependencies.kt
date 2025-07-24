@@ -32,6 +32,8 @@ object Versions {
     // ── Location ─────────────────────────────
     const val gmsLocationService  = "21.3.0"
     const val permission          = "0.37.3"
+    // ── Lottie ─────────────────────────────
+    const val lottieCompose       = "6.6.6"
 }
 
 object Deps {
@@ -87,4 +89,8 @@ object Kakao {
 object Location {
     const val gmsLocationService        = "com.google.android.gms:play-services-location:${Versions.gmsLocationService}"
     const val permission                = "com.google.accompanist:accompanist-permissions:${Versions.permission}"
+}
+
+object Lottie {
+    const val lottieCompose             = "com.airbnb.android:lottie-compose:${Versions.lottieCompose}"
 }

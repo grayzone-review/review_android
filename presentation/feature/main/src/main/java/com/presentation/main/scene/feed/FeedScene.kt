@@ -35,8 +35,7 @@ import com.domain.entity.User
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.main.NavConstant
-import com.presentation.main.scene.feed.FeedViewModel.Action.GetFeeds
-import com.presentation.main.scene.feed.FeedViewModel.Action.GetUser
+import com.presentation.main.scene.feed.FeedViewModel.Action.OnAppear
 import com.team.common.feature_api.utility.Utility
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
@@ -52,8 +51,7 @@ fun FeedScene(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetFeeds)
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
     }
 
     Scaffold(

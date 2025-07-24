@@ -8,11 +8,17 @@ import com.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edit_profile_address_component.FieldState
 import edit_profile_address_component.NickNameField
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface ModifyUserUIEvent {
+    data object Pop : ModifyUserUIEvent
+}
 
 data class ModifyUserUIState(
     val nickNameField: NickNameField = NickNameField(),
@@ -38,6 +44,8 @@ class ModifyUserViewModel @Inject constructor(
 
     private var _uiState = MutableStateFlow(value = ModifyUserUIState())
     val uiState = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<ModifyUserUIEvent>()
+    val event = _event.asSharedFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
@@ -115,7 +123,16 @@ class ModifyUserViewModel @Inject constructor(
                 }
             }
             Action.DidTapSubmitButton -> {
-                /* TODO */
+                viewModelScope.launch {
+                    val result = userUseCase.modifyUserInfo(
+                        mainRegionID = currentState.myTown?.id ?: 0,
+                        interestedRegionIds = currentState.interestTowns.map { it.id },
+                        nickname = currentState.nickNameField.value
+                    )
+                    if (result.success) {
+                        _event.emit(ModifyUserUIEvent.Pop)
+                    }
+                }
             }
         }
     }

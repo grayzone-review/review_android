@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":presentation:design-system"))
     implementation(project(":data:location"))
 
+    implementation(Lottie.lottieCompose)
     implementation(Location.permission)
     implementation(Location.gmsLocationService)
     implementation(DaggerHilt.hilt)

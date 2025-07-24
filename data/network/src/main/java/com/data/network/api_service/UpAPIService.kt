@@ -173,7 +173,7 @@ interface UpAPIService {
         @Body requestModel: ResignRequestModel
     ): APIResponse<Unit>
 
-    @PUT(UpEndpoint.Path.REPORT)
+    @POST(UpEndpoint.Path.REPORT)
     suspend fun report(
         @Body requestModel: ReportRequestModel
     ): APIResponse<Unit>

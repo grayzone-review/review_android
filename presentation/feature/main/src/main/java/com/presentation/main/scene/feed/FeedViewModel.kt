@@ -5,13 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
-import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
 import com.domain.usecase.ReviewUseCase
+import com.domain.usecase.UserUseCase
 import com.presentation.main.NavConstant
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,11 +26,11 @@ data class FeedUIState(
 @HiltViewModel
 class FeedViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val reviewUseCase: ReviewUseCase
+    private val reviewUseCase: ReviewUseCase,
+    private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
-        GetUser,
-        GetFeeds,
+        OnAppear,
         ShowSettingAlert
     }
 
@@ -44,41 +43,24 @@ class FeedViewModel @Inject constructor(
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
-            Action.GetUser -> {
-                viewModelScope.launch {
-                    val user = getMockUser()
-                    _uiState.update { it.copy(user = user) }
-                }
-            }
-            Action.GetFeeds -> {
+            Action.OnAppear -> {
                 val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
-
                 viewModelScope.launch {
-                    val result = when (section) {
-                        NavConstant.Section.MyTown.value           -> reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
-                        NavConstant.Section.InterestRegions.value  -> reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
-                        else                                       -> reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
+                    val userResult = userUseCase.userInfo()
+                    _uiState.update { it.copy(user = userResult) }
+
+                    val feedsResult = when (section) {
+                        NavConstant.Section.MyTown.value -> reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
+                        NavConstant.Section.InterestRegions.value -> reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
+                        else -> reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
                     }
-                    _uiState.update { it.copy(reviewFeeds = result) }
-                    Log.d("리저트", result.size.toString())
+                    _uiState.update { it.copy(reviewFeeds = feedsResult) }
+                    Log.d("리저트", feedsResult.size.toString())
                 }
             }
             Action.ShowSettingAlert -> {
 
             }
         }
-    }
-
-    private suspend fun getMockUser(): User {
-        delay(200)
-        return User(
-            nickname = "서현웅",
-            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-            interestedRegions = listOf(
-                LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-                LegalDistrictInfo(2, "서울시 중랑구 중곡동"),
-                LegalDistrictInfo(2, "서울시 중랑구 상봉동")
-            )
-        )
     }
 }
