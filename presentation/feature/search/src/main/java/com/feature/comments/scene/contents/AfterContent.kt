@@ -47,6 +47,7 @@ import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchUIState
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidRequestLoadMore
+import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidTapFilterButton
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidTapFollowCompanyButton
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidUpdateSearchQuery
 import com.feature.comments.scene.contents.TagButtonType.Around
@@ -78,7 +79,10 @@ fun AfterContent(
         selectedTagButtonType = selectedTagButtonData,
         onLoadMore = { viewModel.handleAction(DidRequestLoadMore, currentQuery) },
         onClickSearchResult = { onClickSearchResult(it) },
-        onClickTagButton = { onClickTagButtonAtAfterContent(it) },
+        onClickTagButton = {
+            onClickTagButtonAtAfterContent(it)
+            viewModel.handleAction(DidTapFilterButton)
+        },
         onClickFollowButton = { viewModel.handleAction(DidTapFollowCompanyButton, it) }
     )
 

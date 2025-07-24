@@ -122,7 +122,7 @@ interface UpAPIService {
     suspend fun myReviews(
     ): APIResponse<MyArchiveReviewsResponseDTO>
 
-    @GET(UpEndpoint.Path.MY_INTERESTS)
+    @GET(UpEndpoint.Path.MY_INTEREST_REVIEWS)
     suspend fun myInterestReviews(
     ): APIResponse<MyArchiveReviewsResponseDTO>
 
@@ -130,4 +130,24 @@ interface UpAPIService {
     suspend fun myFollowCompanies(
     ): APIResponse<MyArchiveCompaniesResponseDTO>
 
+    @GET(UpEndpoint.Path.NEARBY_COMPANY)
+    suspend fun nearbyCompanies(
+        @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
+    ): APIResponse<SearchCompaniesResponseDTO>
+
+    @GET(UpEndpoint.Path.MAIN_REGION_COMPANY)
+    suspend fun mainRegionCompanies(
+        @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
+    ): APIResponse<SearchCompaniesResponseDTO>
+
+    @GET(UpEndpoint.Path.INTEREST_REGIONS_COMPANY)
+    suspend fun interestRegionsCompanies(
+        @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
+    ): APIResponse<SearchCompaniesResponseDTO>
 }

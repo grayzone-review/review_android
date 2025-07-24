@@ -38,20 +38,20 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         DidTapFilterButtons
     }
 
-    private val _searchUISate = MutableStateFlow<SearchUIState>(value = SearchUIState())
+    private val _searchUISate = MutableStateFlow(value = SearchUIState())
     val searchUIState = _searchUISate.asStateFlow()
 
-    fun handleAction(searchInterfaceAction: SearchInterfaceAction, text: String? = null) {
+    fun handleAction(searchInterfaceAction: SearchInterfaceAction, value: Any? = null) {
         when (searchInterfaceAction) {
             SearchInterfaceAction.DidUpdateSearchBarValue -> {
-                text?.let { newText ->
-                    _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = newText)) }
-                }
+                val newQuery = value as? String ?: return
+                _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = newQuery)) }
             }
             SearchInterfaceAction.DidFocusSearchBar -> {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = true,
+                        selectedTagButtonType = null,
                         phase = SearchPhase.Searching
                     )
                 }
@@ -60,7 +60,13 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 _searchUISate.update { it.copy(hasFocus = false) }
             }
             SearchInterfaceAction.DidTapClearButton -> {
-                _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = "")) }
+                _searchUISate.update {
+                    it.copy(
+                        searchBarValue = TextFieldValue(text = ""),
+                        selectedTagButtonType = null,
+                        phase = SearchPhase.Searching
+                    )
+                }
             }
             SearchInterfaceAction.DidTapCancelButton -> {
                 _searchUISate.update {
@@ -78,6 +84,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
+                        selectedTagButtonType = null,
                         phase = SearchPhase.After
                     )
                 }
@@ -98,6 +105,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 _searchUISate.update {
                     it.copy(
                         searchBarValue = TextFieldValue(text = query),
+                        selectedTagButtonType = null,
                         phase = SearchPhase.Searching
                     )
                 }

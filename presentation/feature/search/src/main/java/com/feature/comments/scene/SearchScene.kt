@@ -94,7 +94,7 @@ fun SearchScene(
         )
         SearchTextField(
             searchUIState = searchUIState,
-            onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, text = it) },
+            onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, it) },
             onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnFocusSearchBar) },
             onClickClearButton = { viewModel.handleAction(DidTapClearButton) },
             onClickCancelButton = {

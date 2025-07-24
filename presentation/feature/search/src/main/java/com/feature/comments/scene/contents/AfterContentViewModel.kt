@@ -31,7 +31,8 @@ class AfterContentViewModel @Inject constructor(
     enum class Action {
         DidUpdateSearchQuery,
         DidRequestLoadMore,
-        DidTapFollowCompanyButton
+        DidTapFollowCompanyButton,
+        DidTapFilterButton
     }
 
     private val _uiState = MutableStateFlow(AfterContentUIState())
@@ -41,18 +42,20 @@ class AfterContentViewModel @Inject constructor(
         val currentState = _uiState.value
         when (action) {
             Action.DidUpdateSearchQuery -> {
-                val query = value as? String ?: return
-                val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
+                val query = (value as? String)?.trim() ?: return
                 if (query.isBlank()) { clearSearchResults(); return }
+                val (lat, lng) = UpDataStoreService.lastKnownLocation
+                    .split(",")
+                    .map(String::toDouble)
+                val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true, error = null) }
-                    val result = searchCompaniesUseCase.searchCompanies(
-                        keyword = query,
-                        latitude = latitude,
-                        longitude = longitude,
-                        size = 10,
-                        page = 0
-                    )
+                    val result = when (tag) {
+                        TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = 0)
+                        TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = 0)
+                        TagButtonType.Interest -> searchCompaniesUseCase.interestRegionsCompanies(lat, lng, page = 0)
+                        null -> searchCompaniesUseCase.searchCompanies(keyword = query, latitude = lat, longitude = lng, size = 10, page = 0)
+                    }
                     _uiState.update {
                         it.copy(
                             totalCount = result.totalCount,
@@ -64,24 +67,29 @@ class AfterContentViewModel @Inject constructor(
                 }
             }
             Action.DidRequestLoadMore -> {
-                val query = value as? String ?: return
-                val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
-                if (currentState.isLoading || !currentState.hasNext) return
+                /* 입력된 쿼리(또는 태그 문자열) 다시 확인 */
+                val query=(value as? String)?.trim() ?: return
+                if(query.isBlank()||currentState.isLoading||!currentState.hasNext) return
+
+                val (lat, lng) = UpDataStoreService.lastKnownLocation.split(",")
+                    .map(String::toDouble)
+                val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
+                val nextPage = currentState.currentPage + 1
                 viewModelScope.launch {
-                    val nextPage = currentState.currentPage + 1
-                    _uiState.update { it.copy(isLoading = true) }
-                    val result = searchCompaniesUseCase.searchCompanies(
-                        keyword = query,
-                        latitude = latitude,
-                        longitude = longitude,
-                        size = 10,
-                        page = nextPage
-                    )
+                    _uiState.update{it.copy(isLoading=true)}
+
+                    val result=when(tag){
+                        TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = nextPage)
+                        TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = nextPage)
+                        TagButtonType.Interest -> searchCompaniesUseCase.interestRegionsCompanies(lat, lng, page = nextPage)
+                        null                   -> searchCompaniesUseCase.searchCompanies(query, lat, lng,10, nextPage)
+                    }
                     _uiState.update {
                         it.copy(
-                            totalCount = result.totalCount,
                             searchedCompanies = currentState.searchedCompanies + result.companies,
+                            totalCount = result.totalCount,
                             hasNext = result.hasNext,
+                            currentPage = nextPage,
                             isLoading = false
                         )
                     }
@@ -103,6 +111,18 @@ class AfterContentViewModel @Inject constructor(
                             .apply { this[targetIndex] = this[targetIndex].copy(following = !targetCompanyFollowingState) }
                         _uiState.update { it.copy(searchedCompanies = updated) }
                     }
+                }
+            }
+            Action.DidTapFilterButton -> {
+                _uiState.update {
+                    it.copy(
+                        searchedCompanies = emptyList(),
+                        totalCount = 0,
+                        currentPage = 0,
+                        hasNext = false,
+                        isLoading = false,
+                        error = null
+                    )
                 }
             }
         }

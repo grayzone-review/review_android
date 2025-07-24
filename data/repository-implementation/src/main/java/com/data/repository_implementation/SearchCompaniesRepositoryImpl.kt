@@ -24,4 +24,32 @@ class SearchCompaniesRepositoryImpl @Inject constructor(
         val responseDTO = upApiService.searchCompanies(requestDTO)
         return responseDTO.data?.toDomain()!!
     }
+
+    override suspend fun nearbyCompanies(
+        latitude: Double,
+        longitude: Double,
+        page: Int,
+    ): CompactCompanies {
+        val responseDTO = upApiService.nearbyCompanies(latitude = latitude, longitude = longitude, page = page)
+        return responseDTO.data?.toDomain()!!
+    }
+
+    override suspend fun mainRegionCompanies(
+        latitude: Double,
+        longitude: Double,
+        page: Int
+    ): CompactCompanies {
+        val responseDTO = upApiService.mainRegionCompanies(latitude = latitude, longitude = longitude, page = page)
+        return responseDTO.data?.toDomain()!!
+    }
+
+    override suspend fun interestRegionsCompanies(
+        latitude: Double,
+        longitude: Double,
+        page: Int
+    ): CompactCompanies {
+        val responseDTO = upApiService.interestRegionsCompanies(latitude = latitude, longitude = longitude, page = page)
+        return responseDTO.data?.toDomain()!!
+    }
+
 }

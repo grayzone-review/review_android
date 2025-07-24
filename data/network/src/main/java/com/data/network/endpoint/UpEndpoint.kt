@@ -29,8 +29,12 @@ object UpEndpoint {
         const val MY_INTERACTION_COUNT = "/api/users/me/interaction-counts"
         const val MY_INFO = "/api/users/me"
         const val MY_REVIEWS = "/api/users/me/reviews"
-        const val MY_INTERESTS = "/api/users/me/interacted-reviews"
+        const val MY_INTEREST_REVIEWS = "/api/users/me/interacted-reviews"
         const val MY_FOLLOW = "/api/users/me/followed-companies"
+        const val NEARBY_COMPANY = "/api/companies/nearby"
+        const val MAIN_REGION_COMPANY = "/api/companies/main-region"
+        const val INTEREST_REGIONS_COMPANY = "/api/companies/interested-region"
+
         const val ACCOUNT_RESIGN = "/api/users/me"
         const val REPORT = "/api/reports"
     }

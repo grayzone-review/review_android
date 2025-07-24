@@ -128,18 +128,9 @@ private fun TagView(text: String, onClickTag: () -> Unit, onClickDelete: () -> U
 
 enum class TagButtonType(val label: String, val icon: @Composable () -> Unit) {
     Around("내 근처 업체", { AroundIcon(isOn = true, 18.dp, 18.dp) }),
-    MyTown("우리동네 업체", { MytownIcon(isOn = true, 18.dp, 18.dp) }),
-    Interest("관심동네 업체", { InterestIcon(isOn = true, 18.dp, 18.dp) });
-
-    fun toData(): TagButtonData = TagButtonData(this, label, icon)
+    MyTown("우리 동네 업체", { MytownIcon(isOn = true, 18.dp, 18.dp) }),
+    Interest("관심 동네 업체", { InterestIcon(isOn = true, 18.dp, 18.dp) });
 }
-
-data class TagButtonData(
-    val type: TagButtonType,
-    val label: String,
-    val icon: @Composable () -> Unit
-)
-
 @Composable
 fun FilterButtons(
     title: String,
