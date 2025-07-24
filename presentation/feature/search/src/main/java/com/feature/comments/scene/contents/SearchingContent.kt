@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -285,7 +286,7 @@ private fun HighlightedCompanyName(
 ) {
     // 키워드가 비어있으면 기본 텍스트 출력
     if (keyword.isBlank()) {
-        Text(text = companyName, style = Typography.body1Bold, color = CS.Gray.G90, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier)
+        Text(text = companyName, style = Typography.body1Bold.copy(lineBreak = LineBreak.Paragraph), color = CS.Gray.G90, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier)
         return
     }
 
@@ -316,7 +317,7 @@ private fun HighlightedCompanyName(
         append(companyName)
     }
 
-    Text(text = annotatedString, style = Typography.body1Bold, color = CS.Gray.G90, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier,)
+    Text(text = annotatedString, style = Typography.body1Bold.copy(lineBreak = LineBreak.Paragraph), color = CS.Gray.G90, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier,)
 }
 
 private fun getMatchableKeyword(keyword: String): String {
