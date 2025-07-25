@@ -63,7 +63,7 @@ class CompanyDetailViewModel @Inject constructor(
     private val _event = MutableSharedFlow<CompanyDetailUIEvent>()
     val event = _event.asSharedFlow()
 
-    fun handleAction(action: Action, index: Int? = null) {
+    fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
             Action.OnAppear -> {
@@ -87,6 +87,7 @@ class CompanyDetailViewModel @Inject constructor(
                         }
                     } catch (error: APIException) {
                         _event.emit(CompanyDetailUIEvent.ShowAlert(error))
+                        _uiState.update { it.copy(isLoading = false) }
                     }
                 }
             }
@@ -110,60 +111,60 @@ class CompanyDetailViewModel @Inject constructor(
                         }
                     } catch (error: APIException) {
                         _event.emit(CompanyDetailUIEvent.ShowAlert(error))
+                        _uiState.update { it.copy(isLoading = false) }
                     }
                 }
             }
             Action.DidTapFollowCompanyButton -> {
                 viewModelScope.launch {
-                    currentState.company?.following?.let { followStatus ->
-                        val result = if (!followStatus) {
+                    try {
+                        if (currentState.company?.following == false) {
                             companyDetailUseCase.followCompany(companyID = currentState.companyID ?: 0)
                         } else {
                             companyDetailUseCase.unfollowCompany(companyID = currentState.companyID ?: 0)
                         }
-                        if (result.success) {
-                            val company = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
-                            _uiState.update { it.copy(company = company) }
-                        }
+                        val company = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
+                        _uiState.update { it.copy(company = company) }
+                    } catch (error: APIException) {
+                        _event.emit(CompanyDetailUIEvent.ShowAlert(error))
                     }
                 }
             }
             Action.DidTapLikeReviewButton -> {
-                index?.let { idx ->
-                    viewModelScope.launch {
-                        val targetReview = currentState.reviews[idx]
-                        val shouldLike = targetReview.liked != true
-                        val result = if (shouldLike) {
-                            reviewUseCase.likeReview(reviewID = targetReview.id ?: 0)
+                val index = value as? Int ?: return
+                viewModelScope.launch {
+                    val targetReview = currentState.reviews[index]
+                    val shouldLike = !targetReview.liked
+                    try {
+                        if (shouldLike) {
+                            reviewUseCase.likeReview(reviewID = targetReview.id)
                         } else {
-                            reviewUseCase.unlikeReview(reviewID = targetReview.id ?: 0)
+                            reviewUseCase.unlikeReview(reviewID = targetReview.id)
                         }
-                        if (result.success) {
-                            val updatedReview = targetReview.copy(
-                                liked = shouldLike,
-                                likeCount = (targetReview.likeCount ?: 0) + if (shouldLike) 1 else -1
-                            )
-                            _uiState.update { state ->
-                                state.copy(
-                                    reviews = state.reviews.toMutableList().also { it[idx] = updatedReview }
-                                )
-                            }
+                        val updatedReview = targetReview.copy(
+                            liked = shouldLike,
+                            likeCount = (targetReview.likeCount) + if (shouldLike) 1 else -1
+                        )
+                        _uiState.update {
+                            it.copy(reviews = currentState.reviews.toMutableList().also { current -> current[index] = updatedReview })
                         }
+                    } catch (error: APIException) {
+                        _event.emit(CompanyDetailUIEvent.ShowAlert(error))
                     }
                 }
             }
             Action.DidTapReviewCard -> {
-                index?.let { idx ->
-                    val updatedFullModeList = currentState.isFullModeList.toMutableList()
-                    updatedFullModeList[idx] = !updatedFullModeList[idx]
-                    _uiState.update { it.copy(isFullModeList = updatedFullModeList) }
-                }
+                val index = value as? Int ?: return
+                val updatedFullModeList = currentState.isFullModeList.toMutableList()
+                updatedFullModeList[index] = !updatedFullModeList[index]
+                _uiState.update { it.copy(isFullModeList = updatedFullModeList) }
             }
             Action.DidTapCommentButton, Action.DidCloseBottomSheet -> {
                 _uiState.update { it.copy(showBottomSheet = !currentState.showBottomSheet) }
             }
-            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
-            Action.DismissCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
+            Action.ShowCreateReviewSheet, Action.DismissCreateReviewSheet -> {
+                _uiState.update { it.copy(shouldShowCreateReviewSheet = !currentState.shouldShowCreateReviewSheet) }
+            }
         }
     }
 }

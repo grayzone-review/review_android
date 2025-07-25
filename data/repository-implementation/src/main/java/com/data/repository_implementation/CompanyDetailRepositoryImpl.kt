@@ -29,11 +29,13 @@ class CompanyDetailRepositoryImpl @Inject constructor(
 
     override suspend fun followCompany(companyID: Int): FollowCompanyResult {
         val responseDTO = upApiService.followCompany(companyId = companyID)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return FollowCompanyResult(message = responseDTO.message, success = responseDTO.success)
     }
 
     override suspend fun unfollowCompany(companyID: Int): FollowCompanyResult {
         val responseDTO = upApiService.unfollowCompany(companyId = companyID)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return FollowCompanyResult(message = responseDTO.message, success = responseDTO.success)
     }
 }
