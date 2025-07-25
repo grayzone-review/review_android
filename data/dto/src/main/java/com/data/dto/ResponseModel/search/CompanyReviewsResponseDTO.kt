@@ -41,7 +41,7 @@ fun CompanyReviewsResponseDTO.toDomain(): Reviews = Reviews(
     reviews = reviews.map { it.toDomain() }
 )
 
-private fun CompanyReviewDTO.toDomain(): Review = Review(
+fun CompanyReviewDTO.toDomain(): Review = Review(
     id = id,
     ratings = ratings.toDomain(),
     author = author,

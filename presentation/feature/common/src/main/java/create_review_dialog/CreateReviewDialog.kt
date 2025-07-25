@@ -26,6 +26,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +43,7 @@ import colors.CS
 import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import common_ui.UpIndicator
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapClearButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapNextButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapPreviousButton
@@ -90,6 +92,14 @@ private fun content(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                CreateReviewUIEvent.DismissDialog -> { onDismiss() }
+            }
+        }
+    }
+
     InputBottomSheet(
         uiState = uiState,
         bottomSheetState = uiState.bottomSheetState,
@@ -100,66 +110,69 @@ private fun content(
         onCompanyItemClick = { viewModel.handleAction(UpdateCompany, it) },
         onClickClearButton = { viewModel.handleAction(DidTapClearButton) }
     )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = CS.Gray.White)
-    ) {
-        DefaultTopAppBar(
-            title = "리뷰작성",
-            actions = {
-                IconButton(
-                    onClick = { onDismiss() }
-                ) {
-                    CloseLine(24.dp, 24.dp, tint = CS.Gray.G90)
-                }
-            }
-        )
-        StepProgressBar(currentStep = uiState.phase.step, totalStep = 3)
+
+    Box(Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .weight(1f)
-                .verticalScroll(scrollState)
+                .fillMaxSize()
+                .background(color = CS.Gray.White)
         ) {
-            when (uiState.phase) {
-                CreateReviewPhase.First -> {
-                    FirstContent(
-                        uiState = uiState,
-                        onCompanyClick = { viewModel.handleAction(DidTapTextField, InputField.Company) },
-                        onJobRoleClick = { viewModel.handleAction(DidTapTextField, InputField.JobRole)},
-                        onPeriodClick = { viewModel.handleAction(DidTapTextField, InputField.EmploymentPeriod) },
-                    )
+            DefaultTopAppBar(
+                title = "리뷰작성",
+                actions = {
+                    IconButton(
+                        onClick = { onDismiss() }
+                    ) {
+                        CloseLine(24.dp, 24.dp, tint = CS.Gray.G90)
+                    }
                 }
+            )
+            StepProgressBar(currentStep = uiState.phase.step, totalStep = 3)
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(scrollState)
+            ) {
+                when (uiState.phase) {
+                    CreateReviewPhase.First -> {
+                        FirstContent(
+                            uiState = uiState,
+                            onCompanyClick = { viewModel.handleAction(DidTapTextField, InputField.Company) },
+                            onJobRoleClick = { viewModel.handleAction(DidTapTextField, InputField.JobRole)},
+                            onPeriodClick = { viewModel.handleAction(DidTapTextField, InputField.EmploymentPeriod) },
+                        )
+                    }
 
-                CreateReviewPhase.Second -> {
-                    SecondContent(
-                        uiState = uiState,
-                        onCompanyNameClick = { viewModel.handleAction(DidTapTextField, InputField.Company) },
-                        onRatingsChanged = { viewModel.handleAction(UpdateRatings, it) }
-                    )
-                }
+                    CreateReviewPhase.Second -> {
+                        SecondContent(
+                            uiState = uiState,
+                            onCompanyNameClick = { viewModel.handleAction(DidTapTextField, InputField.Company) },
+                            onRatingsChanged = { viewModel.handleAction(UpdateRatings, it) }
+                        )
+                    }
 
-                CreateReviewPhase.Third -> {
-                    ThirdContent(
-                        uiState = uiState,
-                        onAdvantagePointClick = { viewModel.handleAction(DidTapTextField, InputField.Advantage)},
-                        onDisadvantagePointClick = { viewModel.handleAction(DidTapTextField, InputField.Disadvantage) },
-                        onManagementFeedBackClick = { viewModel.handleAction(DidTapTextField, InputField.ManagementFeedback) }
-                    )
+                    CreateReviewPhase.Third -> {
+                        ThirdContent(
+                            uiState = uiState,
+                            onAdvantagePointClick = { viewModel.handleAction(DidTapTextField, InputField.Advantage)},
+                            onDisadvantagePointClick = { viewModel.handleAction(DidTapTextField, InputField.Disadvantage) },
+                            onManagementFeedBackClick = { viewModel.handleAction(DidTapTextField, InputField.ManagementFeedback) }
+                        )
+                    }
                 }
             }
+            ReviewDialogButtons(
+                phase = uiState.phase,
+                enabled = uiState.isNextAndSubmitEnabled,
+                onClickNextButton = { viewModel.handleAction(DidTapNextButton) },
+                onClickBackButton = { viewModel.handleAction(DidTapPreviousButton) },
+                onClickSubmitButton = { viewModel.handleAction(DidTapSubmitButton) }
+            )
         }
-        ReviewDialogButtons(
-            phase = uiState.phase,
-            enabled = uiState.isNextAndSubmitEnabled,
-            onClickNextButton = { viewModel.handleAction(DidTapNextButton) },
-            onClickBackButton = { viewModel.handleAction(DidTapPreviousButton) },
-            onClickSubmitButton = {
-                viewModel.handleAction(DidTapSubmitButton) // TODO: 달아서 테스트
-                onDismiss()
-            }
-        )
+
+        UpIndicator(isShow = uiState.isLoading, needDim = uiState.isLoading)
     }
+
 }
 
 @Composable

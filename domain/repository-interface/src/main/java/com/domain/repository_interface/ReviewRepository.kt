@@ -5,6 +5,7 @@ import com.domain.entity.Comments
 import com.domain.entity.LikeReviewResult
 import com.domain.entity.Replies
 import com.domain.entity.Reply
+import com.domain.entity.Review
 import com.domain.entity.ReviewFeed
 
 interface ReviewRepository {
@@ -17,4 +18,17 @@ interface ReviewRepository {
     suspend fun popularReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>
     suspend fun myTownReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>
     suspend fun interestRegionsReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>
+    suspend fun createReview(
+        companyID: Int,
+        advantagePoint: String,
+        disadvantagePoint: String,
+        managementFeedback: String,
+        jobRole: String,
+        employmentPeriod: String,
+        welfare: Double,
+        workLifeBalance: Double,
+        salary: Double,
+        companyCulture: Double,
+        management: Double
+    ): Review
 }

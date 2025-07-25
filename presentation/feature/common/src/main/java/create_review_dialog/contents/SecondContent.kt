@@ -61,7 +61,7 @@ fun Ratings.update(key: RatingKey, new: Double): Ratings = when (key) {
 }
 
 fun Ratings.isFullyRated(): Boolean {
-    return companyCulture!! > 0.0 &&
+    return companyCulture > 0.0 &&
             management!! > 0.0 &&
             salary!! > 0.0 &&
             welfare!! > 0.0 &&

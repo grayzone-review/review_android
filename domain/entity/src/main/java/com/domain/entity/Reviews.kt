@@ -25,11 +25,11 @@ data class Review(
 )
 
 data class Ratings(
-    val companyCulture: Double? = null,
-    val management: Double? = null,
-    val salary: Double? = null,
-    val welfare: Double? = null,
-    val workLifeBalance: Double? = null
+    val companyCulture: Double = 0.0,
+    val management: Double = 0.0,
+    val salary: Double = 0.0,
+    val welfare: Double = 0.0,
+    val workLifeBalance: Double = 0.0
 )
 
 /**

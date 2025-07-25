@@ -45,7 +45,7 @@ import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.ReviewCheckLine
 import preset_ui.icons.SearchLineIcon
 
-enum class WorkPeriod(val label: String) {
+enum class WorkPeriod(val rawValue: String) {
     UNDER_1_YEAR("1년 미만"),
     MORE_1_YEAR("1년 이상"),
     MORE_2_YEARS("2년 이상"),
@@ -227,7 +227,7 @@ fun PeriodContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = period.label,
+                    text = period.rawValue,
                     style = if (isSelected) Typography.body1Bold else Typography.body1Regular,
                     color = if (isSelected) CS.PrimaryOrange.O40 else CS.Gray.G90
                 )
