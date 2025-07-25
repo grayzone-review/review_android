@@ -18,11 +18,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import colors.CS
 import com.domain.entity.Company
@@ -33,13 +37,17 @@ import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewMod
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapLikeReviewButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapReviewCard
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DismissCreateReviewSheet
-import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetCompany
-import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviews
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviewsMore
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.OnAppear
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.ShowCreateReviewSheet
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.ErrorAction
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.AlertStyle
+import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import preset_ui.CSSpacerHorizontal
@@ -56,11 +64,26 @@ fun CompanyDetailScene(
     navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetCompany)
-        viewModel.handleAction(GetReviews)
+        viewModel.event.collect { event ->
+            when (event) {
+                is CompanyDetailUIEvent.ShowAlert -> { alertError = event.error }
+            }
+        }
     }
+
+    BindAlert(
+        error = alertError,
+        navController = navController,
+        completion = { alertError = null }
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.handleAction(OnAppear)
+    }
+
     BackHandler {
         if (uiState.showBottomSheet) {
             viewModel.handleAction(DidCloseBottomSheet)
@@ -93,7 +116,7 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = detailUIState.company.companyName ?: "", onBackButtonClick = { navController.popBackStack() }) },
+        topBar = { TopAppBar(title = detailUIState.company?.companyName ?: "", onBackButtonClick = { navController.popBackStack() }) },
         containerColor = CS.Gray.White
     ) { innerPadding ->
         LazyColumn(
@@ -159,10 +182,10 @@ private fun TopAppBar(
 }
 
 @Composable
-fun CompanyProfile(company: Company, modifier: Modifier) {
-    val companyAddress = company.siteFullAddress
+fun CompanyProfile(company: Company?, modifier: Modifier) {
+    val companyAddress = company?.siteFullAddress
         ?.takeIf { it.isNotEmpty() }
-        ?: company.roadNameAddress?.takeIf { it.isNotEmpty() }
+        ?: company?.roadNameAddress?.takeIf { it.isNotEmpty() }
         ?: ""
 
     Column(
@@ -171,26 +194,28 @@ fun CompanyProfile(company: Company, modifier: Modifier) {
             .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = company.companyName ?: "", color = CS.Gray.G90, style = Typography.h3)
+        Text(text = company?.companyName ?: "", color = CS.Gray.G90, style = Typography.h3)
         Text(text = companyAddress, color = CS.Gray.G50, style = Typography.captionRegular)
     }
 }
 
 @Composable
-fun StarRating(company: Company, modifier: Modifier) {
+fun StarRating(company: Company?, modifier: Modifier) {
+    val text = if (company == null) "0.0" else "%.1f".format(company?.totalRating)
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(2.5.dp),
         modifier = modifier
             .padding(horizontal = 20.dp)
     ) {
         StarFilled(width = 24.dp, height = 24.dp)
-        Text(text = "%.1f".format(company.totalRating), color = CS.Gray.G90, style = Typography.h1)
+        Text(text = text, color = CS.Gray.G90, style = Typography.h1)
     }
 }
 
 @Composable
 fun ProfileActionButtons(
-    company: Company,
+    company: Company?,
     onFollowClick: () -> Unit,
     onReviewClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -203,7 +228,7 @@ fun ProfileActionButtons(
     ) {
         IconTextToggleButton(
             text = "팔로우",
-            enabled = company.following ?: false,
+            enabled = company?.following ?: false,
             onClick = onFollowClick,
             modifier = Modifier
                 .weight(1f)
@@ -229,14 +254,14 @@ fun ProfileActionButtons(
 }
 
 @Composable
-fun CompanyLocationMap(company: Company, modifier: Modifier) {
+fun CompanyLocationMap(company: Company?, modifier: Modifier) {
     KakaoMapWithPin(
         modifier = modifier
             .height(179.dp)
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
-        latitude = company.latitude ?: 37.566535,
-        longitude = company.longitude ?: 126.9779692
+        latitude = company?.latitude ?: 37.566535,
+        longitude = company?.longitude ?: 126.9779692
     )
 }
 
@@ -252,4 +277,29 @@ fun GraySpacer(modifier: Modifier) {
 @Composable
 private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+}
+
+@Composable
+fun BindAlert(
+    error: APIException?,
+    navController: NavController,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = {
+                when (it.action) {
+                    ErrorAction.Home -> navController.navigate(NavigationRouteConstant.mainNestedRoute)
+                    ErrorAction.Login -> navController.navigate(NavigationRouteConstant.loginNestedRoute) {
+                        popUpTo(NavigationRouteConstant.mainNestedRoute) { inclusive = true }
+                    }
+                    ErrorAction.Back -> navController.popBackStack()
+                    else -> {}
+                }
+                completion()
+            }
+        )
+    }
 }

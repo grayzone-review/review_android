@@ -7,29 +7,20 @@ import com.domain.repository_interface.CompanyDetailRepository
 import javax.inject.Inject
 
 interface CompanyDetailUseCase {
-    suspend fun getCompanyInfo(
-        companyID: Int
-    ): Company
-    suspend fun companyReviews(
-        companyID: Int,
-        page: Int
-    ): Reviews
-    suspend fun followCompany(
-        companyID: Int
-    ): FollowCompanyResult
-    suspend fun unfollowCompany(
-        companyID: Int
-    ): FollowCompanyResult
+    suspend fun getCompanyInfo(companyID: Int): Company?
+    suspend fun companyReviews(companyID: Int, page: Int): Reviews?
+    suspend fun followCompany(companyID: Int): FollowCompanyResult
+    suspend fun unfollowCompany(companyID: Int): FollowCompanyResult
 }
 
 class CompanyDetailUseCaseImpl @Inject constructor(
     private val companyDetailRepository: CompanyDetailRepository
 ): CompanyDetailUseCase {
-    override suspend fun getCompanyInfo(companyID: Int): Company {
+    override suspend fun getCompanyInfo(companyID: Int): Company? {
         return companyDetailRepository.getCompanyInfo(companyID = companyID)
     }
 
-    override suspend fun companyReviews(companyID: Int, page: Int): Reviews {
+    override suspend fun companyReviews(companyID: Int, page: Int): Reviews? {
         return companyDetailRepository.companyReviews(companyID = companyID, page = page)
     }
 

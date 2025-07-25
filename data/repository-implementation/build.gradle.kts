@@ -39,6 +39,7 @@ dependencies {
     implementation(project(":domain:entity"))
     implementation(project(":domain:repository-interface"))
     implementation(project(":data:dto"))
+    implementation(project(":common"))
 
     implementation(Deps.coreKtx)
     implementation(Retrofit.retrofit

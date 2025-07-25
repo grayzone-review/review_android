@@ -2,7 +2,7 @@ package com.data.network.di
 
 import com.data.network.api_service.KakaoMapAPIService
 import com.data.network.endpoint.KakaoMapEndpoint
-import com.data.network.interceptor.ErrorInterceptor
+import com.data.network.interceptor.ForceSuccessInterceptor
 import com.data.network.interceptor.KakaoKeyInterceptor
 import com.data.network.mapper.KakaoRequestMapper
 import dagger.Module
@@ -24,7 +24,7 @@ object KakaoMapNetworkModule {
     fun provideKakaoOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(KakaoKeyInterceptor())
-            .addInterceptor(ErrorInterceptor())
+            .addInterceptor(ForceSuccessInterceptor())
             .build()
     }
 

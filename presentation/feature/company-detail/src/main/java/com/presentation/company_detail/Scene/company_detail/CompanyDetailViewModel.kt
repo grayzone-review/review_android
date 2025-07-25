@@ -7,16 +7,23 @@ import com.domain.entity.Company
 import com.domain.entity.Review
 import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.ReviewUseCase
+import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+sealed interface CompanyDetailUIEvent {
+    data class ShowAlert(val error: APIException? = null) : CompanyDetailUIEvent
+}
+
 data class DetailUIState(
     val companyID: Int? = null,
-    val company: Company = Company(),
+    val company: Company? = null,
     val reviews: List<Review> = emptyList(),
     val isFullModeList: List<Boolean> = emptyList(),
     val showBottomSheet: Boolean = false,
@@ -33,8 +40,7 @@ class CompanyDetailViewModel @Inject constructor(
     private val reviewUseCase: ReviewUseCase
 ) : ViewModel() {
     enum class Action {
-        GetCompany,
-        GetReviews,
+        OnAppear,
         GetReviewsMore,
         DidTapFollowCompanyButton,
         DidTapLikeReviewButton,
@@ -54,29 +60,36 @@ class CompanyDetailViewModel @Inject constructor(
         companyID = companyIDArgument?.takeIf { it > 0 }
     ))
     val uiState = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<CompanyDetailUIEvent>()
+    val event = _event.asSharedFlow()
 
     fun handleAction(action: Action, index: Int? = null) {
         val currentState = _uiState.value
         when (action) {
-            Action.GetCompany -> {
-                viewModelScope.launch {
-                    val result = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
-                    _uiState.update { it.copy(company = result) }
-                }
-            }
-            Action.GetReviews -> {
-                if (currentState.isLoading) return
+            Action.OnAppear -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-                    val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = 0)
-                    _uiState.update {
-                        it.copy(
-                            reviews = result.reviews ?: emptyList(),
-                            isFullModeList = it.isFullModeList + List(result.reviews?.size ?: 0) { false },
-                            isLoading = false,
-                            currentPage = currentState.currentPage + 1,
-                            hasNext = result.hasNext ?: false
+                    try {
+                        val companyResult = companyDetailUseCase.getCompanyInfo(
+//                            companyID = currentState.companyID ?: 0
+                            0
                         )
+                        companyResult?.let { company -> _uiState.update { it.copy(company = company) } }
+
+                        val reviewsResult = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = 0)
+                        reviewsResult?.let { bindingResult ->
+                            _uiState.update {
+                                it.copy(
+                                    reviews = bindingResult.reviews,
+                                    isFullModeList = it.isFullModeList + List(bindingResult.reviews.size) { false },
+                                    isLoading = false,
+                                    currentPage = currentState.currentPage + 1,
+                                    hasNext = bindingResult.hasNext
+                                )
+                            }
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(CompanyDetailUIEvent.ShowAlert(error))
                     }
                 }
             }
@@ -85,21 +98,27 @@ class CompanyDetailViewModel @Inject constructor(
                 val nextPage = currentState.currentPage
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-                    val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = nextPage)
-                    _uiState.update {
-                        it.copy(
-                            reviews = result.reviews ?: emptyList(),
-                            isFullModeList = it.isFullModeList + List(result.reviews?.size ?: 0) { false },
-                            isLoading = false,
-                            currentPage = currentState.currentPage + 1,
-                            hasNext = result.hasNext ?: false
-                        )
+                    try {
+                        val result = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = nextPage)
+                        result?.let { bindingResult ->
+                            _uiState.update {
+                                it.copy(
+                                    reviews = bindingResult.reviews,
+                                    isFullModeList = it.isFullModeList + List(bindingResult.reviews.size) { false },
+                                    isLoading = false,
+                                    currentPage = currentState.currentPage + 1,
+                                    hasNext = bindingResult.hasNext
+                                )
+                            }
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(CompanyDetailUIEvent.ShowAlert(error))
                     }
                 }
             }
             Action.DidTapFollowCompanyButton -> {
                 viewModelScope.launch {
-                    currentState.company.following?.let { followStatus ->
+                    currentState.company?.following?.let { followStatus ->
                         val result = if (!followStatus) {
                             companyDetailUseCase.followCompany(companyID = currentState.companyID ?: 0)
                         } else {
@@ -137,9 +156,9 @@ class CompanyDetailViewModel @Inject constructor(
                 }
             }
             Action.DidTapReviewCard -> {
-                index?.let {
+                index?.let { idx ->
                     val updatedFullModeList = currentState.isFullModeList.toMutableList()
-                    updatedFullModeList[index] = !updatedFullModeList[index]
+                    updatedFullModeList[idx] = !updatedFullModeList[idx]
                     _uiState.update { it.copy(isFullModeList = updatedFullModeList) }
                 }
             }

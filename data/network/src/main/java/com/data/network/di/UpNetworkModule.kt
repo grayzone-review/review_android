@@ -3,7 +3,7 @@ package com.data.network.di
 import com.data.network.api_service.UpAPIService
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.interceptor.BearerTokenInterceptor
-import com.data.network.interceptor.ErrorInterceptor
+import com.data.network.interceptor.ForceSuccessInterceptor
 import com.data.network.mapper.SearchCompaniesRequestMapper
 import dagger.Module
 import dagger.Provides
@@ -27,7 +27,7 @@ object UpNetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)      // 응답 수신
             .callTimeout(35, TimeUnit.SECONDS)      // (연결~응답) 전체 호출
             .addInterceptor(BearerTokenInterceptor())
-            .addInterceptor(ErrorInterceptor())
+            .addInterceptor(ForceSuccessInterceptor())
             .build()
     }
 
