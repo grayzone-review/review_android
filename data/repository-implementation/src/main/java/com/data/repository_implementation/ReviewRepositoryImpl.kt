@@ -14,6 +14,8 @@ import com.domain.entity.Reply
 import com.domain.entity.Review
 import com.domain.entity.ReviewFeed
 import com.domain.repository_interface.ReviewRepository
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.toErrorAction
 import javax.inject.Inject
 
 class ReviewRepositoryImpl @Inject constructor(
@@ -53,15 +55,17 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun likeReview(
         reviewID: Int
     ): LikeReviewResult {
-        val result = upAPIService.likeReview(reviewId = reviewID)
-        return LikeReviewResult(message = result.message, success = result.success)
+        val responseDTO = upAPIService.likeReview(reviewId = reviewID)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return LikeReviewResult(message = responseDTO.message, success = responseDTO.success)
     }
 
     override suspend fun unlikeReview(
         reviewID: Int
     ): LikeReviewResult {
-        val result = upAPIService.unlikeReview(reviewId = reviewID)
-        return LikeReviewResult(message = result.message, success = result.success)
+        val responseDTO = upAPIService.unlikeReview(reviewId = reviewID)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return LikeReviewResult(message = responseDTO.message, success = responseDTO.success)
     }
 
     override suspend fun reviewComments(
