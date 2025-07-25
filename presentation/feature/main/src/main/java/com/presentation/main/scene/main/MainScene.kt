@@ -111,7 +111,7 @@ fun MainScene(
         onConfirm = { context.openAppSettings() },
         onCancel = { viewModel.handleAction(DismissSettingAlert)}
     )
-
+    
     Box(
         Modifier
             .fillMaxSize()

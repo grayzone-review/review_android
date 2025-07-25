@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import colors.CS
+import common_ui.AlertStyle
 
 @Composable
 fun ChatLine(
@@ -612,5 +613,23 @@ fun MyPageWithdraw(
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = CS.Gray.G90
+    )
+}
+
+@Composable
+fun AlertIcon(
+    width: Dp,
+    height: Dp,
+    alertStyle: AlertStyle,
+    modifier: Modifier = Modifier
+) {
+    val iconRes = if (alertStyle == AlertStyle.Complete) com.presentation.design_system.R.drawable.alert_complete_icon else
+        com.presentation.design_system.R.drawable.alert_error_icon
+
+    Icon(
+        painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
     )
 }

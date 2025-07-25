@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
+import preset_ui.icons.AlertIcon
 
 @Composable
 fun UpAlertIconDialog(
@@ -106,6 +107,61 @@ fun UpAlertIconDialog(
                 ) {
                     Text(text = confirmText, style = Typography.body1Regular, color = CS.Gray.White)
                 }
+            }
+        }
+    }
+}
+
+enum class AlertStyle {
+    Error,      // 회색(G20)
+    Complete    // 오렌지(O40)
+}
+
+@Composable
+fun UpSingleButtonAlertDialog(
+    message: String,
+    style: AlertStyle,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val buttonColor = when (style) {
+        AlertStyle.Error     -> CS.Gray.G20
+        AlertStyle.Complete  -> CS.PrimaryOrange.O40
+    }
+    val contentColor = if (style == AlertStyle.Error) CS.Gray.G90 else CS.Gray.White
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(CS.Gray.White)
+        ) {
+            /* ── 아이콘 + 제목 + 메시지 ───────────────────── */
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 20.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AlertIcon(44.dp, 44.dp, alertStyle = style)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = message,
+                    style = Typography.body2Regular,
+                    color = CS.Gray.G90,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(buttonColor)
+                    .clickable { onDismiss() },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "확인", style = Typography.body1Bold, color = contentColor)
             }
         }
     }
