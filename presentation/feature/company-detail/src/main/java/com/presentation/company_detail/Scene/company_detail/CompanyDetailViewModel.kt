@@ -70,10 +70,7 @@ class CompanyDetailViewModel @Inject constructor(
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
                     try {
-                        val companyResult = companyDetailUseCase.getCompanyInfo(
-//                            companyID = currentState.companyID ?: 0
-                            0
-                        )
+                        val companyResult = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
                         companyResult?.let { company -> _uiState.update { it.copy(company = company) } }
 
                         val reviewsResult = companyDetailUseCase.companyReviews(companyID = currentState.companyID ?: 0, page = 0)
