@@ -31,9 +31,12 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DidTapMyPageMenu
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DismissCreateReviewSheet
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.OnAppear
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.ShowCreateReviewSheet
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.UpAlertIconDialog
+import create_review_dialog.CreateReviewDialog
 import preset_ui.icons.InfoIcon
 import preset_ui.icons.MyPageBell
 import preset_ui.icons.MyPageLogOut
@@ -68,6 +71,11 @@ fun MyPageScene(
             }
         }
     }
+
+    CreateReviewSheet(
+        isShow = uiState.shouldShowCreateReviewSheet,
+        onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) }
+    )
 
     LaunchedEffect(Unit) {
         viewModel.handleAction(OnAppear)
@@ -104,7 +112,7 @@ fun MyPageScene(
                         UpTab.MyPage -> {}
                     }
                 },
-                onAddButtonClick = { /* TODO */ }
+                onAddButtonClick = { viewModel.handleAction(ShowCreateReviewSheet) }
             )
         },
         containerColor = CS.Gray.White
@@ -245,4 +253,9 @@ fun LogOutAlert(
         onConfirm = onConfirm,
         onCancel = onCancel
     )
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

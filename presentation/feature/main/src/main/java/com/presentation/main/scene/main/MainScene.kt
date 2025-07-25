@@ -51,14 +51,17 @@ import com.presentation.design_system.appbar.appbars.LogoUserTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.main.NavConstant
+import com.presentation.main.scene.main.MainViewModel.Action.DismissCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
 import com.presentation.main.scene.main.MainViewModel.Action.GetFeeds
 import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
+import com.presentation.main.scene.main.MainViewModel.Action.ShowCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.UpAlertIconDialog
+import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.launch
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
@@ -98,6 +101,11 @@ fun MainScene(
         }
     }
 
+    CreateReviewSheet(
+        isShow = uiState.shouldShowCreateReviewSheet,
+        onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) }
+    )
+
     SettingDialog(
         isShow = uiState.isShowSettingAlertDialog,
         onConfirm = { context.openAppSettings() },
@@ -134,7 +142,7 @@ fun MainScene(
                             }
                         }
                     },
-                    onAddButtonClick = { /* TODO */ },
+                    onAddButtonClick = { viewModel.handleAction(ShowCreateReviewSheet) },
                 )
             }
         ) { inner ->
@@ -514,4 +522,9 @@ private fun SettingDialog(
         onConfirm = onConfirm,
         onCancel = onCancel
     )
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

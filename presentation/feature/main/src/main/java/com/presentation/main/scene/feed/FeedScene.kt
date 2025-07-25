@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,8 +37,11 @@ import com.domain.entity.User
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.main.NavConstant
+import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCrateReviewSheet
 import com.presentation.main.scene.feed.FeedViewModel.Action.OnAppear
+import com.presentation.main.scene.feed.FeedViewModel.Action.ShowCreateReviewSheet
 import com.team.common.feature_api.utility.Utility
+import create_review_dialog.CreateReviewDialog
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.StarFilled
@@ -54,12 +59,13 @@ fun FeedScene(
         viewModel.handleAction(OnAppear)
     }
 
+    CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                section = uiState.section, user = uiState.user, onBackButtonClick = { navController.popBackStack() }
-            )
-        }
+            TopAppBar(section = uiState.section, user = uiState.user, onBackButtonClick = { navController.popBackStack() })
+        },
+        bottomBar = { WriteReviewButton(onClick = { viewModel.handleAction(ShowCreateReviewSheet) }) }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -207,4 +213,33 @@ private fun CompanyCard(
             )
         }
     }
+}
+
+@Composable
+private fun WriteReviewButton(
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 20.dp, top = 5.dp)
+            .height(52.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = CS.PrimaryOrange.O40,
+            contentColor = CS.Gray.White,
+            disabledContainerColor = CS.PrimaryOrange.O20,
+            disabledContentColor = CS.Gray.White
+        ),
+        elevation = null
+    ) {
+        Text(text = "리뷰 작성하러 가기", style = Typography.body1Bold)
+    }
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

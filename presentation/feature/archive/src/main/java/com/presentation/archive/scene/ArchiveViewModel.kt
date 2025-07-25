@@ -18,7 +18,8 @@ data class ArchiveUIState(
     val stats: List<Pair<String, Int>> = emptyList(),
     val myReviews: List<MyArchiveReview> = emptyList(),
     val interestReviews: List<MyArchiveReview> = emptyList(),
-    val followCompanies: List<MyArchiveCompany> = emptyList()
+    val followCompanies: List<MyArchiveCompany> = emptyList(),
+    val shouldShowCreateReviewSheet: Boolean = false
 )
 
 @HiltViewModel
@@ -29,7 +30,9 @@ class ArchiveViewModel @Inject constructor(
         OnAppear,
         GetMyReviews,
         GetInterestReviews,
-        GetCompanyFollowList
+        GetCompanyFollowList,
+        ShowCreateReviewSheet,
+        DismissCrateReviewSheet
     }
 
     private var _uiState = MutableStateFlow(value = ArchiveUIState())
@@ -49,7 +52,6 @@ class ArchiveViewModel @Inject constructor(
                         "즐겨찾기" to result.followCompanyCount
                     )
                     _uiState.update { it.copy(stats = stats) }
-
                 }
             }
             Action.GetMyReviews -> {
@@ -70,6 +72,8 @@ class ArchiveViewModel @Inject constructor(
                     _uiState.update { it.copy(followCompanies = result.companies) }
                 }
             }
+            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
+            Action.DismissCrateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
         }
     }
 }

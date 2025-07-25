@@ -1,6 +1,5 @@
 package com.presentation.company_detail.Scene.company_detail
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,7 +22,8 @@ data class DetailUIState(
     val showBottomSheet: Boolean = false,
     val currentPage: Int = 0,
     val hasNext: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val shouldShowCreateReviewSheet: Boolean = false
 )
 
 @HiltViewModel
@@ -37,11 +37,12 @@ class CompanyDetailViewModel @Inject constructor(
         GetReviews,
         GetReviewsMore,
         DidTapFollowCompanyButton,
-        DidTapWriteReviewButton,
         DidTapLikeReviewButton,
         DidTapReviewCard,
         DidTapCommentButton,
-        DidCloseBottomSheet
+        DidCloseBottomSheet,
+        ShowCreateReviewSheet,
+        DismissCreateReviewSheet
     }
 
     private val companyIDArgument: Int? = savedStateHandle
@@ -111,9 +112,6 @@ class CompanyDetailViewModel @Inject constructor(
                     }
                 }
             }
-            Action.DidTapWriteReviewButton -> {
-                Log.d("버튼탭", "리뷰 버튼이 탭 되었음")
-            }
             Action.DidTapLikeReviewButton -> {
                 index?.let { idx ->
                     viewModelScope.launch {
@@ -148,6 +146,8 @@ class CompanyDetailViewModel @Inject constructor(
             Action.DidTapCommentButton, Action.DidCloseBottomSheet -> {
                 _uiState.update { it.copy(showBottomSheet = !currentState.showBottomSheet) }
             }
+            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
+            Action.DismissCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
         }
     }
 }

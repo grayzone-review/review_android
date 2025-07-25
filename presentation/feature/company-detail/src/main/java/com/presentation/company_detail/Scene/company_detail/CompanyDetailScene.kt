@@ -32,13 +32,15 @@ import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewMod
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapFollowCompanyButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapLikeReviewButton
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapReviewCard
-import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapWriteReviewButton
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DismissCreateReviewSheet
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetCompany
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviews
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviewsMore
+import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.ShowCreateReviewSheet
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import preset_ui.CSSpacerHorizontal
 import preset_ui.IconTextToggleButton
@@ -67,6 +69,7 @@ fun CompanyDetailScene(
         }
     }
 
+    CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) })
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
     CommentBottomSheet(reviewID = uiState.companyID ?: 0, isShow = uiState.showBottomSheet)
 }
@@ -115,7 +118,7 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
                 ProfileActionButtons(
                     company = detailUIState.company,
                     onFollowClick = { viewModel.handleAction(DidTapFollowCompanyButton) },
-                    onReviewClick = { viewModel.handleAction(DidTapWriteReviewButton) },
+                    onReviewClick = { viewModel.handleAction(ShowCreateReviewSheet) },
                     modifier = Modifier.padding(top = 20.dp)
                 )
             }
@@ -244,4 +247,9 @@ fun GraySpacer(modifier: Modifier) {
         height = 6.dp,
         color = CS.Gray.G20
     )
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

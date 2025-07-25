@@ -28,7 +28,8 @@ data class MainUIState(
     val isShowSettingAlertDialog: Boolean = false,
     val popularFeeds: List<ReviewFeed> = emptyList(),
     val myTownFeeds: List<ReviewFeed> = emptyList(),
-    val interestRegionsFeeds: List<ReviewFeed> = emptyList()
+    val interestRegionsFeeds: List<ReviewFeed> = emptyList(),
+    val shouldShowCreateReviewSheet: Boolean = false
 )
 
 @HiltViewModel
@@ -40,7 +41,9 @@ class MainViewModel @Inject constructor(
         OnAppear,
         GetFeeds,
         ShowSettingAlert,
-        DismissSettingAlert
+        DismissSettingAlert,
+        ShowCreateReviewSheet,
+        DismissCreateReviewSheet
     }
 
     private var _uiState = MutableStateFlow(value = MainUIState())
@@ -71,12 +74,10 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
-            Action.ShowSettingAlert -> {
-                _uiState.update { it.copy(isShowSettingAlertDialog = true) }
-            }
-            Action.DismissSettingAlert -> {
-                _uiState.update { it.copy(isShowSettingAlertDialog = false) }
-            }
+            Action.ShowSettingAlert -> { _uiState.update { it.copy(isShowSettingAlertDialog = true) } }
+            Action.DismissSettingAlert -> { _uiState.update { it.copy(isShowSettingAlertDialog = false) } }
+            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
+            Action.DismissCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
         }
     }
 }

@@ -33,7 +33,8 @@ sealed interface MyPageUIEvent {
 }
 
 data class MyPageUIState(
-    val user: User = User()
+    val user: User = User(),
+    val shouldShowCreateReviewSheet: Boolean = false
 )
 
 @HiltViewModel
@@ -42,7 +43,9 @@ class MyPageViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         OnAppear,
-        DidTapMyPageMenu
+        DidTapMyPageMenu,
+        ShowCreateReviewSheet,
+        DismissCreateReviewSheet
     }
 
     private var _uiState = MutableStateFlow(value = MyPageUIState())
@@ -72,6 +75,8 @@ class MyPageViewModel @Inject constructor(
                     }
                 }
             }
+            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
+            Action.DismissCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
         }
     }
 }

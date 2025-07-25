@@ -20,7 +20,8 @@ import javax.inject.Inject
 data class FeedUIState(
     val section: String = "",
     val user: User = User(),
-    val reviewFeeds: List<ReviewFeed> = emptyList()
+    val reviewFeeds: List<ReviewFeed> = emptyList(),
+    val shouldShowCreateReviewSheet: Boolean = false
 )
 
 @HiltViewModel
@@ -31,7 +32,9 @@ class FeedViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         OnAppear,
-        ShowSettingAlert
+        ShowSettingAlert,
+        ShowCreateReviewSheet,
+        DismissCrateReviewSheet
     }
 
     private val section: String = savedStateHandle.get<String>("section") ?: ""
@@ -61,6 +64,8 @@ class FeedViewModel @Inject constructor(
             Action.ShowSettingAlert -> {
 
             }
+            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
+            Action.DismissCrateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
         }
     }
 }
