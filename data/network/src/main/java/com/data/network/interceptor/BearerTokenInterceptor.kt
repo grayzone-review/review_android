@@ -7,7 +7,7 @@ class BearerTokenInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val newRequest = originalRequest.newBuilder()
-            .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzUyMDU5NTI4LCJleHAiOjE3NTQ2NTE1Mjh9.Fs5G1uPmVMDOUWzOyarZLPnOnGIBXlzln_94hkIAwY6LBDrW5MgH7PKjst3SL9TA89kZ-if59LKJ7utdlusv0A")
+            .header("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzUzMTgwMzQ1LCJleHAiOjE3NTM3ODUxNDV9.CioInbd6DVZe40MrFSeXpo4q6w2eI222a2W4lq6NSNGD5K1JBruzQao5WF6VhQ1rMUUBxZJH9TQJPvZaHhnr9g")
             .build()
         return chain.proceed(newRequest)
     }

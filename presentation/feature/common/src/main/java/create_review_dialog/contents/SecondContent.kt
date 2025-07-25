@@ -34,11 +34,11 @@ import preset_ui.icons.StarHalf
 import preset_ui.icons.StarOutline
 
 enum class RatingKey(val getter: (Ratings) -> Double) {
-    COMPANY_CULTURE({ it.companyCulture }),
-    MANAGEMENT( { it.management } ),
-    SALARY( { it.salary } ),
-    WELFARE( { it.welfare } ),
-    WORK_LIFE_BALANCE( { it.workLifeBalance } )
+    COMPANY_CULTURE({ it.companyCulture!! }),
+    MANAGEMENT( { it.management!! } ),
+    SALARY( { it.salary!! } ),
+    WELFARE( { it.welfare!! } ),
+    WORK_LIFE_BALANCE( { it.workLifeBalance!! } )
 }
 
 val RatingKey.label: String
@@ -62,10 +62,10 @@ fun Ratings.update(key: RatingKey, new: Double): Ratings = when (key) {
 
 fun Ratings.isFullyRated(): Boolean {
     return companyCulture > 0.0 &&
-            management > 0.0 &&
-            salary > 0.0 &&
-            welfare > 0.0 &&
-            workLifeBalance > 0.0
+            management!! > 0.0 &&
+            salary!! > 0.0 &&
+            welfare!! > 0.0 &&
+            workLifeBalance!! > 0.0
 }
 
 @Composable

@@ -42,7 +42,9 @@ android {
 dependencies {
     implementation(project(":common"))
     implementation(project(":domain:entity"))
+    implementation(project(":domain:usecase"))
     implementation(project(":presentation:design-system"))
+    implementation(project(":presentation:feature:common"))
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

@@ -29,6 +29,11 @@ object Versions {
     // ── Coroutines ─────────────────────────────
     const val coroutineCore       = "1.10.2"
 
+    // ── Location ─────────────────────────────
+    const val gmsLocationService  = "21.3.0"
+    const val permission          = "0.37.3"
+    // ── Lottie ─────────────────────────────
+    const val lottieCompose       = "6.6.6"
 }
 
 object Deps {
@@ -79,4 +84,13 @@ object DaggerHilt {
 object Kakao {
     const val map                       = "com.kakao.maps.open:android:${Versions.map}"
     const val login                     = "com.kakao.sdk:v2-user:${Versions.login}"
+}
+
+object Location {
+    const val gmsLocationService        = "com.google.android.gms:play-services-location:${Versions.gmsLocationService}"
+    const val permission                = "com.google.accompanist:accompanist-permissions:${Versions.permission}"
+}
+
+object Lottie {
+    const val lottieCompose             = "com.airbnb.android:lottie-compose:${Versions.lottieCompose}"
 }

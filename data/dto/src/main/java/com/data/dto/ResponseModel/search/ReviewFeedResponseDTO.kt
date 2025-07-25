@@ -39,7 +39,7 @@ data class ReviewFeedRatingsDTO(
 )
 
 data class ReviewFeedCompactCompanyDTO(
-    val id: Long,
+    val id: Int,
     val companyName: String,
     val companyAddress: String,
     val totalRating: Double,

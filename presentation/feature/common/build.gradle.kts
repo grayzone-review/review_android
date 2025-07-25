@@ -44,11 +44,10 @@ dependencies {
     implementation(project(":domain:entity"))
     implementation(project(":presentation:design-system"))
     implementation(project(":domain:usecase"))
-
     implementation(project(":data:location"))
-    implementation("com.google.accompanist:accompanist-permissions:0.37.3")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
 
+    implementation(Location.permission)
+    implementation(Location.gmsLocationService)
     implementation(DaggerHilt.hilt)
     implementation("androidx.media3:media3-common-ktx:1.7.1")
     kapt(DaggerHilt.hiltCompiler)

@@ -5,8 +5,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.presentation.main.scene.MainScene
-import com.presentation.main.scene.MainViewModel
+import com.presentation.main.scene.feed.FeedScene
+import com.presentation.main.scene.feed.FeedViewModel
+import com.presentation.main.scene.main.MainScene
+import com.presentation.main.scene.main.MainViewModel
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.FeatureAPI
 
@@ -24,6 +26,11 @@ internal object InternalMainAPI: FeatureAPI {
             composable(NavigationRouteConstant.mainSceneRoute) {
                 val viewModel = hiltViewModel<MainViewModel>()
                 MainScene(viewModel = viewModel, navController = navController)
+            }
+
+            composable(MainNavRoute.MainFeed.route) {
+                val viewModel = hiltViewModel<FeedViewModel>()
+                FeedScene(viewModel = viewModel, navController = navController)
             }
         }
     }

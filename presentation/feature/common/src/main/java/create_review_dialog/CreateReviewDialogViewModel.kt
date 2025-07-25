@@ -2,8 +2,9 @@ package create_review_dialog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.domain.entity.Ratings
 import com.domain.entity.CompactCompany
+import com.domain.entity.Ratings
+import com.domain.usecase.ReviewUseCase
 import com.domain.usecase.SearchCompaniesUseCase
 import create_review_dialog.contents.isFullyRated
 import create_review_dialog.sheet_contents.WorkPeriod
@@ -12,12 +13,18 @@ import create_review_dialog.type.InputField
 import create_review_dialog.type.next
 import create_review_dialog.type.prev
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+sealed interface CreateReviewUIEvent {
+    data object DismissDialog : CreateReviewUIEvent
+}
 
 sealed class BottomSheetState {
     data object Hidden: BottomSheetState()
@@ -32,6 +39,7 @@ data class CreateReviewUIState(
     // 페이지 관리
     val phase: CreateReviewPhase = CreateReviewPhase.First,
     val isNextAndSubmitEnabled: Boolean = false,
+    val isLoading: Boolean = false,
     // 사용자 입력 값
     val company: CompactCompany? = null,
     val jobRole: String = "",
@@ -44,7 +52,8 @@ data class CreateReviewUIState(
 
 @HiltViewModel
 class CreateReviewDialogViewModel @Inject constructor(
-    private val searchCompaniesUseCase: SearchCompaniesUseCase
+    private val searchCompaniesUseCase: SearchCompaniesUseCase,
+    private val reviewUseCase: ReviewUseCase
 ) : ViewModel() {
     enum class Action {
         // 모달, 시트 흐름 제어
@@ -65,8 +74,11 @@ class CreateReviewDialogViewModel @Inject constructor(
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
     val uiState = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<CreateReviewUIEvent>()
+    val event = _event.asSharedFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
+        val currentState = _uiState.value
         when (action) {
             Action.DidTapNextButton -> {
                 _uiState.update { state ->
@@ -83,9 +95,6 @@ class CreateReviewDialogViewModel @Inject constructor(
                         state.copy(phase = prevPhase, isNextAndSubmitEnabled = enabled)
                     } ?: state
                 }
-            }
-            Action.DidTapSubmitButton -> {
-
             }
             Action.DidTapTextField -> {
                 val field = value as? InputField ?: return
@@ -162,6 +171,28 @@ class CreateReviewDialogViewModel @Inject constructor(
                         searchTextFieldValue = "",
                         searchedCompanies = emptyList()
                     )
+                }
+            }
+            Action.DidTapSubmitButton -> {
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true) }
+
+                    reviewUseCase.createReview(
+                        companyID = currentState.company?.id ?: 0,
+                        advantagePoint = currentState.advantagePoint,
+                        disadvantagePoint = currentState.disadvantagePoint,
+                        managementFeedback = currentState.managementFeedBack,
+                        jobRole = currentState.jobRole,
+                        employmentPeriod = currentState.employmentPeriod?.rawValue ?: "",
+                        welfare = currentState.rating.welfare ?: 0.0,
+                        workLifeBalance = currentState.rating.workLifeBalance ?: 0.0,
+                        salary = currentState.rating.salary ?: 0.0,
+                        companyCulture = currentState.rating.companyCulture ?: 0.0,
+                        management = currentState.rating.management ?: 0.0
+                    )
+
+                    _uiState.update { it.copy(isLoading = false) }
+                    _event.emit(CreateReviewUIEvent.DismissDialog)
                 }
             }
         }

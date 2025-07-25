@@ -12,6 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -23,6 +24,8 @@ object UpNetworkModule {
     @Named("Up")
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .readTimeout(30, TimeUnit.SECONDS)      // 응답 수신
+            .callTimeout(35, TimeUnit.SECONDS)      // (연결~응답) 전체 호출
             .addInterceptor(BearerTokenInterceptor())
             .addInterceptor(ErrorInterceptor())
             .build()

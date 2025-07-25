@@ -39,7 +39,8 @@ import androidx.navigation.NavHostController
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
-import com.presentation.mypage.scene.report.ReportViewModel.Action.GetUser
+import com.presentation.mypage.scene.report.ReportViewModel.Action.OnAppear
+import com.presentation.mypage.scene.report.ReportViewModel.Action.Submit
 import com.presentation.mypage.scene.report.ReportViewModel.Action.UpdateDetailReason
 import com.presentation.mypage.scene.report.ReportViewModel.Action.UpdateReportedUserNickName
 import com.presentation.mypage.scene.report.ReportViewModel.Action.UpdateSelectReason
@@ -65,7 +66,15 @@ fun ReportScene(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                ReportUIEvent.Pop -> { navController.popBackStack() }
+            }
+        }
     }
 
     ReportReasonModalSheet(
@@ -83,7 +92,7 @@ fun ReportScene(
 
     Scaffold(
         topBar = { TopAppBar(onBackButtonClick = { navController.popBackStack() }) },
-        bottomBar = { SubmitButton(isEnabled = uiState.isSubmitEnabled, onClick = { }) },
+        bottomBar = { SubmitButton(isEnabled = uiState.isSubmitEnabled, onClick = { viewModel.handleAction(Submit) }) },
         containerColor = CS.Gray.White
     ) { innerPadding ->
         Column(
@@ -103,11 +112,13 @@ fun ReportScene(
                 onClick = { scope.launch { sheetState.expand() } }
             )
             Spacer(modifier = Modifier.height(15.dp))
-            ReportedUserNameField(
-                value = uiState.reportedUserNickname,
-                onValueChange = { viewModel.handleAction(UpdateReportedUserNickName, it) }
-            )
-            Spacer(modifier = Modifier.height(15.dp))
+            if (uiState.reason != ReportReason.BUG) {
+                ReportedUserNameField(
+                    value = uiState.reportedUserNickname,
+                    onValueChange = { viewModel.handleAction(UpdateReportedUserNickName, it) }
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+            }
             ReportReasonDetailField(
                 value = uiState.detailReason,
                 onValueChange = { viewModel.handleAction(UpdateDetailReason, it) },

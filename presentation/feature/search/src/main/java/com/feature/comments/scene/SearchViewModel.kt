@@ -3,7 +3,6 @@ package com.feature.comments.scene
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.data.storage.datastore.UpDataStoreService
-import com.feature.comments.scene.contents.TagButtonData
 import com.feature.comments.scene.contents.TagButtonType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +19,8 @@ enum class SearchPhase {
 data class SearchUIState(
     val searchBarValue: TextFieldValue = TextFieldValue(""),
     val hasFocus: Boolean = false,
-    val phase: SearchPhase = SearchPhase.Before
+    val phase: SearchPhase = SearchPhase.Before,
+    val selectedTagButtonType: TagButtonType? = null
 )
 
 @HiltViewModel
@@ -28,7 +28,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     enum class SearchInterfaceAction {
         DidUpdateSearchBarValue,
         DidFocusSearchBar,
-        DidUnfocusSearchBar,
+        DidUnFocusSearchBar,
         DidTapClearButton,
         DidTapCancelButton,
         DidTapIMEDone
@@ -38,34 +38,41 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         DidTapFilterButtons
     }
 
-    private val _searchUISate = MutableStateFlow<SearchUIState>(value = SearchUIState())
+    private val _searchUISate = MutableStateFlow(value = SearchUIState())
     val searchUIState = _searchUISate.asStateFlow()
 
-    fun handleAction(searchInterfaceAction: SearchInterfaceAction, text: String? = null) {
+    fun handleAction(searchInterfaceAction: SearchInterfaceAction, value: Any? = null) {
         when (searchInterfaceAction) {
             SearchInterfaceAction.DidUpdateSearchBarValue -> {
-                text?.let { newText ->
-                    _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = newText)) }
-                }
+                val newQuery = value as? String ?: return
+                _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = newQuery)) }
             }
             SearchInterfaceAction.DidFocusSearchBar -> {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = true,
+                        selectedTagButtonType = null,
                         phase = SearchPhase.Searching
                     )
                 }
             }
-            SearchInterfaceAction.DidUnfocusSearchBar -> {
+            SearchInterfaceAction.DidUnFocusSearchBar -> {
                 _searchUISate.update { it.copy(hasFocus = false) }
             }
             SearchInterfaceAction.DidTapClearButton -> {
-                _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = "")) }
+                _searchUISate.update {
+                    it.copy(
+                        searchBarValue = TextFieldValue(text = ""),
+                        selectedTagButtonType = null,
+                        phase = SearchPhase.Searching
+                    )
+                }
             }
             SearchInterfaceAction.DidTapCancelButton -> {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
+                        selectedTagButtonType = null,
                         phase = SearchPhase.Before
                     )
                 }
@@ -77,6 +84,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
+                        selectedTagButtonType = null,
                         phase = SearchPhase.After
                     )
                 }
@@ -84,23 +92,39 @@ class SearchViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun handleAction(contentAction: ContentAction, text: String? = null, tagButtonData: TagButtonData? = null) {
+    fun handleAction(contentAction: ContentAction, value: Any? = null) {
+        val currentState = _searchUISate.value
         when (contentAction) {
             ContentAction.DidTapRecentQueryButton -> {
-                text?.let { query ->
-                    _searchUISate.update {
-                        it.copy(
-                            searchBarValue = TextFieldValue(text = query),
-                            phase = SearchPhase.Searching
-                        )
-                    }
+                val query = value as? String ?: return
+                val recentQueries = UpDataStoreService.recentQueries
+                    .split(",")
+                    .filter { it.isNotBlank() && it != query }
+                val newQueries = listOf(query) + recentQueries
+                UpDataStoreService.recentQueries = newQueries.joinToString(",")
+                _searchUISate.update {
+                    it.copy(
+                        searchBarValue = TextFieldValue(text = query),
+                        selectedTagButtonType = null,
+                        phase = SearchPhase.Searching
+                    )
                 }
             }
             ContentAction.DidTapFilterButtons -> {
-                tagButtonData?.let { buttonData ->
+                val newSelectedTagButtonType = value as? TagButtonType ?: return
+                if (currentState.selectedTagButtonType == newSelectedTagButtonType) {
                     _searchUISate.update {
                         it.copy(
-                            searchBarValue = TextFieldValue(text = "#${buttonData.label}"),
+                            searchBarValue = TextFieldValue(text = ""),
+                            selectedTagButtonType = null,
+                            phase = SearchPhase.After
+                        )
+                    }
+                } else {
+                    _searchUISate.update {
+                        it.copy(
+                            searchBarValue = TextFieldValue(text = "#${newSelectedTagButtonType.label}"),
+                            selectedTagButtonType = newSelectedTagButtonType,
                             phase = SearchPhase.After
                         )
                     }

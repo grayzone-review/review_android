@@ -23,7 +23,7 @@ internal object InternalLoginAPI: FeatureAPI {
         ) {
             composable(NavigationRouteConstant.loginSceneRoute) {
                 val viewModel = hiltViewModel<LoginViewModel>()
-                LoginScene(viewModel = viewModel)
+                LoginScene(viewModel = viewModel, navController = navController)
             }
         }
     }

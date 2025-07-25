@@ -6,12 +6,14 @@ import com.data.repository_implementation.ReviewRepositoryImpl
 import com.data.repository_implementation.SearchCompaniesRepositoryImpl
 import com.data.repository_implementation.SearchDistrictRepositoryImpl
 import com.data.repository_implementation.UpAuthRepositoryImpl
+import com.data.repository_implementation.UserRepositoryImpl
 import com.domain.repository_interface.CompanyDetailRepository
 import com.domain.repository_interface.KakaoMapRepository
 import com.domain.repository_interface.ReviewRepository
 import com.domain.repository_interface.SearchCompaniesRepository
 import com.domain.repository_interface.SearchDistrictRepository
 import com.domain.repository_interface.UpAuthRepository
+import com.domain.repository_interface.UserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -57,4 +59,10 @@ abstract class RepositoryModule {
     abstract fun bindReviewRepository(
         impl: ReviewRepositoryImpl
     ): ReviewRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserRepository(
+        impl: UserRepositoryImpl
+    ): UserRepository
 } 

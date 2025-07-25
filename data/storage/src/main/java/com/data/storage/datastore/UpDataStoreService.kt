@@ -27,4 +27,11 @@ object UpDataStoreService {
             UpDataStore.write(appContext, UpDataStoreKey.RecentCompanyIDs, value)
         }
 
+    var lastKnownLocation: String
+        get() = runBlocking {
+            UpDataStore.read(appContext, UpDataStoreKey.LastKnownLocation, "").first()
+        }
+        set(value) = runBlocking {
+            UpDataStore.write(appContext, UpDataStoreKey.LastKnownLocation, value)
+        }
 }

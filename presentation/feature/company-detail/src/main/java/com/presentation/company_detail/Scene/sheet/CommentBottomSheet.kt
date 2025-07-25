@@ -1,8 +1,6 @@
 package com.presentation.company_detail.Scene.sheet
 
 import BottomSheetHelper
-import BottomSheetStateListener
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,7 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,9 +36,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -54,89 +55,129 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import colors.CS
-import com.example.presentation.designsystem.typography.Typography
-import com.presentation.company_detail.Scene.review_detail_scene.ReviewDetailViewModel
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.*
-import preset_ui.CSSpacerHorizontal
 import androidx.hilt.navigation.compose.hiltViewModel
+import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
-import com.presentation.company_detail.Scene.review_detail_scene.DetailUIState
+import com.example.presentation.designsystem.typography.Typography
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapCancelReplyButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetComments
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetCommentsMore
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.SetReviewID
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
+import preset_ui.CSSpacerHorizontal
 import preset_ui.icons.CloseLine
 import preset_ui.icons.RockClose
 import preset_ui.icons.RockOpen
 import preset_ui.icons.SendDisable
 import preset_ui.icons.Sendable
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CommentBottomSheet(
-    detailUIState: DetailUIState,
-    commentViewModel: CommentBottomSheetViewModel = hiltViewModel()
+    reviewID: Int,
+    isShow: Boolean,
+    viewModel: CommentBottomSheetViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val inputState by commentViewModel.commentInputState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(detailUIState.showBottomSheet) {
-        if (detailUIState.showBottomSheet) {
-            commentViewModel.handleAction(DidAppear)
+    LaunchedEffect(isShow) {
+        if (isShow) {
+            viewModel.handleAction(SetReviewID, reviewID)
+            viewModel.handleAction(GetComments)
             BottomSheetHelper.setContent {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clickable { commentViewModel.handleAction(DidTapOutSideOfTextField) }
+                        .clickable { viewModel.handleAction(DidTapOutSideOfTextField) }
                         .imePadding()
                 ) {
                     // 콘텐츠 영역
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
+                    Column(modifier = Modifier.fillMaxSize()) {
                         SheetTitle(modifier = Modifier.padding(top = 24.dp))
                         CommentList(
-                            viewModel = commentViewModel,
+                            listState = listState,
+                            comments = uiState.comments,
+                            repliesMap = uiState.repliesMap,
                             onAddReplyClick = {
                                 focusRequester.requestFocus()
-                                commentViewModel.handleAction(DidTapWriteReplyButton, commentID = it) },
-                            onShowMoreRepliesClick = { commentViewModel.handleAction(DidTapShowMoreRepliesButton, commentID = it) }
+                                viewModel.handleAction(DidTapWriteReplyButton, it)
+                                coroutineScope.launch {
+                                    val scrollTarget = uiState.comments.indexOfFirst { comment -> comment.id == it }
+                                    listState.animateScrollToItem(index = scrollTarget)
+                                }
+                            },
+                            onShowRepliesClick = {
+                                viewModel.handleAction(DidTapShowRepliesButton, it)
+                                coroutineScope.launch {
+                                    val scrollTarget = uiState.comments.indexOfFirst { comment -> comment.id == it }
+                                    listState.animateScrollToItem(index = scrollTarget)
+                                }
+                            },
+                            onLoadMoreComment = { viewModel.handleAction(GetCommentsMore) }
                         )
                     }
                 }
             }
             BottomSheetHelper.setInputBar {
                 InputBar(
-                    inputState = inputState,
-                    onTextChange = { commentViewModel.handleAction(DidUpdateCommentText, text = it) },
-                    onLockClick = { commentViewModel.handleAction(DidTapSecretButton) },
-                    onSendClick = { commentViewModel.handleAction(DidTapSendButton) },
-                    didBeginTextEditing = { commentViewModel.handleAction(DidBeginTextEditing) },
-                    onCancelReplyClick = { commentViewModel.handleAction(DidTapCancelReplyButton) },
-                    didClearFocusState = { commentViewModel.handleAction(DidClearFocusState) },
+                    inputState = uiState,
+                    onTextChange = { viewModel.handleAction(DidUpdateCommentText, it) },
+                    onLockClick = { viewModel.handleAction(DidTapSecretButton) },
+                    onSendClick = { viewModel.handleAction(DidTapSendButton) },
+                    didBeginTextEditing = { viewModel.handleAction(DidBeginTextEditing) },
+                    onCancelReplyClick = { viewModel.handleAction(DidTapCancelReplyButton) },
+                    didClearFocusState = { viewModel.handleAction(DidClearFocusState) },
                     focusRequester = focusRequester
                 )
             }
 
             BottomSheetHelper.show(context = context)
         } else {
-            commentViewModel.reset()
+            viewModel.reset()
             BottomSheetHelper.hide()
         }
     }
 }
 
 @Composable
-fun CommentList(
-    viewModel: CommentBottomSheetViewModel,
-    onAddReplyClick: (commentId: Long) -> Unit,
-    onShowMoreRepliesClick: (commentId: Long) -> Unit
+private fun CommentList(
+    listState: LazyListState,
+    comments: List<Comment>,
+    repliesMap: Map<Int, List<Reply>>,
+    onAddReplyClick: (Int) -> Unit,
+    onShowRepliesClick: (Int) -> Unit,
+    onLoadMoreComment: () -> Unit
 ) {
     val nestedScrollConnection = rememberNestedScrollInteropConnection()
-    val comments by viewModel.comments.collectAsState()
-    val repliesMap by viewModel.repliesMap.collectAsState()
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            val total = listState.layoutInfo.totalItemsCount
+            lastVisible >= total - 3 && total > 0
+        }
+            .distinctUntilChanged()
+            .filter { it }
+            .collectLatest { onLoadMoreComment() }
+    }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
@@ -148,18 +189,18 @@ fun CommentList(
                 comment = comment,
                 replies = replies,
                 onAddReplyClick = { onAddReplyClick(comment.id) },
-                onShowMoreRepliesClick = { onShowMoreRepliesClick(comment.id) }
+                onShowRepliesClick = { onShowRepliesClick(comment.id) }
             )
         }
     }
 }
 
 @Composable
-fun CommentCard(
+private fun CommentCard(
     comment: Comment,
     replies: List<Reply>,
     onAddReplyClick: () -> Unit,
-    onShowMoreRepliesClick: () -> Unit
+    onShowRepliesClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -172,7 +213,7 @@ fun CommentCard(
         AddReplyButton(onAddReplyClick = onAddReplyClick)
         if (comment.replyCount > 0 && replies.isEmpty()) {
             Spacer(modifier = Modifier.height(12.dp))
-            ShowMoreButton(comment = comment, onShowMoreRepliesClick = onShowMoreRepliesClick)
+            ShowRepliesButton(comment = comment, onShowRepliesClick = onShowRepliesClick)
         } else {
             ReplyList(replies = replies, targetComment = comment)
         }
@@ -180,7 +221,7 @@ fun CommentCard(
 }
 
 @Composable
-fun CommentContent(comment: Comment) {
+private fun CommentContent(comment: Comment) {
     Column(
         modifier = Modifier.padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -191,7 +232,7 @@ fun CommentContent(comment: Comment) {
 }
 
 @Composable
-fun AddReplyButton(onAddReplyClick: () -> Unit) {
+private fun AddReplyButton(onAddReplyClick: () -> Unit) {
     Column(
         modifier = Modifier.padding(horizontal = 12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -212,7 +253,7 @@ fun AddReplyButton(onAddReplyClick: () -> Unit) {
 }
 
 @Composable
-fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
+private fun ShowRepliesButton(comment: Comment, onShowRepliesClick: () -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 12.dp)
@@ -226,7 +267,7 @@ fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
         )
         Spacer(modifier = Modifier.width(4.dp))
         Button(
-            onClick = onShowMoreRepliesClick,
+            onClick = onShowRepliesClick,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
                 contentColor = CS.Gray.G50
@@ -244,14 +285,14 @@ fun ShowMoreButton(comment: Comment, onShowMoreRepliesClick: () -> Unit) {
 }
 
 @Composable
-fun ReplyList(replies: List<Reply>, targetComment: Comment) {
+private fun ReplyList(replies: List<Reply>, targetComment: Comment) {
     val sortedDescReplies = replies.sortedByDescending { it.createdAt }
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         sortedDescReplies.forEach { reply ->
-            if (reply.secret)
+            if (!reply.secret)
                 ReplyCard(reply = reply, targetComment = targetComment)
             else
                 SecretCard()
@@ -260,7 +301,7 @@ fun ReplyList(replies: List<Reply>, targetComment: Comment) {
 }
 
 @Composable
-fun ReplyCard(reply: Reply, targetComment: Comment) {
+private fun ReplyCard(reply: Reply, targetComment: Comment) {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
@@ -291,7 +332,7 @@ fun ReplyCard(reply: Reply, targetComment: Comment) {
 }
 
 @Composable
-fun SecretCard() {
+private fun SecretCard() {
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
@@ -312,7 +353,7 @@ fun SecretCard() {
 
 
 @Composable
-fun SheetTitle(modifier: Modifier) {
+private fun SheetTitle(modifier: Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -329,7 +370,7 @@ fun SheetTitle(modifier: Modifier) {
 }
 
 @Composable
-fun InputBar(
+private fun InputBar(
     inputState: CommentInputState,
     onTextChange: (String) -> Unit,
     onLockClick: () -> Unit,
@@ -367,7 +408,7 @@ fun InputBar(
 }
 
 @Composable
-fun CommentInputBar(
+private fun CommentInputBar(
     inputState: CommentInputState,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -424,7 +465,7 @@ fun CommentInputBar(
 }
 
 @Composable
-fun commentDecorationBox(
+private fun commentDecorationBox(
     inputState: CommentInputState,
     isFocused: Boolean,
     onLockClick: () -> Unit,

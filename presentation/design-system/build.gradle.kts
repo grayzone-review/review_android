@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":domain:entity"))
     implementation(project(":common"))
 
+    implementation(Lottie.lottieCompose)
     implementation(DaggerHilt.hilt)
     implementation(Kakao.map)
     implementation("com.google.android.material:material:1.12.0")

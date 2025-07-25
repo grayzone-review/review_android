@@ -1,5 +1,6 @@
 package com.domain.entity
 
+
 data class ReviewFeeds(
     val reviewFeeds: List<ReviewFeed>
 )

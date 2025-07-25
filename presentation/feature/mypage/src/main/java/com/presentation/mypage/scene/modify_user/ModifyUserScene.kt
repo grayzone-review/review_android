@@ -3,6 +3,7 @@ package com.presentation.mypage.scene.modify_user
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,7 +30,7 @@ import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.AddI
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidTapCheckDuplicateButton
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidTapSubmitButton
-import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.GetUser
+import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.OnAppear
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.SetMyTown
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.UpdateNickNameTextField
 import com.team.common.feature_api.extension.addFocusCleaner
@@ -53,8 +54,26 @@ fun ModifyUserScene(
         .getStateFlow<String?>("selectedMode", null)
         .collectAsState()
 
+//    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(com.presentation.design_system.R.raw.insider_loading))
+//
+//    /* iterations = LottieConstants.IterateForever 로 무한 반복 */
+//    val progress by animateLottieCompositionAsState(
+//        composition = composition,
+//        iterations = LottieConstants.IterateForever,    // ★ 핵심
+//        isPlaying = true,                               // 기본값 true 지만 명시해 두면 헷갈리지 않음
+//        speed = 1f
+//    )
+
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                ModifyUserUIEvent.Pop -> { navController.popBackStack() }
+            }
+        }
     }
 
     LaunchedEffect(selectedAddress, mode) {
@@ -69,42 +88,52 @@ fun ModifyUserScene(
         savedStateHandle["selectedMode"] = null
     }
 
-    Column(
-        Modifier
-            .background(CS.Gray.White)
-            .addFocusCleaner(focusManager = focusManager)
+    Box(
     ) {
-        TopAppBar(onBackButtonClick = { navController.popBackStack() })
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(40.dp)
+            Modifier
+                .background(CS.Gray.White)
+                .addFocusCleaner(focusManager = focusManager)
         ) {
-            NicknameInput(
-                nicknameField = uiState.nickNameField,
-                onValueChange = { viewModel.handleAction(UpdateNickNameTextField, it) },
-                onCheckDuplicate = { viewModel.handleAction(DidTapCheckDuplicateButton) }
-            )
-            MyTownInput(
-                value = uiState.myTown,
-                onClick = { navController.navigate(NavConstant
-                    .destSearchAddress(startQuery = it, mode = NavConstant.Mode.MY))
-                }
-            )
-            InterestInput(
-                legalDistrictInfos = uiState.interestTowns,
-                onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton, it) },
-                onAddTownButtonClick = { navController.navigate(NavConstant
-                    .destSearchAddress(startQuery = "", mode = NavConstant.Mode.INTEREST))
-                }
+            TopAppBar(onBackButtonClick = { navController.popBackStack() })
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(40.dp)
+            ) {
+                NicknameInput(
+                    nicknameField = uiState.nickNameField,
+                    onValueChange = { viewModel.handleAction(UpdateNickNameTextField, it) },
+                    onCheckDuplicate = { viewModel.handleAction(DidTapCheckDuplicateButton) }
+                )
+                MyTownInput(
+                    value = uiState.myTown,
+                    onClick = { navController.navigate(NavConstant
+                        .destSearchAddress(startQuery = it, mode = NavConstant.Mode.MY))
+                    }
+                )
+                InterestInput(
+                    legalDistrictInfos = uiState.interestTowns,
+                    onRemoveButtonClick = { viewModel.handleAction(DidTapRemoveInterestTownButton, it) },
+                    onAddTownButtonClick = { navController.navigate(NavConstant
+                        .destSearchAddress(startQuery = "", mode = NavConstant.Mode.INTEREST))
+                    }
+                )
+            }
+            SubmitButton(
+                isEnabled = uiState.isSubmitEnabled,
+                onClick = { viewModel.handleAction(DidTapSubmitButton) }
             )
         }
-        SubmitButton(
-            isEnabled = uiState.isSubmitEnabled,
-            onClick = { viewModel.handleAction(DidTapSubmitButton) }
-        )
+
+//        LottieAnimation(
+//            composition = composition,
+//            progress = { progress },
+//            modifier = Modifier.fillMaxSize()
+//                .align(Alignment.Center)
+//        )
     }
 }
 

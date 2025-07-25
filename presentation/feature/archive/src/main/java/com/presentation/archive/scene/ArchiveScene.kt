@@ -18,7 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -38,16 +39,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
-import com.domain.entity.CompactCompany
-import com.domain.entity.Review
-import com.domain.entity.roundedAverage
+import com.domain.entity.MyArchiveCompany
+import com.domain.entity.MyArchiveReview
 import com.example.presentation.designsystem.typography.Typography
+import com.presentation.archive.scene.ArchiveViewModel.Action.DismissCrateReviewSheet
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetCompanyFollowList
 import com.presentation.archive.scene.ArchiveViewModel.Action.GetInterestReviews
-import com.presentation.archive.scene.ArchiveViewModel.Action.GetStats
-import com.presentation.archive.scene.ArchiveViewModel.Action.GetWroteReviews
+import com.presentation.archive.scene.ArchiveViewModel.Action.GetMyReviews
+import com.presentation.archive.scene.ArchiveViewModel.Action.OnAppear
+import com.presentation.archive.scene.ArchiveViewModel.Action.ShowCreateReviewSheet
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import com.team.common.feature_api.utility.Utility
+import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import preset_ui.icons.BackBarButtonIcon
@@ -63,11 +67,14 @@ fun ArchiveScene(
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetStats)
+        viewModel.handleAction(OnAppear)
     }
 
+    CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
+
     Scaffold(
-        topBar = { TopAppBar(onBackButtonClick = { }) }
+        topBar = { TopAppBar(title = uiState.user.nickname ?: "", onBackButtonClick = { navController.popBackStack() }) },
+        containerColor = CS.Gray.White
     ) { innerPadding ->
         Column(
             modifier = Modifier.padding(innerPadding)
@@ -78,27 +85,36 @@ fun ArchiveScene(
                 .height(8.dp)
                 .background(color = CS.Gray.G10))
             ArchiveCollection(
-                wroteReviews = uiState.wroteReviews,
+                modifier = Modifier.weight(1f),
+                wroteReviews = uiState.myReviews,
                 interestReviews = uiState.interestReviews,
                 followCompanies = uiState.followCompanies,
+                onClickReview = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", it.companyId.toString()))
+                },
+                onClickCompany = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", it.id.toString()))
+                },
                 onTabChange = {
                     when (it) {
-                        CollectionTab.REVIEW -> { viewModel.handleAction(GetWroteReviews) }
+                        CollectionTab.REVIEW -> { viewModel.handleAction(GetMyReviews) }
                         CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews)}
                         CollectionTab.BOOKMARK -> { viewModel.handleAction(GetCompanyFollowList) }
                     }
                 }
             )
+            WriteReviewButton(onClick = { viewModel.handleAction(ShowCreateReviewSheet) })
         }
     }
 }
 
 @Composable
 private fun TopAppBar(
+    title: String,
     onBackButtonClick: () -> Unit
 ) {
     DefaultTopAppBar(
-        title = "웅아계정53",
+        title = title,
         leftNavigationIcon = {
             BackBarButtonIcon(width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
                 .clickable { onBackButtonClick() })
@@ -130,10 +146,13 @@ private fun StatsRow(
 enum class CollectionTab(val rawValue: String) { REVIEW("리뷰"), INTEREST("관심 리뷰"), BOOKMARK("즐겨찾기") }
 @Composable
 fun ArchiveCollection(
-    wroteReviews: List<Review>,
-    interestReviews: List<Review>,
-    followCompanies: List<CompactCompany>,
-    onTabChange: (CollectionTab) -> Unit
+    wroteReviews: List<MyArchiveReview>,
+    interestReviews: List<MyArchiveReview>,
+    followCompanies: List<MyArchiveCompany>,
+    onTabChange: (CollectionTab) -> Unit,
+    onClickReview: (MyArchiveReview) -> Unit,
+    onClickCompany: (MyArchiveCompany) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val tabs = CollectionTab.entries
     val scope = rememberCoroutineScope()
@@ -149,9 +168,7 @@ fun ArchiveCollection(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 20.dp)
+        modifier = modifier
     ) {
         TabRow(
             selectedTabIndex = pagerState.currentPage,
@@ -160,8 +177,7 @@ fun ArchiveCollection(
                     Modifier
                         .tabIndicatorOffset(tabPositions[pagerState.currentPage])
                         .height(4.dp)
-                        .padding(horizontal = 10.dp)
-                    ,
+                        .padding(horizontal = 10.dp),
                     color = CS.PrimaryOrange.O40
                 )
             }
@@ -170,6 +186,7 @@ fun ArchiveCollection(
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(page = index) } },
+                    modifier = Modifier.background(CS.Gray.White),
                     text = {
                         Text(
                             text = tab.rawValue,
@@ -186,12 +203,12 @@ fun ArchiveCollection(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 1
+            beyondViewportPageCount = 1,
         ) { page ->
             when (tabs[page]) {
-                CollectionTab.REVIEW   -> { ReviewList(reviews = wroteReviews) }
-                CollectionTab.INTEREST -> { ReviewList(reviews = interestReviews) }
-                CollectionTab.BOOKMARK -> { CompanyList(companies = followCompanies) }
+                CollectionTab.REVIEW   -> { ReviewList(reviews = wroteReviews, onClick = onClickReview) }
+                CollectionTab.INTEREST -> { ReviewList(reviews = interestReviews, onClick = onClickReview) }
+                CollectionTab.BOOKMARK -> { CompanyList(companies = followCompanies, onClick = onClickCompany) }
             }
         }
     }
@@ -199,30 +216,37 @@ fun ArchiveCollection(
 
 @Composable
 private fun ReviewList(
-    reviews: List<Review>
+    reviews: List<MyArchiveReview>,
+    onClick: (MyArchiveReview) -> Unit
 ) {
     LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
     ) {
         items(reviews, key = { it.id }) { item ->
-            ReviewCard(review = item)
+            ReviewCard(review = item, modifier = Modifier
+                .clickable { onClick(item) }
+            )
         }
     }
 }
 
 @Composable
 private fun ReviewCard(
-    review: Review
+    review: MyArchiveReview,
+    modifier: Modifier = Modifier
 ) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp, horizontal = 20.dp)
         ) {
+            val cleanTitle = review.title.trim().replace("\n", "")
+
             Text(
-                text = review.title,
+                text = cleanTitle,
                 style = Typography.body1Bold,
                 color = CS.Gray.G80,
                 maxLines = 2,
@@ -234,19 +258,19 @@ private fun ReviewCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = "김밥천국", style = Typography.captionRegular, color = CS.Gray.G50)
+                Text(text = review.companyName, style = Typography.captionRegular, color = CS.Gray.G50)
                 Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
                 Text(text = review.jobRole, style = Typography.captionRegular, color = CS.Gray.G50)
                 Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
                 Text(
-                    text = review.createdAt.substring(0, 7).replace("-", ".") + " 작성",
+                    text = review.createdAt?.substring(0, 7)?.replace("-", ".") + " 작성",
                     style = Typography.captionRegular,
                     color = CS.Gray.G50
                 )
             }
             Spacer(Modifier.height(16.dp))
             /* ───── 평점 숫자 + 별 ★ ───── */
-            val avgRating = review.ratings.roundedAverage()
+            val avgRating = review.totalRating
             val starCounts = Utility.calculateStarCounts(totalScore = avgRating)
 
             Row(
@@ -278,30 +302,33 @@ private fun ReviewCard(
                 Text(text = "댓글 ${review.commentCount}", style = Typography.captionRegular, color = CS.Gray.G90)
             }
         }
-
-        Divider(color = CS.Gray.G20, thickness = 1.dp)
+        Spacer(modifier = Modifier.background(color = CS.Gray.G20).height(1.dp).fillMaxWidth())
     }
 }
 
 @Composable
 private fun CompanyList(
-    companies: List<CompactCompany>
+    companies: List<MyArchiveCompany>,
+    onClick: (MyArchiveCompany) -> Unit
 ) {
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(companies, key = { it.id }) { item ->
-            CompanyCard(company = item)
+            CompanyCard(company = item, modifier = Modifier
+                .clickable { onClick(item) }
+            )
         }
     }
 }
 
 @Composable
 private fun CompanyCard(
-    company: CompactCompany
+    company: MyArchiveCompany,
+    modifier: Modifier = Modifier
 ) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(modifier.fillMaxWidth()) {
 
         /* ───────── 카드 본문 ───────── */
         Column(
@@ -383,8 +410,35 @@ private fun CompanyCard(
                 )
             }
         }
-
-        /* ───────── 하단 구분선 ───────── */
-        Divider(color = CS.Gray.G20, thickness = 1.dp)
+        Spacer(modifier = Modifier.background(color = CS.Gray.G20).height(1.dp).fillMaxWidth())
     }
+}
+
+@Composable
+private fun WriteReviewButton(
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 20.dp, top = 5.dp)
+            .height(52.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = CS.PrimaryOrange.O40,
+            contentColor = CS.Gray.White,
+            disabledContainerColor = CS.PrimaryOrange.O20,
+            disabledContentColor = CS.Gray.White
+        ),
+        elevation = null
+    ) {
+        Text(text = "리뷰 작성하러 가기", style = Typography.body1Bold)
+    }
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

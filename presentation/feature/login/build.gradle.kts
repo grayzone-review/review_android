@@ -46,7 +46,10 @@ dependencies {
     implementation(project(":presentation:design-system"))
     implementation(project(":presentation:feature:common"))
     implementation(project(":domain:usecase"))
+    implementation(project(":data:location"))
 
+    implementation(Location.permission)
+    implementation(Location.gmsLocationService)
     implementation(Kakao.login)
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

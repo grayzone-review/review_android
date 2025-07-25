@@ -16,9 +16,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // 카카오
         maven {
             url = uri("https://devrepo.kakao.com/nexus/repository/kakaomap-releases/")
             url = java.net.URI("https://devrepo.kakao.com/nexus/content/groups/public/")
+        }
+        // 로띠
+        maven {
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
     }
 }

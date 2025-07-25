@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -30,9 +31,12 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DidTapMyPageMenu
-import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.GetUser
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DismissCreateReviewSheet
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.OnAppear
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.ShowCreateReviewSheet
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.UpAlertIconDialog
+import create_review_dialog.CreateReviewDialog
 import preset_ui.icons.InfoIcon
 import preset_ui.icons.MyPageBell
 import preset_ui.icons.MyPageLogOut
@@ -68,8 +72,13 @@ fun MyPageScene(
         }
     }
 
+    CreateReviewSheet(
+        isShow = uiState.shouldShowCreateReviewSheet,
+        onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) }
+    )
+
     LaunchedEffect(Unit) {
-        viewModel.handleAction(GetUser)
+        viewModel.handleAction(OnAppear)
     }
 
     alertMenu?.let { menu ->
@@ -91,10 +100,19 @@ fun MyPageScene(
         bottomBar = {
             UpBottomBar(
                 current = UpTab.MyPage, // 현재 탭에 맞게 설정
-                onTabSelected = {
-                    navController.navigate(NavigationRouteConstant.mainNestedRoute)
+                onTabSelected = { tab ->
+                    when (tab) {
+                        UpTab.Home -> {
+                            navController.navigate(NavigationRouteConstant.mainNestedRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        UpTab.MyPage -> {}
+                    }
                 },
-                onAddButtonClick = { /* TODO */ }
+                onAddButtonClick = { viewModel.handleAction(ShowCreateReviewSheet) }
             )
         },
         containerColor = CS.Gray.White
@@ -235,4 +253,9 @@ fun LogOutAlert(
         onConfirm = onConfirm,
         onCancel = onCancel
     )
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

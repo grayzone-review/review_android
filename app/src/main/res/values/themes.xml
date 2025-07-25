@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ReviewAndroid" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- 공통 속성을 담은 베이스 테마 -->
+    <style name="Base.Theme.ReviewAndroid" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 상태바 배경색 -->
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- 매니페스트에서 지정할 최종 테마 -->
+    <style name="Theme.ReviewAndroid" parent="Base.Theme.ReviewAndroid"/>
 </resources>

@@ -2,9 +2,6 @@ package com.data.review_android
 
 import BottomSheetHelper
 import DimController
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
@@ -24,19 +21,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import token_storage.TokenStoreService
 import javax.inject.Inject
 
-
-fun Int.toPx(context: Context): Int =
-    (this * context.resources.displayMetrics.density).toInt()
-
-fun Context.findActivity(): Activity? {
-    var ctx = this
-    while (ctx is ContextWrapper) {
-        if (ctx is Activity) return ctx
-        ctx = ctx.baseContext
-    }
-    return null
-}
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
@@ -50,6 +34,10 @@ class MainActivity : ComponentActivity() {
         UpDataStoreService.init(context = applicationContext)
         TokenStoreService.init(context = applicationContext)
         UpLocationService.init(context = applicationContext)
+
+        /* TODO: 제거 */
+        UpDataStoreService.lastKnownLocation = "37.5665,126.9780"
+
 
         val bottomSheetContainer = findViewById<FrameLayout>(R.id.bottomSheetContainer)
         val dimView = findViewById<FrameLayout>(R.id.dimView)

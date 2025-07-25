@@ -11,7 +11,7 @@ data class SearchCompaniesResponseDTO(
 )
 
 data class CompanyDTO(
-    val id: Long,
+    val id: Int,
     val companyName: String,
     val companyAddress: String,
     val totalRating: Double,

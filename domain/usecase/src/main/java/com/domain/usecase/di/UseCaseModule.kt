@@ -12,6 +12,8 @@ import com.domain.usecase.SearchDistrictUseCase
 import com.domain.usecase.SearchDistrictUseCaseImpl
 import com.domain.usecase.UpAuthUseCase
 import com.domain.usecase.UpAuthUseCaseImpl
+import com.domain.usecase.UserUseCase
+import com.domain.usecase.UserUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -57,4 +59,10 @@ abstract class UseCaseModule {
     abstract fun bindReviewUseCase(
         impl: ReviewUseCaseImpl
     ): ReviewUseCase
+
+    @Binds
+    @Singleton
+    abstract fun bindUserUseCase(
+        impl: UserUseCaseImpl
+    ): UserUseCase
 } 

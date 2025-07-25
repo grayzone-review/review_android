@@ -1,4 +1,4 @@
-package com.presentation.main.scene
+package com.presentation.main.scene.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import colors.CS
 import com.data.location.UpLocationService
@@ -48,16 +50,25 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.presentation.design_system.appbar.appbars.LogoUserTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
-import com.presentation.main.scene.MainViewModel.Action.GetPopularFeeds
-import com.presentation.main.scene.MainViewModel.Action.ShowSettingAlert
+import com.presentation.main.NavConstant
+import com.presentation.main.scene.main.MainViewModel.Action.DismissCreateReviewSheet
+import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
+import com.presentation.main.scene.main.MainViewModel.Action.GetFeeds
+import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
+import com.presentation.main.scene.main.MainViewModel.Action.ShowCreateReviewSheet
+import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.UpAlertIconDialog
+import create_review_dialog.CreateReviewDialog
+import kotlinx.coroutines.launch
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
 import preset_ui.icons.FollowPersonOnIcon
 import preset_ui.icons.LocationBanner
 import preset_ui.icons.MainMapPinIcon
+import preset_ui.icons.MapPinTintable
 import preset_ui.icons.RightArrowIcon
 import preset_ui.icons.StarFilled
 
@@ -72,11 +83,16 @@ fun MainScene(
         rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
+        viewModel.handleAction(OnAppear)
+    }
+
+    LaunchedEffect(permissionState.allPermissionsGranted) {
         when {
             permissionState.allPermissionsGranted -> {
-                viewModel.handleAction(GetPopularFeeds)
+                viewModel.handleAction(GetFeeds)
             }
             permissionState.shouldShowRationale -> {
                 viewModel.handleAction(ShowSettingAlert)
@@ -85,16 +101,17 @@ fun MainScene(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.event.collect { mainUIEvent ->
-            when (mainUIEvent) {
-                MainUIEvent.ShowSettingAlert -> {
-                    context.openAppSettings()
-                }
-            }
-        }
-    }
+    CreateReviewSheet(
+        isShow = uiState.shouldShowCreateReviewSheet,
+        onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) }
+    )
 
+    SettingDialog(
+        isShow = uiState.isShowSettingAlertDialog,
+        onConfirm = { context.openAppSettings() },
+        onCancel = { viewModel.handleAction(DismissSettingAlert)}
+    )
+    
     Box(
         Modifier
             .fillMaxSize()
@@ -103,18 +120,29 @@ fun MainScene(
         Scaffold(
             topBar = {
                 LogoUserTopAppBar(
-                    userName = "서현웅",
-                    onLogoClick = { },
-                    onProfileClick = { }
+                    userName = "${uiState.user.nickname}님",
+                    onLogoClick = { scope.launch { scrollState.animateScrollTo(value = 0) } },
+                    onProfileClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
                 )
             },
             bottomBar = {
                 UpBottomBar(
                     current = UpTab.Home,
-                    onTabSelected = {
-                        navController.navigate(NavigationRouteConstant.mypageNestedRoute)
+                    onTabSelected = { tab ->
+                        when (tab) {
+                            UpTab.Home -> {
+                                scope.launch { scrollState.animateScrollTo(value = 0) }
+                            }
+                            UpTab.MyPage -> {
+                                navController.navigate(NavigationRouteConstant.mypageNestedRoute) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
                     },
-                    onAddButtonClick = { /* TODO */ },
+                    onAddButtonClick = { viewModel.handleAction(ShowCreateReviewSheet) },
                 )
             }
         ) { inner ->
@@ -126,24 +154,54 @@ fun MainScene(
                     .background(Color.White)
             ) {
                 TextFieldButton(
-                    onClickTextFieldButton = { }
+                    onClickTextFieldButton = { navController.navigate(NavigationRouteConstant.searchNestedRoute) }
                 )
                 DashBoardButtons(
-                    onSearchClick = {},
-                    onMyReviewClick = { },
-                    onFollowClick = { }
+                    onSearchClick = { navController.navigate(NavigationRouteConstant.searchNestedRoute) },
+                    onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) },
+                    onFollowClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
                 )
-                LocationBannerButton(
-                    onClick = { }
-                )
+                Spacer(modifier = Modifier.fillMaxWidth().height(20.dp))
+                if (uiState.user.interestedRegions.isNullOrEmpty()) {
+                    LocationBannerButton(
+                        onClick = { navController.navigate(NavigationRouteConstant.mypageModifyUserSceneRoute) }
+                    )
+                }
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
                     .background(CS.Gray.G10))
-                RecentReviewSection(
+                ReviewSection(
+                    title = "지금 인기 있는 리뷰",
                     reviews = uiState.popularFeeds,
-                    onMoreClick = { }
+                    onMoreClick = { navController.navigate(NavConstant
+                        .destFeed(section = NavConstant.Section.Popular))
+                    },
+                    onClickItem = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                        .replace("{companyId}", it.compactCompany.id.toString())) }
                 )
+                if (uiState.myTownFeeds.isNotEmpty()) {
+                    ReviewSection(
+                        title = "우리 동네 최근 리뷰",
+                        reviews = uiState.myTownFeeds,
+                        onMoreClick = { navController.navigate(NavConstant
+                            .destFeed(section = NavConstant.Section.MyTown))
+                        },
+                        onClickItem = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.compactCompany.id.toString())) }
+                    )
+                }
+                if (uiState.interestRegionsFeeds.isNotEmpty()) {
+                    ReviewSection(
+                        title = "관심 동네 최근 리뷰",
+                        reviews = uiState.interestRegionsFeeds,
+                        onMoreClick = { navController.navigate(NavConstant
+                            .destFeed(section = NavConstant.Section.InterestRegions))
+                        },
+                        onClickItem = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.compactCompany.id.toString())) }
+                    )
+                }
             }
         }
     }
@@ -156,7 +214,7 @@ fun TextFieldButton(
     Column(modifier = Modifier.padding(20.dp)) {
         IconTextFieldOutlined(
             text = "재직자들의 리뷰 찾아보기",
-            onClick = { }
+            onClick = onClickTextFieldButton
         )
     }
 }
@@ -307,7 +365,6 @@ private fun LocationBannerButton(
             .height(142.dp)
             .clickable(onClick = onClick)
             .background(Color.White)
-            .padding(top = 20.dp)
             .padding(horizontal = 20.dp)
     ) {
 
@@ -341,9 +398,11 @@ private fun LocationBannerButton(
 }
 
 @Composable
-fun RecentReviewSection(
+private fun ReviewSection(
+    title: String,
     reviews: List<ReviewFeed>,
     onMoreClick: () -> Unit,
+    onClickItem: (ReviewFeed) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -355,13 +414,13 @@ fun RecentReviewSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "지금 인기 있는 리뷰", style = Typography.h3, color = CS.Gray.G90)
+                Text(text = title, style = Typography.h3, color = CS.Gray.G90)
                 Spacer(Modifier.width(4.dp))
                 Chat2Fill(20.dp, 20.dp, tint = CS.PrimaryOrange.O40)
             }
             Spacer(Modifier.weight(1f))
             TextButton(onClick = onMoreClick) {
-                Text(text = "더보기")
+                Text(text = "더보기", style = Typography.captionRegular, color = CS.Gray.G50)
                 RightArrowIcon(14.dp, 14.dp, tint = CS.Gray.G50)
             }
         }
@@ -371,7 +430,11 @@ fun RecentReviewSection(
         ) {
             items(reviews) { item ->
                 val cardWidth = LocalContext.current.screenWidthDp * 0.861
-                ReviewCard(reviewFeed = item, modifier = Modifier.width(cardWidth.dp))
+                ReviewCard(reviewFeed = item, modifier = Modifier
+                    .width(cardWidth.dp)
+                    .height(186.dp)
+                    .clickable { onClickItem(item) }
+                )
             }
         }
     }
@@ -397,10 +460,12 @@ private fun ReviewCard(
         /* 제목 + 별점 */
         Row(
             verticalAlignment = Alignment.Top,
-            modifier = Modifier.padding(top = 20.dp).padding(horizontal = 20.dp)
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .padding(horizontal = 20.dp)
         ) {
             Text(
-                text = review.title,
+                text = review.title ?: "",
                 style = Typography.body1Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -413,7 +478,7 @@ private fun ReviewCard(
         }
         Text(
             modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-            text = review.advantagePoint,
+            text = review.advantagePoint ?: "",
             style = Typography.captionRegular,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis
@@ -422,16 +487,44 @@ private fun ReviewCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp).padding(top = 8.dp, bottom = 20.dp),
+                .padding(horizontal = 20.dp)
+                .padding(top = 8.dp, bottom = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = company.companyName, style = Typography.captionRegular, color = CS.Gray.G50)
             Text(
-                text = review.createdAt.substring(0, 7).replace("-", ".") + " 작성",
+                text = review.createdAt?.substring(0, 7)?.replace("-", ".") + " 작성",
                 style = Typography.captionRegular,
                 color = CS.Gray.G50
             )
         }
     }
+}
+
+@Composable
+private fun SettingDialog(
+    isShow: Boolean,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    if (!isShow) return
+
+    UpAlertIconDialog(
+        icon = { MapPinTintable(28.dp, 28.dp, tint = CS.Gray.White) },
+        title = "위치 권한 필요",
+        message = """
+            기능을 사용하려면 위치 권한이 필요합니다.
+            설정 > 권한에서 위치를 허용해주세요.
+        """.trimIndent(),
+        confirmText = "설정으로 이동",
+        cancelText = "취소",
+        onConfirm = onConfirm,
+        onCancel = onCancel
+    )
+}
+
+@Composable
+private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
+    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
 }

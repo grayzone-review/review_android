@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class LegalDistrictInfo(
-    val id: Long,
+    val id: Int,
     val name: String
 ): Parcelable
 

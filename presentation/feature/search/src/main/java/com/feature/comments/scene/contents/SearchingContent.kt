@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -24,6 +26,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -134,6 +138,15 @@ fun RecentCompanyItem(
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val companyAddress = company.siteFullAddress
+        ?.takeIf { it.isNotEmpty() }
+        ?: company.roadNameAddress?.takeIf { it.isNotEmpty() }
+        ?: ""
+
+    val companyName = company.companyName
+        ?.takeIf { it.isNotEmpty() }
+        ?: ""
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -168,18 +181,10 @@ fun RecentCompanyItem(
             ) {
                 ClockIcon(width = 20.dp, height = 20.dp, tint = CS.Gray.G50)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = company.companyName,
-                    style = Typography.body1Bold,
-                    color = CS.Gray.G90
-                )
+                Text(text = companyName, style = Typography.body1Bold, color = CS.Gray.G90)
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = if (company.siteFullAddress.isNotEmpty()) company.siteFullAddress else company.roadNameAddress,
-                style = Typography.body2Regular,
-                color = CS.Gray.G50
-            )
+            Text(text = companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
         }
         CloseLine(
             width = 20.dp,
@@ -250,13 +255,22 @@ private fun SearchedCompanyItem(
                 .weight(1f)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 SearchLineIcon(width = 20.dp, height = 20.dp, tint = CS.Gray.G50)
-                HighlightedCompanyName(companyName = compactCompany.companyName, keyword = searchUIState.searchBarValue.text)
-                StarFilled(20.dp, 20.dp)
-                Text(text = "${compactCompany.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90)
+                HighlightedCompanyName(companyName = compactCompany.companyName, keyword = searchUIState.searchBarValue.text, modifier = Modifier.weight(1f, fill = false))
+                Row(
+                    modifier = Modifier
+                        .widthIn(min = 49.dp)
+                        .wrapContentHeight(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    StarFilled(20.dp, 20.dp)
+                    Text(text = "${compactCompany.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90, maxLines = 1)
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = compactCompany.companyAddress, style = Typography.body2Regular, color = CS.Gray.G50)
@@ -267,11 +281,12 @@ private fun SearchedCompanyItem(
 @Composable
 private fun HighlightedCompanyName(
     companyName: String,
-    keyword: String
+    keyword: String,
+    modifier: Modifier = Modifier
 ) {
     // 키워드가 비어있으면 기본 텍스트 출력
     if (keyword.isBlank()) {
-        Text(text = companyName, style = Typography.body1Bold, color = CS.Gray.G90)
+        Text(text = companyName, style = Typography.body1Bold.copy(lineBreak = LineBreak.Paragraph), color = CS.Gray.G90, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier)
         return
     }
 
@@ -302,7 +317,7 @@ private fun HighlightedCompanyName(
         append(companyName)
     }
 
-    Text(text = annotatedString, style = Typography.body1Bold, color = CS.Gray.G90)
+    Text(text = annotatedString, style = Typography.body1Bold.copy(lineBreak = LineBreak.Paragraph), color = CS.Gray.G90, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = modifier,)
 }
 
 private fun getMatchableKeyword(keyword: String): String {

@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -44,7 +45,10 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.team.common.feature_api.extension.openAppSettings
 import common_ui.UpAlertIconDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import preset_ui.icons.CheckCircleFill
 import preset_ui.icons.MapPinTintable
 
@@ -59,6 +63,7 @@ fun AddressFinder(
     val uiState by viewModel.uiState.collectAsState()
     val permissionState = rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(query) { viewModel.handleAction(UpdateAddressesFromChangingQuery, query) }
     LaunchedEffect(Unit) {
@@ -81,13 +86,23 @@ fun AddressFinder(
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        FindMyLocationButton {
-            when {
-                permissionState.allPermissionsGranted -> { viewModel.handleAction(FindMyLocation) }
-                permissionState.shouldShowRationale -> { viewModel.handleAction(ShoudShowSettingAlert) }
-                else -> permissionState.launchMultiplePermissionRequest()
+        FindMyLocationButton(
+            onClick = {
+                scope.launch {
+                    when {
+                        permissionState.allPermissionsGranted -> { viewModel.handleAction(FindMyLocation) }
+                        permissionState.shouldShowRationale -> { viewModel.handleAction(ShoudShowSettingAlert) }
+                        else -> {
+                            permissionState.launchMultiplePermissionRequest()
+                            snapshotFlow { permissionState.allPermissionsGranted }
+                                .filter { it }
+                                .first()
+                            viewModel.handleAction(FindMyLocation)
+                        }
+                    }
+                }
             }
-        }
+        )
         AddressList(
             legalDistricts =  uiState.legalDistrics,
             onAddressItemClick = onAddressItemClick,

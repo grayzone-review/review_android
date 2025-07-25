@@ -1,5 +1,7 @@
 package com.feature.comments.scene
 
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -40,8 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import colors.CS
-import com.domain.entity.Company
 import com.domain.entity.CompactCompany
+import com.domain.entity.Company
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapFilterButtons
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapRecentQueryButton
@@ -49,7 +51,7 @@ import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidFocus
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapCancelButton
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapClearButton
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapIMEDone
-import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUnfocusSearchBar
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUnFocusSearchBar
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUpdateSearchBarValue
 import com.feature.comments.scene.contents.AfterContent
 import com.feature.comments.scene.contents.AfterContentViewModel
@@ -57,7 +59,7 @@ import com.feature.comments.scene.contents.BeforeContent
 import com.feature.comments.scene.contents.BeforeContentViewModel
 import com.feature.comments.scene.contents.SearchingContent
 import com.feature.comments.scene.contents.SearchingContentViewModel
-import com.feature.comments.scene.contents.TagButtonData
+import com.feature.comments.scene.contents.TagButtonType
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.team.common.feature_api.extension.addFocusCleaner
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
@@ -73,18 +75,27 @@ fun SearchScene(
     val focusManager = LocalFocusManager.current
     val searchUIState by viewModel.searchUIState.collectAsState()
 
+    BackHandler {
+        when (searchUIState.phase) {
+            SearchPhase.Before -> { navController.popBackStack() }
+            SearchPhase.Searching -> { viewModel.handleAction(DidTapCancelButton) }
+            SearchPhase.After -> { viewModel.handleAction(DidTapCancelButton) }
+        }
+    }
+
     Column(Modifier
         .fillMaxSize()
+        .background(color = CS.Gray.White)
         .addFocusCleaner(focusManager = focusManager)
     ) {
         Appbar(
             searchUIState = searchUIState,
-            onBackButtonClick = { }
+            onBackButtonClick = { navController.popBackStack() }
         )
         SearchTextField(
             searchUIState = searchUIState,
-            onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, text = it) },
-            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnfocusSearchBar) },
+            onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, it) },
+            onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnFocusSearchBar) },
             onClickClearButton = { viewModel.handleAction(DidTapClearButton) },
             onClickCancelButton = {
                 focusManager.clearFocus()
@@ -97,16 +108,23 @@ fun SearchScene(
         )
         Content(
             searchUIState = searchUIState,
-            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, text = it) },
-            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, tagButtonData = it) },
+            onClickRecentQuery = { viewModel.handleAction(DidTapRecentQueryButton, it) },
+            onClickFilterButton = { viewModel.handleAction(DidTapFilterButtons, it) },
             onClickRecentCompany = { company -> 
-                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", company.id.toString())
+                )
             },
-            onClickSearchedCompany = { company -> 
-                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+            onClickSearchedCompany = { company ->
+                Log.d("아이디상황", company.id.toString())
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", company.id.toString())
+                )
             },
             onClickSearchResultCompany = { company ->
-                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute.replace("{companyId}", company.id.toString()))
+                navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", company.id.toString())
+                )
             }
         )
 
@@ -227,7 +245,7 @@ fun searchDecorationBox(
 fun Content(
     searchUIState: SearchUIState,
     onClickRecentQuery: (String) -> Unit,
-    onClickFilterButton: (TagButtonData) -> Unit,
+    onClickFilterButton: (TagButtonType) -> Unit,
     onClickRecentCompany: (Company) -> Unit,
     onClickSearchedCompany: (CompactCompany) -> Unit,
     onClickSearchResultCompany: (CompactCompany) -> Unit
@@ -255,7 +273,8 @@ fun Content(
             AfterContent(
                 viewModel = viewModel,
                 searchUIState = searchUIState,
-                onClickSearchResult = onClickSearchResultCompany
+                onClickSearchResult = onClickSearchResultCompany,
+                onClickTagButtonAtAfterContent = { onClickFilterButton(it) }
             )
         }
     }

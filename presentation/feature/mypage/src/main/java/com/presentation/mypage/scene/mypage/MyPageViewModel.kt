@@ -2,8 +2,8 @@ package com.presentation.mypage.scene.mypage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.User
+import com.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,15 +33,19 @@ sealed interface MyPageUIEvent {
 }
 
 data class MyPageUIState(
-    val user: User = User()
+    val user: User = User(),
+    val shouldShowCreateReviewSheet: Boolean = false
 )
 
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
+    private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
-        GetUser,
-        DidTapMyPageMenu
+        OnAppear,
+        DidTapMyPageMenu,
+        ShowCreateReviewSheet,
+        DismissCreateReviewSheet
     }
 
     private var _uiState = MutableStateFlow(value = MyPageUIState())
@@ -52,10 +56,10 @@ class MyPageViewModel @Inject constructor(
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
-            Action.GetUser -> {
+            Action.OnAppear -> {
                 viewModelScope.launch {
-                    val user = getMockUser()
-                    _uiState.update { it.copy(user = user) }
+                    val result = userUseCase.userInfo()
+                    _uiState.update { it.copy(user = result) }
                 }
             }
             Action.DidTapMyPageMenu -> {
@@ -71,18 +75,8 @@ class MyPageViewModel @Inject constructor(
                     }
                 }
             }
+            Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
+            Action.DismissCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = false) } }
         }
-    }
-
-    private fun getMockUser(): User {
-        return User(
-            nickname = "서현웅",
-            mainRegion = LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-            interestedRegions = listOf(
-                LegalDistrictInfo(1, "서울시 중랑구 면목동"),
-                LegalDistrictInfo(2, "서울시 중랑구 중곡동"),
-                LegalDistrictInfo(2, "서울시 중랑구 상봉동")
-            )
-        )
     }
 }
