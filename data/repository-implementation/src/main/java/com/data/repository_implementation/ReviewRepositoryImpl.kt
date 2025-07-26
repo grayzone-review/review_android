@@ -33,7 +33,7 @@ class ReviewRepositoryImpl @Inject constructor(
         salary: Double,
         companyCulture: Double,
         management: Double
-    ): Review {
+    ): Review? {
         val requestDTO = CreateCompanyReviewRequestModel(
             advantagePoint = advantagePoint,
             disadvantagePoint = disadvantagePoint,
@@ -48,8 +48,9 @@ class ReviewRepositoryImpl @Inject constructor(
                 management = management
             )
         )
-        val result = upAPIService.createCompanyReview(companyID = companyID, requestModel = requestDTO)
-        return result.data?.toDomain()!!
+        val responseDTO = upAPIService.createCompanyReview(companyID = companyID, requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun likeReview(
@@ -71,61 +72,68 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun reviewComments(
         reviewID: Int,
         page: Int
-    ): Comments {
-        val result = upAPIService.reviewComments(reviewId = reviewID, page = page)
-        return result.data?.toDomain()!!
+    ): Comments? {
+        val responseDTO = upAPIService.reviewComments(reviewId = reviewID, page = page)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun writeComment(
         reviewID: Int,
         content: String,
         isSecret: Boolean
-    ): Comment {
+    ): Comment? {
         val requestDTO = WriteCommentRequestModel(comment = content, secret = isSecret)
-        val result = upAPIService.writeComment(reviewId = reviewID, requestModel = requestDTO)
-        return result.data?.toDomain()!!
+        val responseDTO = upAPIService.writeComment(reviewId = reviewID, requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun commentReplies(
         commentID: Int,
         page: Int
-    ): Replies {
-        val result = upAPIService.commentReplies(commentId = commentID, page = page)
-        return result.data?.toDomain()!!
+    ): Replies? {
+        val responseDTO = upAPIService.commentReplies(commentId = commentID, page = page)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
     
     override suspend fun writeReply(
         commentID: Int,
         content: String,
         isSecret: Boolean
-    ): Reply {
+    ): Reply? {
         val requestDTO = WriteReplyRequestModel(comment = content, secret = isSecret)
-        val result = upAPIService.writeReply(commentId = commentID, requestModel = requestDTO)
-        return result.data?.toDomain()!!
+        val responseDTO = upAPIService.writeReply(commentId = commentID, requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
     
     override suspend fun popularReviewFeeds(
         latitude: Double,
         longitude: Double
-    ): List<ReviewFeed> {
-        val result = upAPIService.popularReviews(latitude = latitude, longitude = longitude)
-        return result.data!!.toDomain()
+    ): List<ReviewFeed>? {
+        val responseDTO = upAPIService.popularReviews(latitude = latitude, longitude = longitude)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun myTownReviewFeeds(
         latitude: Double,
         longitude: Double
-    ): List<ReviewFeed> {
-        val result = upAPIService.myTownReviews(latitude = latitude, longitude = longitude)
-        return result.data!!.toDomain()
+    ): List<ReviewFeed>? {
+        val responseDTO = upAPIService.myTownReviews(latitude = latitude, longitude = longitude)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun interestRegionsReviewFeeds(
         latitude: Double,
         longitude: Double
-    ): List<ReviewFeed> {
-        val result = upAPIService.interestRegionsReviews(latitude = latitude, longitude = longitude)
-        return result.data!!.toDomain()
+    ): List<ReviewFeed>? {
+        val responseDTO = upAPIService.interestRegionsReviews(latitude = latitude, longitude = longitude)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 }
 

@@ -29,7 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +46,10 @@ import colors.CS
 import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
+import com.team.common.feature_api.error.APIException
+import common_ui.AlertStyle
 import common_ui.UpIndicator
+import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapClearButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapNextButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapPreviousButton
@@ -91,14 +97,28 @@ private fun content(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
                 CreateReviewUIEvent.DismissDialog -> { onDismiss() }
+                is CreateReviewUIEvent.ShowAlert -> { alertError = event.error }
+                is CreateReviewUIEvent.ShowSuccessAlert -> { successMessage = event.message }
             }
         }
     }
+
+    BindSuccessAlert(
+        message = successMessage,
+        completion = { onDismiss() }
+    )
+
+    BindErrorAlert(
+        error = alertError,
+        completion = {}
+    )
 
     InputBottomSheet(
         uiState = uiState,
@@ -410,6 +430,34 @@ fun InputBottomSheet(
                 }
             },
             onClickClearButton = { onClickClearButton() }
+        )
+    }
+}
+
+@Composable
+fun BindErrorAlert(
+    error: APIException?,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = { completion() }
+        )
+    }
+}
+
+@Composable
+fun BindSuccessAlert(
+    message: String?,
+    completion: () -> Unit
+) {
+    message?.let {
+        UpSingleButtonAlertDialog(
+            message = message,
+            style = AlertStyle.Complete,
+            onDismiss = { completion() }
         )
     }
 }

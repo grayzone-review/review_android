@@ -29,7 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import colors.CS
@@ -51,16 +55,21 @@ import com.presentation.design_system.appbar.appbars.LogoUserTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.main.NavConstant
+import com.presentation.main.scene.feed.BindAlert
 import com.presentation.main.scene.main.MainViewModel.Action.DismissCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
 import com.presentation.main.scene.main.MainViewModel.Action.GetFeeds
 import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
 import com.presentation.main.scene.main.MainViewModel.Action.ShowCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.ErrorAction
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.extension.screenWidthDp
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.AlertStyle
 import common_ui.UpAlertIconDialog
+import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.launch
 import preset_ui.IconTextFieldOutlined
@@ -84,9 +93,18 @@ fun MainScene(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.handleAction(OnAppear)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                is MainUIEvent.ShowAlert -> { alertError = event.error }
+            }
+        }
     }
 
     LaunchedEffect(permissionState.allPermissionsGranted) {
@@ -100,6 +118,12 @@ fun MainScene(
             else -> permissionState.launchMultiplePermissionRequest()
         }
     }
+
+    BindAlert(
+        error = alertError,
+        navController = navController,
+        completion = { alertError = null }
+    )
 
     CreateReviewSheet(
         isShow = uiState.shouldShowCreateReviewSheet,
@@ -527,4 +551,29 @@ private fun SettingDialog(
 @Composable
 private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+}
+
+@Composable
+fun BindAlert(
+    error: APIException?,
+    navController: NavController,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = {
+                when (it.action) {
+                    ErrorAction.Home -> navController.navigate(NavigationRouteConstant.mainNestedRoute)
+                    ErrorAction.Login -> navController.navigate(NavigationRouteConstant.loginNestedRoute) {
+                        popUpTo(NavigationRouteConstant.mainNestedRoute) { inclusive = true }
+                    }
+                    ErrorAction.Back -> navController.popBackStack()
+                    else -> {}
+                }
+                completion()
+            }
+        )
+    }
 }

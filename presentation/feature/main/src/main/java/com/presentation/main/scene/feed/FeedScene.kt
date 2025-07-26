@@ -24,11 +24,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import colors.CS
 import com.domain.entity.CompactCompany
@@ -40,7 +44,12 @@ import com.presentation.main.NavConstant
 import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCrateReviewSheet
 import com.presentation.main.scene.feed.FeedViewModel.Action.OnAppear
 import com.presentation.main.scene.feed.FeedViewModel.Action.ShowCreateReviewSheet
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.ErrorAction
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import com.team.common.feature_api.utility.Utility
+import common_ui.AlertStyle
+import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
@@ -54,10 +63,25 @@ fun FeedScene(
     navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.handleAction(OnAppear)
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                is FeedUIEvent.ShowAlert -> { alertError = event.error }
+            }
+        }
+    }
+
+    BindAlert(
+        error = alertError,
+        navController = navController,
+        completion = { alertError = null }
+    )
 
     CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
 
@@ -242,4 +266,29 @@ private fun WriteReviewButton(
 @Composable
 private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+}
+
+@Composable
+fun BindAlert(
+    error: APIException?,
+    navController: NavController,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = {
+                when (it.action) {
+                    ErrorAction.Home -> navController.navigate(NavigationRouteConstant.mainNestedRoute)
+                    ErrorAction.Login -> navController.navigate(NavigationRouteConstant.loginNestedRoute) {
+                        popUpTo(NavigationRouteConstant.mainNestedRoute) { inclusive = true }
+                    }
+                    ErrorAction.Back -> navController.popBackStack()
+                    else -> {}
+                }
+                completion()
+            }
+        )
+    }
 }

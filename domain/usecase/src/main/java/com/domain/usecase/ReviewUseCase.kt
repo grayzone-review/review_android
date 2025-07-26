@@ -13,13 +13,13 @@ import javax.inject.Inject
 interface ReviewUseCase {
     suspend fun likeReview(reviewID: Int): LikeReviewResult
     suspend fun unlikeReview(reviewID: Int): LikeReviewResult
-    suspend fun reviewComments(reviewID: Int, page: Int): Comments
-    suspend fun writeComment(reviewID: Int, content: String, isSecret: Boolean): Comment
-    suspend fun commentReplies(commentID: Int, page: Int): Replies
-    suspend fun writeReply(commentID: Int, content: String, isSecret: Boolean): Reply
-    suspend fun popularReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>
-    suspend fun myTownReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>
-    suspend fun interestRegionsReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>
+    suspend fun reviewComments(reviewID: Int, page: Int): Comments?
+    suspend fun writeComment(reviewID: Int, content: String, isSecret: Boolean): Comment?
+    suspend fun commentReplies(commentID: Int, page: Int): Replies?
+    suspend fun writeReply(commentID: Int, content: String, isSecret: Boolean): Reply?
+    suspend fun popularReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>?
+    suspend fun myTownReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>?
+    suspend fun interestRegionsReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>?
     suspend fun createReview(
         companyID: Int,
         advantagePoint: String,
@@ -32,7 +32,7 @@ interface ReviewUseCase {
         salary: Double,
         companyCulture: Double,
         management: Double
-    ): Review
+    ): Review?
 }
 
 class ReviewUseCaseImpl @Inject constructor(
@@ -53,7 +53,7 @@ class ReviewUseCaseImpl @Inject constructor(
     override suspend fun reviewComments(
         reviewID: Int,
         page: Int
-    ): Comments {
+    ): Comments? {
         return reviewRepository.reviewComments(reviewID = reviewID, page = page)
     }
 
@@ -61,14 +61,14 @@ class ReviewUseCaseImpl @Inject constructor(
         reviewID: Int,
         content: String,
         isSecret: Boolean
-    ): Comment {
+    ): Comment? {
         return reviewRepository.writeComment(reviewID = reviewID, content = content, isSecret = isSecret)
     }
 
     override suspend fun commentReplies(
         commentID: Int,
         page: Int
-    ): Replies {
+    ): Replies? {
         return reviewRepository.commentReplies(commentID = commentID, page = page)
     }
 
@@ -76,28 +76,28 @@ class ReviewUseCaseImpl @Inject constructor(
         commentID: Int,
         content: String,
         isSecret: Boolean
-    ): Reply {
+    ): Reply? {
         return reviewRepository.writeReply(commentID = commentID, content = content, isSecret = isSecret)
     }
 
     override suspend fun popularReviewFeeds(
         latitude: Double,
         longitude: Double
-    ): List<ReviewFeed> {
+    ): List<ReviewFeed>? {
         return reviewRepository.popularReviewFeeds(latitude, longitude)
     }
     
     override suspend fun myTownReviewFeeds(
         latitude: Double,
         longitude: Double
-    ): List<ReviewFeed> {
+    ): List<ReviewFeed>? {
         return reviewRepository.myTownReviewFeeds(latitude, longitude)
     }
     
     override suspend fun interestRegionsReviewFeeds(
         latitude: Double,
         longitude: Double
-    ): List<ReviewFeed> {
+    ): List<ReviewFeed>? {
         return reviewRepository.interestRegionsReviewFeeds(latitude, longitude)
     }
 
@@ -113,7 +113,7 @@ class ReviewUseCaseImpl @Inject constructor(
         salary: Double,
         companyCulture: Double,
         management: Double,
-    ): Review {
+    ): Review? {
         return reviewRepository.createReview(companyID, advantagePoint, disadvantagePoint, managementFeedback, jobRole, employmentPeriod, welfare, workLifeBalance, salary, companyCulture, management)
     }
 }

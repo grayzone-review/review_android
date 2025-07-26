@@ -5,12 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.domain.entity.Comment
 import com.domain.entity.Reply
 import com.domain.usecase.ReviewUseCase
+import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface CommentInputUIEvent {
+    data class ShowAlert(val error: APIException? = null) : CommentInputUIEvent
+}
 
 data class CommentInputState(
     val reviewID: Int = 0,                                  // 회사 리뷰 ID
@@ -35,8 +42,7 @@ class CommentBottomSheetViewModel @Inject constructor(
     private val reviewUseCase: ReviewUseCase
 ) : ViewModel() {
     enum class Action {
-        SetReviewID,
-        GetComments,
+        OnAppear,
         GetCommentsMore,
         DidUpdateCommentText,
         DidTapSecretButton,
@@ -51,28 +57,36 @@ class CommentBottomSheetViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(CommentInputState())
     val uiState = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<CommentInputUIEvent>()
+    val event = _event.asSharedFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
-            Action.SetReviewID -> {
+            Action.OnAppear -> {
                 val reviewID = value as? Int ?: return
-                _uiState.update { it.copy(reviewID = reviewID) }
-            }
-            Action.GetComments -> {
+
                 if (currentState.isLoading) return
                 viewModelScope.launch {
-                    _uiState.update { it.copy(isLoading = true) }
-                    val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = 0)
                     _uiState.update {
-                        val sortedComments = result.comments
-                            .sortedByDescending { comment -> comment.createdAt }
-                        it.copy(
-                            comments = sortedComments,
-                            isLoading = false,
-                            currentPage = currentState.currentPage + 1,
-                            hasNext = result.hasNext
-                        )
+                        it.copy(reviewID = reviewID, isLoading = true)
+                    }
+                    try {
+                        val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = 0)
+                        result?.let { bindingResult ->
+                            val sortedComments = bindingResult.comments.sortedByDescending { it.createdAt }
+                            _uiState.update {
+                                it.copy(
+                                    comments = sortedComments,
+                                    isLoading = false,
+                                    currentPage = currentState.currentPage + 1,
+                                    hasNext = bindingResult.hasNext
+                                )
+                            }
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(CommentInputUIEvent.ShowAlert(error))
+                        _uiState.update { it.copy(isLoading = false) }
                     }
                 }
             }
@@ -81,16 +95,22 @@ class CommentBottomSheetViewModel @Inject constructor(
                 val nextPage = currentState.currentPage
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-                    val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = nextPage)
-                    _uiState.update {
-                        val sortedComments = result.comments
-                            .sortedByDescending { comment -> comment.createdAt }
-                        it.copy(
-                            comments = sortedComments,
-                            isLoading = false,
-                            currentPage = currentState.currentPage + 1,
-                            hasNext = result.hasNext
-                        )
+                    try {
+                        val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = nextPage)
+                        val sortedComments = result?.comments
+                            ?.sortedByDescending { comment -> comment.createdAt }
+                            .orEmpty()
+                        _uiState.update {
+                            it.copy(
+                                comments = sortedComments,
+                                isLoading = false,
+                                currentPage = currentState.currentPage + 1,
+                                hasNext = result?.hasNext ?: false
+                            )
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(CommentInputUIEvent.ShowAlert(error))
+                        _uiState.update { it.copy(isLoading = false) }
                     }
                 }
             }
@@ -110,38 +130,45 @@ class CommentBottomSheetViewModel @Inject constructor(
                 if (!currentState.isSendable) return
                 viewModelScope.launch {
                     /* 1. 댓글, 답글 여부에 따른 액션 */
-                    if (currentState.isReplying) {
-                        val comment = currentState.replyToComment ?: return@launch
-                        val commentId = comment.id
-                        val result = reviewUseCase.writeReply(
-                            commentID = currentState.replyToComment?.id ?: 0,
-                            content = currentState.text,
-                            isSecret = currentState.isSecret
-                        )
-                        val updatedList = (currentState.repliesMap[commentId].orEmpty() + result)
-                            .sortedByDescending { it.createdAt }
-                        val updatedRepliesMap = currentState.repliesMap + (commentId to updatedList)
-                        _uiState.update { it.copy(repliesMap = updatedRepliesMap) }
-                    } else {
-                        val result = reviewUseCase.writeComment(
-                            reviewID = currentState.reviewID,
-                            content = currentState.text,
-                            isSecret = currentState.isSecret
-                        )
-                        val updatedComments = listOf(result) + currentState.comments
-                        updatedComments.sortedByDescending { comment -> comment.createdAt }
-                        _uiState.update { it.copy(comments = updatedComments) }
-                    }
-                    /* 2. 입력 상태 초기화 */
-                    _uiState.update {
-                        it.copy(
-                            text = "",
-                            isSecret = false,
-                            isSendable = isValid(text = it.text),
-                            replyToComment = null,
-                            isReplying = false,
-                            shouldClearFocus = false
-                        )
+                    try {
+                        if (currentState.isReplying) {
+                            val comment = currentState.replyToComment ?: return@launch
+                            val commentId = comment.id
+                            val result = reviewUseCase.writeReply(
+                                commentID = currentState.replyToComment?.id ?: 0,
+                                content = currentState.text,
+                                isSecret = currentState.isSecret
+                            )
+                            result?.let { reply ->
+                                val updatedList = (currentState.repliesMap[commentId].orEmpty() + reply).sortedByDescending { it.createdAt }
+                                val updatedRepliesMap = currentState.repliesMap + (commentId to updatedList)
+                                _uiState.update { it.copy(repliesMap = updatedRepliesMap) }
+                            }
+                        } else {
+                            val result = reviewUseCase.writeComment(
+                                reviewID = currentState.reviewID,
+                                content = currentState.text,
+                                isSecret = currentState.isSecret
+                            )
+                            result?.let { comment ->
+                                val updatedComments = (listOf(comment) + currentState.comments)
+                                    .sortedByDescending { it.createdAt }
+                                _uiState.update { it.copy(comments = updatedComments) }
+                            }
+                        }
+                        /* 2. 입력 상태 초기화 */
+                        _uiState.update {
+                            it.copy(
+                                text = "",
+                                isSecret = false,
+                                isSendable = isValid(text = it.text),
+                                replyToComment = null,
+                                isReplying = false,
+                                shouldClearFocus = false
+                            )
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(CommentInputUIEvent.ShowAlert(error))
                     }
                 }
             }
@@ -160,13 +187,16 @@ class CommentBottomSheetViewModel @Inject constructor(
             Action.DidTapShowRepliesButton -> {
                 val commentID = value as? Int ?: return
                 viewModelScope.launch {
-                    val result = reviewUseCase.commentReplies(commentID = commentID, page = 0)
-                    _uiState.update {
-                        val sortedReplies = result.replies
-                            .sortedByDescending { it.createdAt }
-                        it.copy(
-                            repliesMap = currentState.repliesMap + (commentID to sortedReplies)
-                        )
+                    try {
+                        val result = reviewUseCase.commentReplies(commentID = commentID, page = 0)
+                        result?.let { bindingResult ->
+                            val sortedReplies = bindingResult.replies.sortedByDescending { it.createdAt }
+                            _uiState.update {
+                                it.copy(repliesMap = currentState.repliesMap + (commentID to sortedReplies))
+                            }
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(CommentInputUIEvent.ShowAlert(error))
                     }
                 }
             }

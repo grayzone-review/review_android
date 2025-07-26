@@ -6,6 +6,7 @@ import com.domain.entity.CompactCompany
 import com.domain.entity.Ratings
 import com.domain.usecase.ReviewUseCase
 import com.domain.usecase.SearchCompaniesUseCase
+import com.team.common.feature_api.error.APIException
 import create_review_dialog.contents.isFullyRated
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
@@ -24,6 +25,8 @@ import javax.inject.Inject
 
 sealed interface CreateReviewUIEvent {
     data object DismissDialog : CreateReviewUIEvent
+    data class ShowAlert(val error: APIException? = null) : CreateReviewUIEvent
+    data class ShowSuccessAlert(val message: String): CreateReviewUIEvent
 }
 
 sealed class BottomSheetState {
@@ -176,23 +179,25 @@ class CreateReviewDialogViewModel @Inject constructor(
             Action.DidTapSubmitButton -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-
-                    reviewUseCase.createReview(
-                        companyID = currentState.company?.id ?: 0,
-                        advantagePoint = currentState.advantagePoint,
-                        disadvantagePoint = currentState.disadvantagePoint,
-                        managementFeedback = currentState.managementFeedBack,
-                        jobRole = currentState.jobRole,
-                        employmentPeriod = currentState.employmentPeriod?.rawValue ?: "",
-                        welfare = currentState.rating.welfare ?: 0.0,
-                        workLifeBalance = currentState.rating.workLifeBalance ?: 0.0,
-                        salary = currentState.rating.salary ?: 0.0,
-                        companyCulture = currentState.rating.companyCulture ?: 0.0,
-                        management = currentState.rating.management ?: 0.0
-                    )
-
-                    _uiState.update { it.copy(isLoading = false) }
-                    _event.emit(CreateReviewUIEvent.DismissDialog)
+                    try {
+                        reviewUseCase.createReview(
+                            companyID = currentState.company?.id ?: 0,
+                            advantagePoint = currentState.advantagePoint,
+                            disadvantagePoint = currentState.disadvantagePoint,
+                            managementFeedback = currentState.managementFeedBack,
+                            jobRole = currentState.jobRole,
+                            employmentPeriod = currentState.employmentPeriod?.rawValue ?: "",
+                            welfare = currentState.rating.welfare ?: 0.0,
+                            workLifeBalance = currentState.rating.workLifeBalance ?: 0.0,
+                            salary = currentState.rating.salary ?: 0.0,
+                            companyCulture = currentState.rating.companyCulture ?: 0.0,
+                            management = currentState.rating.management ?: 0.0
+                        )
+                        _event.emit(CreateReviewUIEvent.ShowSuccessAlert("리뷰가 정상적으로 등록되었습니다!"))
+                        _uiState.update { it.copy(isLoading = false) }
+                    } catch (error: APIException) {
+                        _event.emit(CreateReviewUIEvent.ShowAlert(error))
+                    }
                 }
             }
         }

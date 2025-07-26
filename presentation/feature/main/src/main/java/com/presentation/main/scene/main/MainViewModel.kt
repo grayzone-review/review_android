@@ -7,6 +7,7 @@ import com.domain.entity.ReviewFeed
 import com.domain.entity.User
 import com.domain.usecase.ReviewUseCase
 import com.domain.usecase.UserUseCase
+import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +18,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 sealed interface MainUIEvent {
-    data object ShowSettingAlert : MainUIEvent
+    data class ShowAlert(val error: APIException? = null) : MainUIEvent
 }
 
 data class MainUIState(
@@ -62,15 +62,20 @@ class MainViewModel @Inject constructor(
             Action.GetFeeds -> {
                 viewModelScope.launch {
                     val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
-                    val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
-                    val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
-                    val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
-                    _uiState.update {
-                        it.copy(
-                            popularFeeds = popularFeeds,
-                            myTownFeeds = myTownFeeds,
-                            interestRegionsFeeds = interestRegionsFeeds
-                        )
+                    try {
+                        val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
+                        val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
+                        val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
+
+                        _uiState.update {
+                            it.copy(
+                                popularFeeds = popularFeeds ?: emptyList(),
+                                myTownFeeds = myTownFeeds ?: emptyList(),
+                                interestRegionsFeeds = interestRegionsFeeds ?: emptyList()
+                            )
+                        }
+                    } catch (error: APIException) {
+                        _event.emit(MainUIEvent.ShowAlert(error))
                     }
                 }
             }

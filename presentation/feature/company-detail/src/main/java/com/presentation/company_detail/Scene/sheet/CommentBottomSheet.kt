@@ -69,9 +69,8 @@ import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.A
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetComments
 import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetCommentsMore
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.SetReviewID
+import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.OnAppear
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -97,8 +96,7 @@ fun CommentBottomSheet(
 
     LaunchedEffect(isShow) {
         if (isShow) {
-            viewModel.handleAction(SetReviewID, reviewID)
-            viewModel.handleAction(GetComments)
+            viewModel.handleAction(OnAppear, reviewID)
             BottomSheetHelper.setContent {
                 Box(
                     modifier = Modifier
