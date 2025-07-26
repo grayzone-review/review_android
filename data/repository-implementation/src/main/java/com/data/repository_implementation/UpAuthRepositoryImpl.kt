@@ -24,10 +24,11 @@ class UpAuthRepositoryImpl @Inject constructor(
 ): UpAuthRepository {
     override suspend fun login(
         oAuthToken: String
-    ): LoginResult {
+    ): LoginResult? {
         val requestModel = AuthLoginRequestModel(oauthToken = oAuthToken)
         val responseDTO = upAuthService.login(body = requestModel)
-        return responseDTO.data?.toDomain()!!
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun signUp(

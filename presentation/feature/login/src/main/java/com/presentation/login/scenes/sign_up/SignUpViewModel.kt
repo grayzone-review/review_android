@@ -6,10 +6,13 @@ import com.domain.entity.Agreement
 import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.TermInfo
 import com.domain.usecase.UpAuthUseCase
+import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edit_profile_address_component.FieldState
 import edit_profile_address_component.NickNameField
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,13 +23,19 @@ data class TermCheck(
     val isChecked: Boolean = false
 )
 
+sealed interface SignUpUIEvent {
+    data class ShowAlert(val error: APIException? = null) : SignUpUIEvent
+    data class ShowSuccessAlert(val message: String): SignUpUIEvent
+}
+
 data class SignUpUIState(
     val nickNameField: NickNameField = NickNameField(),
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
     val terms: List<TermCheck> = emptyList(),
     val isSubmitEnabled: Boolean = false,
-    val accessToken: String = ""
+    val accessToken: String = "",
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -48,6 +57,8 @@ class SignUpViewModel @Inject constructor(
 
     private var _uiState = MutableStateFlow(value = SignUpUIState())
     val uiState = _uiState.asStateFlow()
+    private val _event = MutableSharedFlow<SignUpUIEvent>()
+    val event = _event.asSharedFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
@@ -167,13 +178,21 @@ class SignUpViewModel @Inject constructor(
                         }
                     }
                 viewModelScope.launch {
-                    val result = upAuthUseCase.signUp(
-                        oauthToken = currentState.accessToken,
-                        mainRegionId = currentState.myTown.id,
-                        interestedRegionIds = currentState.interestTowns.map { it.id },
-                        nickname = currentState.nickNameField.value,
-                        agreements = agreements
-                    )
+                    try {
+                        _uiState.update { it.copy(isLoading = true) }
+                        upAuthUseCase.signUp(
+                            oauthToken = currentState.accessToken,
+                            mainRegionId = currentState.myTown.id,
+                            interestedRegionIds = currentState.interestTowns.map { it.id },
+                            nickname = currentState.nickNameField.value,
+                            agreements = agreements
+                        )
+                        _event.emit(SignUpUIEvent.ShowSuccessAlert("회원가입이 완료되었습니다."))
+                        _uiState.update { it.copy(isLoading = false) }
+                    } catch (error: APIException) {
+                        _event.emit(SignUpUIEvent.ShowAlert(error))
+                        _uiState.update { it.copy(isLoading = false) }
+                    }
                 }
             }
         }

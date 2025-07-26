@@ -11,7 +11,7 @@ import com.domain.repository_interface.UpAuthRepository
 import javax.inject.Inject
 
 interface UpAuthUseCase {
-    suspend fun login(oAuthToken: String): LoginResult
+    suspend fun login(oAuthToken: String): LoginResult?
     suspend fun signUp(oauthToken: String, mainRegionId: Int, interestedRegionIds: List<Int>, nickname: String, agreements: List<Agreement>): SignUpResult
     suspend fun verifyNickName(nickname: String): VerifyNickNameResult
     suspend fun terms(): Terms
@@ -22,7 +22,7 @@ interface UpAuthUseCase {
 class UpAuthUseCaseImpl @Inject constructor(
     private val upAuthRepository: UpAuthRepository
 ) : UpAuthUseCase {
-    override suspend fun login(oAuthToken: String): LoginResult {
+    override suspend fun login(oAuthToken: String): LoginResult? {
         return upAuthRepository.login(oAuthToken)
     }
 

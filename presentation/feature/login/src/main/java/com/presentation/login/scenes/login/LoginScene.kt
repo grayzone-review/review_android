@@ -43,6 +43,7 @@ import com.presentation.login.scenes.login.LoginViewModel.Action.ShowSettingAler
 import com.presentation.login.scenes.login.LoginViewModel.Action.SuccessKakaoLogin
 import com.presentation.login.scenes.sign_up.SignUpRootDialog
 import com.team.common.feature_api.extension.openAppSettings
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import com.team.common.feature_api.utility.Utility
 import common_ui.UpAlertIconDialog
 import preset_ui.icons.KakaoBubble
@@ -63,16 +64,13 @@ fun LoginScene(
     val systemUiController= rememberSystemUiController()
     val statusBarColor= CS.PrimaryOrange.O40
 
-    SideEffect { systemUiController.setStatusBarColor(
-        color=statusBarColor,darkIcons=false)
+    SideEffect {
+        systemUiController.setStatusBarColor(color = statusBarColor, darkIcons = false)
     }
 
-    DisposableEffect(Unit){
-        onDispose {
-            systemUiController.setStatusBarColor(color=CS.Gray.White,darkIcons=true)
-        }
+    DisposableEffect(Unit) {
+        onDispose { systemUiController.setStatusBarColor(color = CS.Gray.White, darkIcons = true) }
     }
-
 
     LaunchedEffect(permissionState.allPermissionsGranted) {
         when {
@@ -83,6 +81,14 @@ fun LoginScene(
                 viewModel.handleAction(ShowSettingAlert)
             }
             else -> permissionState.launchMultiplePermissionRequest()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                LoginUIEvent.NavigateToMain -> { navController.navigate(NavigationRouteConstant.mainNestedRoute) }
+            }
         }
     }
 
