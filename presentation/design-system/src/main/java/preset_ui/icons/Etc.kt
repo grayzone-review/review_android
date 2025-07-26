@@ -633,3 +633,17 @@ fun AlertIcon(
         tint = Color.Unspecified
     )
 }
+
+@Composable
+fun SignInLogo(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.sign_in_logo),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
