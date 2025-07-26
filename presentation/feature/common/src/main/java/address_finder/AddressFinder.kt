@@ -171,7 +171,7 @@ fun AddressBulletItem(
         Text(text = "•", style = selectFont, color = selectColor, modifier = Modifier
             .padding(end = 8.dp)
         )
-        Text(text = "${index}" + legalDistrict.name, style = selectFont, color = selectColor, modifier = Modifier
+        Text(text = legalDistrict.name, style = selectFont, color = selectColor, modifier = Modifier
             .weight(1f)
         )
 

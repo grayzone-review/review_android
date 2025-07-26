@@ -117,7 +117,7 @@ private fun content(
 
     BindErrorAlert(
         error = alertError,
-        completion = {}
+        completion = { alertError = null }
     )
 
     InputBottomSheet(

@@ -15,6 +15,8 @@ import com.domain.entity.SignUpResult
 import com.domain.entity.Terms
 import com.domain.entity.VerifyNickNameResult
 import com.domain.repository_interface.UpAuthRepository
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.toErrorAction
 import javax.inject.Inject
 
 class UpAuthRepositoryImpl @Inject constructor(
@@ -43,6 +45,7 @@ class UpAuthRepositoryImpl @Inject constructor(
             agreements = agreements.map { it.name }
         )
         val responseDTO = upAuthService.signUp(requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return SignUpResult(message = responseDTO.message, success = responseDTO.success)
     }
 
