@@ -86,7 +86,8 @@ import preset_ui.icons.Sendable
 fun CommentBottomSheet(
     reviewID: Int,
     isShow: Boolean,
-    viewModel: CommentBottomSheetViewModel = hiltViewModel()
+    onDismissRequest: () -> Unit,
+    viewModel: CommentBottomSheetViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
@@ -97,6 +98,12 @@ fun CommentBottomSheet(
     LaunchedEffect(isShow) {
         if (isShow) {
             viewModel.handleAction(OnAppear, reviewID)
+
+            BottomSheetHelper.setDismissHandler{
+                onDismissRequest()
+                viewModel.reset()
+            }
+
             BottomSheetHelper.setContent {
                 Box(
                     modifier = Modifier

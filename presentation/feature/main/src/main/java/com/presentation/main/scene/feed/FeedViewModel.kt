@@ -40,7 +40,9 @@ class FeedViewModel @Inject constructor(
         OnAppear,
         ShowSettingAlert,
         ShowCreateReviewSheet,
-        DismissCrateReviewSheet
+        DismissCrateReviewSheet,
+        DidTapLikeReviewButton,
+        DidTapCommentButton
     }
 
     private val section: String = savedStateHandle.get<String>("section") ?: ""
@@ -78,6 +80,31 @@ class FeedViewModel @Inject constructor(
             Action.ShowCreateReviewSheet, Action.DismissCrateReviewSheet -> {
                 _uiState.update { it.copy(shouldShowCreateReviewSheet = !currentState.shouldShowCreateReviewSheet) }
             }
+            Action.DidTapLikeReviewButton -> {
+                val targetReviewID = value as? Int ?: return
+                val targetReviewIndex = currentState.reviewFeeds.indexOfFirst { it.review.id == targetReviewID }
+                val targetReview = currentState.reviewFeeds[targetReviewIndex]
+                viewModelScope.launch {
+                    val shouldLike = !targetReview.review.liked
+                    if (shouldLike) {
+                        reviewUseCase.likeReview(reviewID = targetReview.review.id)
+                    } else {
+                        reviewUseCase.unlikeReview(reviewID = targetReview.review.id)
+                    }
+                    val updatedReview = targetReview.review.copy(
+                        liked = shouldLike,
+                        likeCount = (targetReview.review.likeCount) + if (shouldLike) 1 else -1
+                    )
+                    _uiState.update { state ->
+                        val updatedFeeds = state.reviewFeeds.toMutableList().apply {
+                            this[targetReviewIndex] = state.reviewFeeds[targetReviewIndex]
+                                .copy(review = updatedReview)
+                        }
+                        state.copy(reviewFeeds = updatedFeeds)
+                    }
+                }
+            }
+            Action.DidTapCommentButton -> TODO()
         }
     }
 }

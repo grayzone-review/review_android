@@ -94,7 +94,11 @@ fun CompanyDetailScene(
 
     CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) })
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
-    CommentBottomSheet(reviewID = uiState.companyID ?: 0, isShow = uiState.showBottomSheet)
+    CommentBottomSheet(
+        reviewID = uiState.tappedCommentReviewID,
+        isShow = uiState.showBottomSheet,
+        onDismissRequest = { viewModel.handleAction(DidCloseBottomSheet) }
+    )
 }
 
 @Composable

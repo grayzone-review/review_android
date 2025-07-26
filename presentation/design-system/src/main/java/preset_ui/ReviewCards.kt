@@ -42,7 +42,14 @@ import preset_ui.icons.StarOutline
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReviewCard(review: Review, isFullMode: Boolean, modifier: Modifier, onReviewCardClick: () -> Unit, onLikeReviewButtonClock: () -> Unit, onCommentButtonClick: () -> Unit) {
+fun ReviewCard(
+    review: Review,
+    isFullMode: Boolean,
+    modifier: Modifier,
+    onReviewCardClick: () -> Unit,
+    onLikeReviewButtonClock: () -> Unit,
+    onCommentButtonClick: () -> Unit
+) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(

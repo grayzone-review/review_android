@@ -30,7 +30,8 @@ data class DetailUIState(
     val currentPage: Int = 0,
     val hasNext: Boolean = false,
     val isLoading: Boolean = false,
-    val shouldShowCreateReviewSheet: Boolean = false
+    val shouldShowCreateReviewSheet: Boolean = false,
+    val tappedCommentReviewID: Int = 0
 )
 
 @HiltViewModel
@@ -159,8 +160,39 @@ class CompanyDetailViewModel @Inject constructor(
                 updatedFullModeList[index] = !updatedFullModeList[index]
                 _uiState.update { it.copy(isFullModeList = updatedFullModeList) }
             }
-            Action.DidTapCommentButton, Action.DidCloseBottomSheet -> {
-                _uiState.update { it.copy(showBottomSheet = !currentState.showBottomSheet) }
+            Action.DidTapCommentButton -> {
+                val index = value as? Int ?: return
+                _uiState.update {
+                    it.copy(showBottomSheet = true, tappedCommentReviewID = currentState.reviews[index].id)
+                }
+            }
+            Action.DidCloseBottomSheet -> {
+                viewModelScope.launch {
+                    val reviewID = currentState.tappedCommentReviewID ?: return@launch
+                    val companyID = currentState.companyID ?: return@launch
+
+                    var page = 0
+                    var targetReview: Review? = null
+                    while (true) {
+                        val result = companyDetailUseCase.companyReviews(companyID=companyID,page=page) ?: break
+                        val reviews = result.reviews.orEmpty()
+                        targetReview = reviews.firstOrNull { it.id == reviewID }
+                        if (targetReview != null || reviews.isEmpty()) break
+                        page++
+                    }
+
+                    targetReview?.let { serverReview ->
+                        _uiState.update { state ->
+                            val idx = state.reviews.indexOfFirst { it.id == serverReview.id }
+                            if (idx < 0) return@update state
+                            state.copy(
+                                reviews = state.reviews.toMutableList().apply { this[idx] = serverReview },
+                                showBottomSheet = false,
+                                tappedCommentReviewID = 0
+                            )
+                        }
+                    }
+                }
             }
             Action.ShowCreateReviewSheet, Action.DismissCreateReviewSheet -> {
                 _uiState.update { it.copy(shouldShowCreateReviewSheet = !currentState.shouldShowCreateReviewSheet) }

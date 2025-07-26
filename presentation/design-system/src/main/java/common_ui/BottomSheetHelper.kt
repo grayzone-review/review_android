@@ -1,13 +1,11 @@
+
 import android.content.Context
-import android.util.Log
-import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.wear.compose.material.MaterialTheme
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlin.math.log
 
 interface DimController {
     fun showDim()
@@ -24,6 +22,7 @@ object BottomSheetHelper {
     private var inputBarView: ComposeView? = null
     private var dimController: DimController? = null
     private var externalStateListener: BottomSheetStateListener? = null
+    private var onDismissRequest: () -> Unit = {}
 
     fun init(
         container: FrameLayout,
@@ -62,6 +61,7 @@ object BottomSheetHelper {
                     if (newState == BottomSheetBehavior.STATE_HIDDEN) {
                         dimController?.hideDim()
                         inputBarView.visibility = View.GONE
+                        onDismissRequest()
                     }
                     externalStateListener?.onStateChanged(newState = newState)
                 }
@@ -74,6 +74,10 @@ object BottomSheetHelper {
 
     fun setBottomSheetStateListener(listener: BottomSheetStateListener) {
         externalStateListener = listener
+    }
+
+    fun setDismissHandler(handler: () -> Unit) {
+        onDismissRequest = handler
     }
 
     fun setContent(content: @Composable () -> Unit) {
@@ -110,6 +114,7 @@ object BottomSheetHelper {
     fun hide() {
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
         inputBarView?.visibility = View.GONE
+        onDismissRequest()
     }
 
     fun isVisible(): Boolean {

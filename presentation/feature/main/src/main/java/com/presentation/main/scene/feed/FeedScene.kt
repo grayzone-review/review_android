@@ -36,11 +36,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import colors.CS
 import com.domain.entity.CompactCompany
+import com.domain.entity.Review
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.main.NavConstant
+import com.presentation.main.scene.feed.FeedViewModel.Action.DidTapLikeReviewButton
 import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCrateReviewSheet
 import com.presentation.main.scene.feed.FeedViewModel.Action.OnAppear
 import com.presentation.main.scene.feed.FeedViewModel.Action.ShowCreateReviewSheet
@@ -89,14 +91,25 @@ fun FeedScene(
         topBar = {
             TopAppBar(section = uiState.section, user = uiState.user, onBackButtonClick = { navController.popBackStack() })
         },
-        bottomBar = { WriteReviewButton(onClick = { viewModel.handleAction(ShowCreateReviewSheet) }) }
+        bottomBar = { WriteReviewButton(onClick = { viewModel.handleAction(ShowCreateReviewSheet) }) },
+        containerColor = CS.Gray.White
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            ReviewFeedList(reviewFeeds = uiState.reviewFeeds)
+            ReviewFeedList(
+                reviewFeeds = uiState.reviewFeeds,
+                onCLickCompanyCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", it.id.toString()))
+                },
+                onClickReviewCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                    .replace("{companyId}", it.compactCompany.id.toString()))
+                },
+                onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, it.id) },
+                onCommentButtonClick = { }
+            )
         }
     }
 }
@@ -129,13 +142,19 @@ private fun TopAppBar(
 }
 
 @Composable
-private fun ReviewFeedList(reviewFeeds: List<ReviewFeed>) {
+private fun ReviewFeedList(
+    reviewFeeds: List<ReviewFeed>,
+    onCLickCompanyCard: (CompactCompany) -> Unit,
+    onClickReviewCard: (ReviewFeed) -> Unit,
+    onLikeReviewButtonClock: (Review) -> Unit,
+    onCommentButtonClick: (Review) -> Unit
+) {
     LazyColumn {
         items(reviewFeeds.chunked(3)) { chunkedFeed ->
             chunkedFeed.getOrNull(0)?.let { companyFeed ->
                 CompanyCard(
                     company = companyFeed.compactCompany,
-                    onClick = { /* TODO */ }
+                    onClick = { onCLickCompanyCard(companyFeed.compactCompany) }
                 )
             }
 
@@ -144,9 +163,9 @@ private fun ReviewFeedList(reviewFeeds: List<ReviewFeed>) {
                     review = reviewFeed.review,
                     isFullMode = true,
                     modifier = Modifier.fillMaxWidth(),
-                    onReviewCardClick = { /* TODO */ },
-                    onLikeReviewButtonClock = { /* TODO */ },
-                    onCommentButtonClick = { }
+                    onReviewCardClick = { onClickReviewCard(reviewFeed) },
+                    onLikeReviewButtonClock = { onLikeReviewButtonClock(reviewFeed.review) },
+                    onCommentButtonClick = { onCommentButtonClick(reviewFeed.review) }
                 )
             }
         }

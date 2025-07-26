@@ -1,5 +1,6 @@
 package com.presentation.company_detail.Scene.sheet
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.Comment
@@ -65,14 +66,12 @@ class CommentBottomSheetViewModel @Inject constructor(
         when (action) {
             Action.OnAppear -> {
                 val reviewID = value as? Int ?: return
-
                 if (currentState.isLoading) return
                 viewModelScope.launch {
-                    _uiState.update {
-                        it.copy(reviewID = reviewID, isLoading = true)
-                    }
+                    _uiState.update { it.copy(reviewID = reviewID, isLoading = true) }
                     try {
-                        val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = 0)
+                        val result = reviewUseCase.reviewComments(reviewID = reviewID, page = 0)
+                        Log.d("코멘트", result.toString())
                         result?.let { bindingResult ->
                             val sortedComments = bindingResult.comments.sortedByDescending { it.createdAt }
                             _uiState.update {
