@@ -90,7 +90,10 @@ fun ModifyUserScene(
 
     BindSuccessAlert(
         message = successMessage,
-        completion = { navController.popBackStack() }
+        completion = {
+            successMessage = null
+            navController.popBackStack()
+        }
     )
 
     BindErrorAlert(

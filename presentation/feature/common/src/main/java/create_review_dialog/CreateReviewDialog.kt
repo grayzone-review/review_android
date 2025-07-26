@@ -112,7 +112,10 @@ private fun content(
 
     BindSuccessAlert(
         message = successMessage,
-        completion = { onDismiss() }
+        completion = {
+            successMessage = null
+            onDismiss()
+        }
     )
 
     BindErrorAlert(
