@@ -27,6 +27,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import colors.CS
 import com.example.presentation.designsystem.typography.Typography
@@ -66,7 +68,12 @@ fun DefaultTopAppBar(
                 text = title,
                 color = CS.Gray.G90,
                 style = Typography.h2,
-                modifier = Modifier.align(Alignment.Center)
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .width(260.dp)
+                    .align(Alignment.Center)
             )
         }
     }
