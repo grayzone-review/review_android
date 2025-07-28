@@ -1,4 +1,4 @@
-package com.presentation.company_detail.Scene.sheet
+package comment_bottom_sheet
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

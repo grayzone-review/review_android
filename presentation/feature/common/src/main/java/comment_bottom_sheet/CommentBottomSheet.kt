@@ -1,4 +1,4 @@
-package com.presentation.company_detail.Scene.sheet
+package comment_bottom_sheet
 
 import BottomSheetHelper
 import androidx.compose.foundation.background
@@ -60,17 +60,7 @@ import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
 import com.example.presentation.designsystem.typography.Typography
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapCancelReplyButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetCommentsMore
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.OnAppear
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.*
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter

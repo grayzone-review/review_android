@@ -43,7 +43,7 @@ import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewMod
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviewsMore
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.OnAppear
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.ShowCreateReviewSheet
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheet
+import comment_bottom_sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.team.common.feature_api.error.APIException
