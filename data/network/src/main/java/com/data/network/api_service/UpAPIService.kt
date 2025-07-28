@@ -108,19 +108,22 @@ interface UpAPIService {
     @GET(UpEndpoint.Path.POPULAR_REVIEWS)
     suspend fun popularReviews(
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.MY_TOWN_REVIEWS)
     suspend fun myTownReviews(
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.INTEREST_REGIONS_REVIEWS)
     suspend fun interestRegionsReviews(
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.MY_INTERACTION_COUNT)

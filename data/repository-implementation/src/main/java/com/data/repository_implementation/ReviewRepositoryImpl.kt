@@ -12,7 +12,7 @@ import com.domain.entity.LikeReviewResult
 import com.domain.entity.Replies
 import com.domain.entity.Reply
 import com.domain.entity.Review
-import com.domain.entity.ReviewFeed
+import com.domain.entity.ReviewFeeds
 import com.domain.repository_interface.ReviewRepository
 import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.error.toErrorAction
@@ -111,27 +111,30 @@ class ReviewRepositoryImpl @Inject constructor(
     
     override suspend fun popularReviewFeeds(
         latitude: Double,
-        longitude: Double
-    ): List<ReviewFeed>? {
-        val responseDTO = upAPIService.popularReviews(latitude = latitude, longitude = longitude)
+        longitude: Double,
+        page: Int
+    ): ReviewFeeds? {
+        val responseDTO = upAPIService.popularReviews(latitude = latitude, longitude = longitude, page = page)
         responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return responseDTO.data?.toDomain()
     }
 
     override suspend fun myTownReviewFeeds(
         latitude: Double,
-        longitude: Double
-    ): List<ReviewFeed>? {
-        val responseDTO = upAPIService.myTownReviews(latitude = latitude, longitude = longitude)
+        longitude: Double,
+        page: Int
+    ): ReviewFeeds? {
+        val responseDTO = upAPIService.myTownReviews(latitude = latitude, longitude = longitude, page = page)
         responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return responseDTO.data?.toDomain()
     }
 
     override suspend fun interestRegionsReviewFeeds(
         latitude: Double,
-        longitude: Double
-    ): List<ReviewFeed>? {
-        val responseDTO = upAPIService.interestRegionsReviews(latitude = latitude, longitude = longitude)
+        longitude: Double,
+        page: Int
+    ): ReviewFeeds? {
+        val responseDTO = upAPIService.interestRegionsReviews(latitude = latitude, longitude = longitude, page = page)
         responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return responseDTO.data?.toDomain()
     }

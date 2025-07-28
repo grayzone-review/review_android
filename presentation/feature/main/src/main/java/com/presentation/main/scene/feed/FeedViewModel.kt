@@ -26,8 +26,14 @@ sealed interface FeedUIEvent {
 data class FeedUIState(
     val section: String = "",
     val user: User = User(),
-    val reviewFeeds: List<ReviewFeed> = emptyList(),
-    val shouldShowCreateReviewSheet: Boolean = false
+    val reviews: List<ReviewFeed> = emptyList(),
+    val companies: List<ReviewFeed> = emptyList(),
+    val commentTargetFeed: ReviewFeed? = null,
+    val shouldShowCreateReviewSheet: Boolean = false,
+    val shouldShowCommentBottomSheet: Boolean = false,
+    val currentPage: Int = 0,
+    val hasNext: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -38,11 +44,13 @@ class FeedViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         OnAppear,
+        GetMoreFeeds,
         ShowSettingAlert,
         ShowCreateReviewSheet,
         DismissCrateReviewSheet,
         DidTapLikeReviewButton,
-        DidTapCommentButton
+        DidTapCommentButton,
+        DismissCommentBottomSheet
     }
 
     private val section: String = savedStateHandle.get<String>("section") ?: ""
@@ -64,16 +72,46 @@ class FeedViewModel @Inject constructor(
                     _uiState.update { it.copy(user = userResult) }
                     try {
                         val feedsResult = when (section) {
-                            NavConstant.Section.MyTown.value -> reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
-                            NavConstant.Section.InterestRegions.value -> reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
-                            else -> reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
+                            NavConstant.Section.MyTown.value -> reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
+                            NavConstant.Section.InterestRegions.value -> reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
+                            else -> reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
                         }
-                        feedsResult?.let { bindingResult -> _uiState.update { it.copy(reviewFeeds = bindingResult) }  }
+                        feedsResult?.let { bindingResult -> _uiState.update { it.copy(reviews = bindingResult.reviewFeeds, companies = bindingResult.reviewFeeds) } }
                     } catch (error: APIException) {
                         _event.emit(FeedUIEvent.ShowAlert(error))
                     }
                 }
             }
+            Action.GetMoreFeeds -> {
+                if (!currentState.hasNext || currentState.isLoading) return
+                val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
+                viewModelScope.launch {
+                    _uiState.update { it.copy(isLoading = true) }
+                    try {
+                        val nextPage = currentState.currentPage + 1
+                        val feedsResult = when (section) {
+                            NavConstant.Section.MyTown.value -> reviewUseCase.myTownReviewFeeds(latitude, longitude, nextPage)
+                            NavConstant.Section.InterestRegions.value -> reviewUseCase.interestRegionsReviewFeeds(latitude, longitude, nextPage)
+                            else -> reviewUseCase.popularReviewFeeds(latitude, longitude, nextPage)
+                        }
+                        feedsResult?.let { bindingResult ->
+                            _uiState.update {
+                                it.copy(
+                                    reviews = it.reviews + bindingResult.reviewFeeds,
+                                    companies = it.companies + bindingResult.reviewFeeds,
+                                    currentPage = bindingResult.currentPage,
+                                    hasNext = bindingResult.hasNext,
+                                    isLoading = false
+                                )
+                            }
+                        }
+                    } catch (error: APIException) {
+                        _uiState.update { it.copy(isLoading = false) }
+                        _event.emit(FeedUIEvent.ShowAlert(error))
+                    }
+                }
+            }
+
             Action.ShowSettingAlert -> {
                 /* TODO: 얼럿 보이기 */
             }
@@ -82,8 +120,8 @@ class FeedViewModel @Inject constructor(
             }
             Action.DidTapLikeReviewButton -> {
                 val targetReviewID = value as? Int ?: return
-                val targetReviewIndex = currentState.reviewFeeds.indexOfFirst { it.review.id == targetReviewID }
-                val targetReview = currentState.reviewFeeds[targetReviewIndex]
+                val targetReviewIndex = currentState.reviews.indexOfFirst { it.review.id == targetReviewID }
+                val targetReview = currentState.reviews[targetReviewIndex]
                 viewModelScope.launch {
                     val shouldLike = !targetReview.review.liked
                     if (shouldLike) {
@@ -96,15 +134,27 @@ class FeedViewModel @Inject constructor(
                         likeCount = (targetReview.review.likeCount) + if (shouldLike) 1 else -1
                     )
                     _uiState.update { state ->
-                        val updatedFeeds = state.reviewFeeds.toMutableList().apply {
-                            this[targetReviewIndex] = state.reviewFeeds[targetReviewIndex]
+                        val updatedFeeds = state.reviews.toMutableList().apply {
+                            this[targetReviewIndex] = state.reviews[targetReviewIndex]
                                 .copy(review = updatedReview)
                         }
-                        state.copy(reviewFeeds = updatedFeeds)
+                        state.copy(reviews = updatedFeeds)
                     }
                 }
             }
-            Action.DidTapCommentButton -> TODO()
+            Action.DidTapCommentButton -> {
+                val selectedReviewFeed = value as? ReviewFeed ?: return
+                _uiState.update {
+                    it.copy(commentTargetFeed = selectedReviewFeed, shouldShowCommentBottomSheet = true) }
+            }
+
+            Action.DismissCommentBottomSheet -> {
+                val feed = currentState.commentTargetFeed
+
+                _uiState.update {
+                    it.copy(shouldShowCommentBottomSheet = false)
+                }
+            }
         }
     }
 }

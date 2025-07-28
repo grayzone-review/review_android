@@ -63,15 +63,15 @@ class MainViewModel @Inject constructor(
                 viewModelScope.launch {
                     val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
                     try {
-                        val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
-                        val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
-                        val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
+                        val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
+                        val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
+                        val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
 
                         _uiState.update {
                             it.copy(
-                                popularFeeds = popularFeeds ?: emptyList(),
-                                myTownFeeds = myTownFeeds ?: emptyList(),
-                                interestRegionsFeeds = interestRegionsFeeds ?: emptyList()
+                                popularFeeds = popularFeeds?.reviewFeeds ?: emptyList(),
+                                myTownFeeds = myTownFeeds?.reviewFeeds ?: emptyList(),
+                                interestRegionsFeeds = interestRegionsFeeds?.reviewFeeds ?: emptyList()
                             )
                         }
                     } catch (error: APIException) {

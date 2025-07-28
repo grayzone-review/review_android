@@ -59,7 +59,7 @@ fun ReviewCard(
         WriterProfile(review, Modifier.padding(top = 20.dp))
         RatingSummary(review, Modifier.padding(vertical = 16.dp))
         if (isFullMode) RatingBox(review, Modifier)
-        ReviewTextContent(review, isFullMode = isFullMode, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick)
+        ReviewTextContent(review, isFullMode = isFullMode, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick = onCommentButtonClick)
     }
 }
 

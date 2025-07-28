@@ -60,6 +60,7 @@ class LoginViewModel @Inject constructor(
                     try {
                         val result = upAuthUseCase.login(oAuthToken = oAuthToken.accessToken)
                         result?.let { bindingResult -> TokenStoreService.save(loginResult = bindingResult) }
+                        Log.d("토큰값", result.toString())
                         _event.emit(LoginUIEvent.NavigateToMain)
                     } catch (error: APIException) {
                         Log.d("값들실패들", oAuthToken.accessToken)

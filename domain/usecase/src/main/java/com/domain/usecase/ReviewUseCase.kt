@@ -6,7 +6,7 @@ import com.domain.entity.LikeReviewResult
 import com.domain.entity.Replies
 import com.domain.entity.Reply
 import com.domain.entity.Review
-import com.domain.entity.ReviewFeed
+import com.domain.entity.ReviewFeeds
 import com.domain.repository_interface.ReviewRepository
 import javax.inject.Inject
 
@@ -17,9 +17,9 @@ interface ReviewUseCase {
     suspend fun writeComment(reviewID: Int, content: String, isSecret: Boolean): Comment?
     suspend fun commentReplies(commentID: Int, page: Int): Replies?
     suspend fun writeReply(commentID: Int, content: String, isSecret: Boolean): Reply?
-    suspend fun popularReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>?
-    suspend fun myTownReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>?
-    suspend fun interestRegionsReviewFeeds(latitude: Double, longitude: Double): List<ReviewFeed>?
+    suspend fun popularReviewFeeds(latitude: Double, longitude: Double, page: Int): ReviewFeeds?
+    suspend fun myTownReviewFeeds(latitude: Double, longitude: Double, page: Int): ReviewFeeds?
+    suspend fun interestRegionsReviewFeeds(latitude: Double, longitude: Double, page: Int): ReviewFeeds?
     suspend fun createReview(
         companyID: Int,
         advantagePoint: String,
@@ -82,23 +82,26 @@ class ReviewUseCaseImpl @Inject constructor(
 
     override suspend fun popularReviewFeeds(
         latitude: Double,
-        longitude: Double
-    ): List<ReviewFeed>? {
-        return reviewRepository.popularReviewFeeds(latitude, longitude)
+        longitude: Double,
+        page: Int
+    ): ReviewFeeds? {
+        return reviewRepository.popularReviewFeeds(latitude, longitude, page)
     }
     
     override suspend fun myTownReviewFeeds(
         latitude: Double,
-        longitude: Double
-    ): List<ReviewFeed>? {
-        return reviewRepository.myTownReviewFeeds(latitude, longitude)
+        longitude: Double,
+        page: Int
+    ): ReviewFeeds? {
+        return reviewRepository.myTownReviewFeeds(latitude, longitude, page)
     }
     
     override suspend fun interestRegionsReviewFeeds(
         latitude: Double,
-        longitude: Double
-    ): List<ReviewFeed>? {
-        return reviewRepository.interestRegionsReviewFeeds(latitude, longitude)
+        longitude: Double,
+        page: Int
+    ): ReviewFeeds? {
+        return reviewRepository.interestRegionsReviewFeeds(latitude, longitude, page)
     }
 
     override suspend fun createReview(

@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,17 +43,22 @@ import com.domain.entity.User
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.main.NavConstant
+import com.presentation.main.scene.feed.FeedViewModel.Action.DidTapCommentButton
 import com.presentation.main.scene.feed.FeedViewModel.Action.DidTapLikeReviewButton
+import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCommentBottomSheet
 import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCrateReviewSheet
+import com.presentation.main.scene.feed.FeedViewModel.Action.GetMoreFeeds
 import com.presentation.main.scene.feed.FeedViewModel.Action.OnAppear
 import com.presentation.main.scene.feed.FeedViewModel.Action.ShowCreateReviewSheet
 import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.error.ErrorAction
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import com.team.common.feature_api.utility.Utility
+import comment_bottom_sheet.CommentBottomSheet
 import common_ui.AlertStyle
 import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
+import kotlinx.coroutines.flow.distinctUntilChanged
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.StarFilled
@@ -85,6 +91,11 @@ fun FeedScene(
         completion = { alertError = null }
     )
 
+    CommentBottomSheet(
+        reviewID = uiState.commentTargetFeed?.review?.id ?: 0,
+        isShow = uiState.shouldShowCommentBottomSheet,
+        onDismissRequest = { viewModel.handleAction(DismissCommentBottomSheet) }
+    )
     CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
 
     Scaffold(
@@ -100,7 +111,8 @@ fun FeedScene(
                 .padding(innerPadding)
         ) {
             ReviewFeedList(
-                reviewFeeds = uiState.reviewFeeds,
+                reviewFeeds = uiState.reviews,
+                companyFeeds = uiState.companies,
                 onCLickCompanyCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
                     .replace("{companyId}", it.id.toString()))
                 },
@@ -108,7 +120,8 @@ fun FeedScene(
                     .replace("{companyId}", it.compactCompany.id.toString()))
                 },
                 onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, it.id) },
-                onCommentButtonClick = { }
+                onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, it) },
+                onLoadMore = { viewModel.handleAction(GetMoreFeeds) }
             )
         }
     }
@@ -144,29 +157,56 @@ private fun TopAppBar(
 @Composable
 private fun ReviewFeedList(
     reviewFeeds: List<ReviewFeed>,
+    companyFeeds: List<ReviewFeed>,
     onCLickCompanyCard: (CompactCompany) -> Unit,
     onClickReviewCard: (ReviewFeed) -> Unit,
     onLikeReviewButtonClock: (Review) -> Unit,
-    onCommentButtonClick: (Review) -> Unit
+    onCommentButtonClick: (ReviewFeed) -> Unit,
+    onLoadMore: () -> Unit
 ) {
-    LazyColumn {
-        items(reviewFeeds.chunked(3)) { chunkedFeed ->
-            chunkedFeed.getOrNull(0)?.let { companyFeed ->
-                CompanyCard(
-                    company = companyFeed.compactCompany,
-                    onClick = { onCLickCompanyCard(companyFeed.compactCompany) }
-                )
-            }
+    val itemCount = maxOf(companyFeeds.size * 3, reviewFeeds.size + (reviewFeeds.size / 2))
+    val listState = rememberLazyListState()
 
-            chunkedFeed.drop(1).forEach { reviewFeed ->
-                ReviewCard(
-                    review = reviewFeed.review,
-                    isFullMode = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    onReviewCardClick = { onClickReviewCard(reviewFeed) },
-                    onLikeReviewButtonClock = { onLikeReviewButtonClock(reviewFeed.review) },
-                    onCommentButtonClick = { onCommentButtonClick(reviewFeed.review) }
-                )
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .distinctUntilChanged()
+            .collect { lastVisibleItemIndex ->
+                if (lastVisibleItemIndex != null && lastVisibleItemIndex >= itemCount - 5) {
+                    onLoadMore()
+                }
+            }
+    }
+
+    LazyColumn {
+        items(itemCount) { index ->
+            when {
+                index % 3 == 0 -> {
+                    val companyIndex = index / 3
+                    val reviewIndexStart = companyIndex * 2
+                    val hasReviews = reviewFeeds.getOrNull(reviewIndexStart) != null
+
+                    if (hasReviews) {
+                        companyFeeds.getOrNull(companyIndex)?.let { companyFeed ->
+                            CompanyCard(
+                                company = companyFeed.compactCompany,
+                                onClick = { onCLickCompanyCard(companyFeed.compactCompany) }
+                            )
+                        }
+                    }
+                }
+                else -> {
+                    val reviewIndex = index - (index / 3) - 1
+                    reviewFeeds.getOrNull(reviewIndex)?.let { reviewFeed ->
+                        ReviewCard(
+                            review = reviewFeed.review,
+                            isFullMode = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            onReviewCardClick = { onClickReviewCard(reviewFeed) },
+                            onLikeReviewButtonClock = { onLikeReviewButtonClock(reviewFeed.review) },
+                            onCommentButtonClick = { onCommentButtonClick(reviewFeed) }
+                        )
+                    }
+                }
             }
         }
     }
