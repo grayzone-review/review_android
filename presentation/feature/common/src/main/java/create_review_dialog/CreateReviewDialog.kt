@@ -55,6 +55,7 @@ import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapNextButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapPreviousButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapSubmitButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapTextField
+import create_review_dialog.CreateReviewDialogViewModel.Action.OnAppear
 import create_review_dialog.CreateReviewDialogViewModel.Action.SheetDismissed
 import create_review_dialog.CreateReviewDialogViewModel.Action.UpdateCompany
 import create_review_dialog.CreateReviewDialogViewModel.Action.UpdateEmploymentPeriod
@@ -76,6 +77,7 @@ import preset_ui.icons.CloseLine
 
 @Composable
 fun CreateReviewDialog(
+    company: CompactCompany? = null,
     onDismiss: () -> Unit,
     viewModel: CreateReviewDialogViewModel = hiltViewModel()
 ) {
@@ -86,12 +88,13 @@ fun CreateReviewDialog(
             decorFitsSystemWindows = false
         )
     ) {
-        content(onDismiss = onDismiss, viewModel = viewModel)
+        content(company = company, onDismiss = onDismiss, viewModel = viewModel)
     }
 }
 
 @Composable
 private fun content(
+    company: CompactCompany? = null,
     onDismiss: () -> Unit,
     viewModel: CreateReviewDialogViewModel
 ) {
@@ -99,6 +102,10 @@ private fun content(
     val scrollState = rememberScrollState()
     var alertError by remember { mutableStateOf<APIException?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(company != null) {
+        viewModel.handleAction(OnAppear, company)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->

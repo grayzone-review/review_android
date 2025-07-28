@@ -11,3 +11,15 @@ data class Company(
     val totalRating: Double,
     val following: Boolean
 )
+
+fun Company.toCompactForWriteReview(): CompactCompany {
+    return CompactCompany(
+        id = id,
+        companyName = companyName,
+        companyAddress = siteFullAddress,
+        totalRating = totalRating,
+        reviewTitle = "",
+        distance = 0.0,
+        following = following
+    )
+}

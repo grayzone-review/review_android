@@ -60,6 +60,7 @@ class CreateReviewDialogViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         // 모달, 시트 흐름 제어
+        OnAppear,
         DidTapNextButton,
         DidTapPreviousButton,
         DidTapSubmitButton,
@@ -83,6 +84,10 @@ class CreateReviewDialogViewModel @Inject constructor(
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
+            Action.OnAppear -> {
+                val company = value as? CompactCompany ?: return
+                _uiState.update { it.copy(company = company) }
+            }
             Action.DidTapNextButton -> {
                 _uiState.update { state ->
                     state.phase.next()?.let { nextPhase ->

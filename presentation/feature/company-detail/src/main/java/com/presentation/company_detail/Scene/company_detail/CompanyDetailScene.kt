@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import colors.CS
 import com.domain.entity.Company
+import com.domain.entity.toCompactForWriteReview
 import com.example.presentation.designsystem.typography.Typography
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidCloseBottomSheet
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.DidTapCommentButton
@@ -96,6 +97,7 @@ fun CompanyDetailScene(
     }
 
     CreateReviewSheet(
+        company = uiState.company,
         isShow = uiState.shouldShowCreateReviewSheet,
         onDismiss = {
             viewModel.handleAction(DismissCreateReviewSheet)
@@ -309,8 +311,9 @@ fun GraySpacer(modifier: Modifier) {
 }
 
 @Composable
-private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
-    if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+private fun CreateReviewSheet(company: Company?, isShow: Boolean, onDismiss: () -> Unit) {
+    val compactCompany = company?.toCompactForWriteReview()
+    if (isShow) { CreateReviewDialog(company = compactCompany, onDismiss = onDismiss) }
 }
 
 @Composable
