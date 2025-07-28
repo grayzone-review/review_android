@@ -19,10 +19,7 @@ import javax.inject.Inject
 
 enum class MyPageSection { ACCOUNT, SUPPORT, ACTIVITY, ETC }
 
-enum class MyPageMenu(
-    val title:String,
-    val section: MyPageSection
-) {
+enum class MyPageMenu(val title:String, val section: MyPageSection) {
     UPDATE_PROFILE("내 정보 수정", MyPageSection.ACCOUNT),
     REPORT("신고하기", MyPageSection.ACCOUNT),
     REVIEW_HISTORY("리뷰 작성 내역", MyPageSection.ACTIVITY),
@@ -91,6 +88,7 @@ class MyPageViewModel @Inject constructor(
                         val refreshToken = TokenStoreService.refreshToken()
                         userUseCase.resign(refreshToken = refreshToken)
                         TokenStoreService.clear()
+                        _event.emit(MyPageUIEvent.ShowSuccessAlert("회원탈퇴가 완료되었습니다."))
                     } catch (error: APIException) {
                         _event.emit(MyPageUIEvent.ShowErrorAlert(error))
                     }
@@ -101,6 +99,8 @@ class MyPageViewModel @Inject constructor(
                     try {
                         val refreshToken = TokenStoreService.refreshToken()
                         upAuthUseCase.logout(refreshToken = refreshToken)
+                        TokenStoreService.clear()
+                        _event.emit(MyPageUIEvent.ShowSuccessAlert("로그아웃이 완료되었습니다."))
                     } catch (error: APIException) {
                         _event.emit(MyPageUIEvent.ShowErrorAlert(error))
                     }

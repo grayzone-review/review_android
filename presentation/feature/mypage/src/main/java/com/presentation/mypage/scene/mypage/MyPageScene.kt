@@ -42,7 +42,7 @@ import common_ui.AlertStyle
 import common_ui.UpAlertIconDialog
 import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
-import preset_ui.icons.InfoIcon
+import preset_ui.icons.InfoIconAlert
 import preset_ui.icons.MyPageBell
 import preset_ui.icons.MyPageLogOut
 import preset_ui.icons.MyPagePen
@@ -93,31 +93,31 @@ fun MyPageScene(
     alertMenu?.let { menu ->
         when (menu) {
             MyPageMenu.WITHDRAW -> WithDrawAlert(
-                onConfirm = { viewModel.handleAction(ConfirmResign) },
+                onConfirm = { viewModel.handleAction(ConfirmResign); alertMenu = null },
                 onCancel = { alertMenu = null }
             )
             MyPageMenu.LOGOUT -> LogOutAlert(
-                onConfirm = {
-                    viewModel.handleAction(ConfirmLogout)
-                },
+                onConfirm = { viewModel.handleAction(ConfirmLogout); alertMenu = null },
                 onCancel = { alertMenu = null }
             )
             else->{}
         }
     }
 
-//    BindSuccessAlert(
-//        message = successMessage,
-//        completion = {
-//            successMessage = null
-//            navController.navigate()
-//        }
-//    )
-//
-//    BindErrorAlert(
-//        error = alertError,
-//        completion = { alertError = null }
-//    )
+    BindSuccessAlert(
+        message = successMessage,
+        completion = {
+            successMessage = null
+            navController.navigate(NavigationRouteConstant.loginNestedRoute) {
+                popUpTo(NavigationRouteConstant.mypageNestedRoute) { inclusive = true }
+            }
+        }
+    )
+
+    BindErrorAlert(
+        error = alertError,
+        completion = { alertError = null }
+    )
 
     Scaffold(
         topBar = { DefaultTopAppBar(title = "마이페이지") },
@@ -248,7 +248,7 @@ fun WithDrawAlert(
     onCancel: () -> Unit
 ) {
     UpAlertIconDialog(
-        icon = { InfoIcon(44.dp, 44.dp, tint = CS.PrimaryOrange.O40) },
+        icon = { InfoIconAlert(44.dp, 44.dp) },
         title = "회원 탈퇴",
         message = """
         탈퇴 후, 현재 계정으로 작성한 글·댓글 등을

@@ -55,15 +55,11 @@ class LoginViewModel @Inject constructor(
         when (action) {
             Action.SuccessKakaoLogin -> {
                 val oAuthToken = value as? OAuthToken ?: return
+                Log.d("오스토큰:", value.toString())
                 viewModelScope.launch {
                     try {
                         val result = upAuthUseCase.login(oAuthToken = oAuthToken.accessToken)
                         result?.let { bindingResult -> TokenStoreService.save(loginResult = bindingResult) }
-                        val savedAccess = TokenStoreService.accessToken()
-                        val savedRefresh = TokenStoreService.refreshToken()
-
-                        Log.d("값들", "${savedAccess} + ${savedRefresh}")
-
                         _event.emit(LoginUIEvent.NavigateToMain)
                     } catch (error: APIException) {
                         Log.d("값들실패들", oAuthToken.accessToken)

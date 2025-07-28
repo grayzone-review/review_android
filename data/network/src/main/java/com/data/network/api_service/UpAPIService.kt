@@ -25,6 +25,7 @@ import com.data.network.response.APIResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -168,7 +169,7 @@ interface UpAPIService {
         @Body requestModel: ModifyUserRequestModel
     ): APIResponse<Unit>
 
-    @DELETE(UpEndpoint.Path.MY_INFO)
+    @HTTP(method = "DELETE", path = UpEndpoint.Path.MY_INFO, hasBody = true)
     suspend fun resign(
         @Body requestModel: ResignRequestModel
     ): APIResponse<Unit>

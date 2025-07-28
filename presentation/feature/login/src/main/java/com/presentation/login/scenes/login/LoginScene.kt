@@ -1,5 +1,7 @@
 package com.presentation.login.scenes.login
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,12 +59,17 @@ fun LoginScene(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val uiState by viewModel.uiState.collectAsState()
     val permissionState = rememberMultiplePermissionsState(
         UpLocationService.locationPermissions.toList()
     )
     val systemUiController= rememberSystemUiController()
     val statusBarColor= CS.PrimaryOrange.O40
+
+    BackHandler {
+        activity?.finishAffinity()
+    }
 
     SideEffect {
         systemUiController.setStatusBarColor(color = statusBarColor, darkIcons = false)
@@ -87,7 +94,13 @@ fun LoginScene(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                LoginUIEvent.NavigateToMain -> { navController.navigate(NavigationRouteConstant.mainNestedRoute) }
+                LoginUIEvent.NavigateToMain -> {
+                    navController.navigate(NavigationRouteConstant.mainNestedRoute) {
+                        popUpTo(NavigationRouteConstant.loginNestedRoute) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+
             }
         }
     }
