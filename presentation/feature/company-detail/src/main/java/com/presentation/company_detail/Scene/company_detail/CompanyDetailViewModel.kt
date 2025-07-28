@@ -174,7 +174,7 @@ class CompanyDetailViewModel @Inject constructor(
                     var page = 0
                     var targetReview: Review? = null
                     while (true) {
-                        val result = companyDetailUseCase.companyReviews(companyID=companyID,page=page) ?: break
+                        val result = companyDetailUseCase.companyReviews(companyID = companyID, page = page) ?: break
                         val reviews = result.reviews.orEmpty()
                         targetReview = reviews.firstOrNull { it.id == reviewID }
                         if (targetReview != null || reviews.isEmpty()) break
@@ -194,8 +194,11 @@ class CompanyDetailViewModel @Inject constructor(
                     }
                 }
             }
-            Action.ShowCreateReviewSheet, Action.DismissCreateReviewSheet -> {
-                _uiState.update { it.copy(shouldShowCreateReviewSheet = !currentState.shouldShowCreateReviewSheet) }
+            Action.ShowCreateReviewSheet -> {
+                _uiState.update { it.copy(shouldShowCreateReviewSheet = true) }
+            }
+            Action.DismissCreateReviewSheet -> {
+                _uiState.update { it.copy(shouldShowCreateReviewSheet = false) }
             }
         }
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -56,6 +58,7 @@ import preset_ui.KakaoMapWithPin
 import preset_ui.PrimaryIconTextButton
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
+import preset_ui.icons.ChatReviewIcon
 import preset_ui.icons.StarFilled
 
 @Composable
@@ -92,7 +95,13 @@ fun CompanyDetailScene(
         }
     }
 
-    CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCreateReviewSheet) })
+    CreateReviewSheet(
+        isShow = uiState.shouldShowCreateReviewSheet,
+        onDismiss = {
+            viewModel.handleAction(DismissCreateReviewSheet)
+            viewModel.handleAction(OnAppear)
+        }
+    )
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
     CommentBottomSheet(
         reviewID = uiState.tappedCommentReviewID,
@@ -154,20 +163,41 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
                 modifier = Modifier.padding(top = 20.dp))
             }
             item { GraySpacer(Modifier.padding(top = 20.dp)) }
-            itemsIndexed(
-                items = detailUIState.reviews
-            ) { index, reviewItem ->
-                ReviewCard(
-                    review = reviewItem,
-                    isFullMode = detailUIState.isFullModeList[index],
-                    onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
-                    onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
-                    onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
-                    modifier = Modifier.padding(vertical = 12.dp)
-                )
-                CSSpacerHorizontal(modifier = Modifier, height = 1.dp, color = CS.Gray.G20)
+
+            if (detailUIState.reviews.isEmpty()) {
+                item { EmptyCard() }
+            } else {
+                itemsIndexed(
+                    items = detailUIState.reviews
+                ) { index, reviewItem ->
+                    ReviewCard(
+                        review = reviewItem,
+                        isFullMode = detailUIState.isFullModeList[index],
+                        onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
+                        onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
+                        onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
+                    CSSpacerHorizontal(modifier = Modifier, height = 1.dp, color = CS.Gray.G20)
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyCard() {
+    val textRes = "아직 등록된 리뷰가 없습니다."
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(206.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ChatReviewIcon(width = 48.dp, height = 48.dp)
+        Spacer(Modifier.height(12.dp))
+        Text(text = textRes, style = Typography.body1Regular, color = CS.Gray.G50)
     }
 }
 

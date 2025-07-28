@@ -53,6 +53,21 @@ fun Chat2Fill(
     )
 }
 
+@Composable
+fun ChatReviewIcon(
+    width: Dp,
+    height: Dp,
+    tint: Color = Color.Unspecified,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.chat_review),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
 
 @Composable
 fun RockClose(
