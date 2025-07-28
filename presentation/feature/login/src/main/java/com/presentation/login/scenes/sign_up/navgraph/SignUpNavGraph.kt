@@ -10,23 +10,32 @@ import com.presentation.login.scenes.search_address.SearchAddressScene
 import com.presentation.login.scenes.search_address.SearchAddressViewModel
 import com.presentation.login.scenes.sign_up.SignUpScene
 import com.presentation.login.scenes.sign_up.SignUpViewModel
+import com.presentation.login.scenes.terms.TermDetailScene
 
 internal object NavConstant {
     enum class Mode(val value: String) { MY("my"), INTEREST("interest") }
     const val SIGN_UP_ROUTE = "sign_up"
     private const val SEARCH_ADDRESS_BASE = "search_address"
+    private const val TERMS_DETAIL_BASE = "terms"
     private const val ARGUMENT_TOWN = "town"
     private const val ARGUMENT_MODE = "mode"
+    internal const val ARGUMENT_URL = "url"
     const val SEARCH_ADDRESS_ROUTE =
         "$SEARCH_ADDRESS_BASE?$ARGUMENT_TOWN={$ARGUMENT_TOWN}&$ARGUMENT_MODE={$ARGUMENT_MODE}"
+    const val TERMS_DETAIL_ROUTE =
+        "$TERMS_DETAIL_BASE?$ARGUMENT_URL={$ARGUMENT_URL}"
 
     fun destSearchAddress(startQuery: String, mode: Mode) =
         "$SEARCH_ADDRESS_BASE?$ARGUMENT_TOWN=${Uri.encode(startQuery)}&$ARGUMENT_MODE=${mode.value}"
+    fun destTermsDetail(url: String) =
+        "$TERMS_DETAIL_BASE?$ARGUMENT_URL=${Uri.encode(url)}"
+
 }
 
 internal sealed class SignUpNavRoute(val route: String) {
     data object SignUp : SignUpNavRoute(NavConstant.SIGN_UP_ROUTE)
     data object SearchAddress : SignUpNavRoute(NavConstant.SEARCH_ADDRESS_ROUTE)
+    data object TermDetail : SignUpNavRoute(NavConstant.TERMS_DETAIL_ROUTE)
 }
 
 @Composable
@@ -57,5 +66,11 @@ fun SignUpNavGraph(
                 navHostController = navController
             )
         }
+        composable(SignUpNavRoute.TermDetail.route) {
+            TermDetailScene(
+                navHostController = navController
+            )
+        }
+
     }
 }

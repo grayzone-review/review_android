@@ -41,6 +41,7 @@ class UserRepositoryImpl @Inject constructor(
     ): ResignResult {
         val requestDTO = ResignRequestModel(refreshToken = refreshToken)
         val responseDTO = upAPIService.resign(requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return ResignResult(success = responseDTO.success, message = responseDTO.message)
     }
 

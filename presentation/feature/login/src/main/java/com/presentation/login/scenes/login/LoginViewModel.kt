@@ -58,24 +58,21 @@ class LoginViewModel @Inject constructor(
                 viewModelScope.launch {
                     try {
                         val result = upAuthUseCase.login(oAuthToken = oAuthToken.accessToken)
-                        result?.let { bindingResult ->
-                            TokenStoreService.save(loginResult = bindingResult)
-                        }
+                        result?.let { bindingResult -> TokenStoreService.save(loginResult = bindingResult) }
                         val savedAccess = TokenStoreService.accessToken()
                         val savedRefresh = TokenStoreService.refreshToken()
-                        val savedIsAvailable = TokenStoreService.isAccessTokenValid()
 
-                        Log.d("값들", "${savedAccess} + ${savedRefresh} + ${savedIsAvailable} ")
+                        Log.d("값들", "${savedAccess} + ${savedRefresh}")
 
                         _event.emit(LoginUIEvent.NavigateToMain)
                     } catch (error: APIException) {
+                        Log.d("값들실패들", oAuthToken.accessToken)
                         if (error.action == ErrorAction.Login) {
                             _uiState.update { it.copy(shouldShowCreateAccountDialog = true, accessToken = oAuthToken.accessToken) }
                         }
                     }
                 }
             }
-
             Action.FailedKakaoLogin -> {
                 Log.e(TAG, "카카오 로그인 실패: $value")
             }
@@ -88,9 +85,8 @@ class LoginViewModel @Inject constructor(
                 viewModelScope.launch {
                     try {
                         val result = upAuthUseCase.login(oAuthToken = currentState.accessToken)
-                        result?.let { bindingResult ->
-                            TokenStoreService.save(loginResult = bindingResult)
-                        }
+                        Log.d("토큰값", result.toString())
+                        result?.let { bindingResult -> TokenStoreService.save(loginResult = bindingResult) }
                         _event.emit(LoginUIEvent.NavigateToMain)
                     } catch (error: APIException) {
                         if (error.action == ErrorAction.Login) {

@@ -50,7 +50,6 @@ class SignUpViewModel @Inject constructor(
         DidTapCheckDuplicateButton,
         DidTapRemoveInterestTownButton,
         DidTapCheckBox,
-        DidTapDetailButton,
         DidTapSubmitButton,
         SetAccessToken
     }
@@ -64,10 +63,8 @@ class SignUpViewModel @Inject constructor(
         val currentState = _uiState.value
         when (action) {
             Action.SetAccessToken -> {
-                val token = value as? String ?: return
-                _uiState.update {
-                    it.copy(accessToken = token)
-                }
+                val accessToken = value as? String ?: return
+                _uiState.update { it.copy(accessToken = accessToken) }
             }
             Action.GetTerms -> {
                 viewModelScope.launch {
@@ -161,9 +158,6 @@ class SignUpViewModel @Inject constructor(
                     state.copy(terms = updated)
                         .checkSubmitValidation()
                 }
-            }
-            Action.DidTapDetailButton -> {
-                // TODO: WebView Navigate
             }
             Action.DidTapSubmitButton -> {
                 if (currentState.myTown == null) return

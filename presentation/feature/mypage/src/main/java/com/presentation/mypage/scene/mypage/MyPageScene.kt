@@ -30,12 +30,17 @@ import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.ConfirmLogout
+import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.ConfirmResign
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DidTapMyPageMenu
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.DismissCreateReviewSheet
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.OnAppear
 import com.presentation.mypage.scene.mypage.MyPageViewModel.Action.ShowCreateReviewSheet
+import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.AlertStyle
 import common_ui.UpAlertIconDialog
+import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
 import preset_ui.icons.InfoIcon
 import preset_ui.icons.MyPageBell
@@ -52,6 +57,8 @@ fun MyPageScene(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var alertMenu by remember { mutableStateOf<MyPageMenu?>(null) }
+    var alertError by remember { mutableStateOf<APIException?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
@@ -68,6 +75,8 @@ fun MyPageScene(
                 is MyPageUIEvent.ShowAlert -> {
                     alertMenu = event.menu
                 }
+                is MyPageUIEvent.ShowErrorAlert -> { alertError = event.error }
+                is MyPageUIEvent.ShowSuccessAlert -> { successMessage = event.message }
             }
         }
     }
@@ -84,16 +93,31 @@ fun MyPageScene(
     alertMenu?.let { menu ->
         when (menu) {
             MyPageMenu.WITHDRAW -> WithDrawAlert(
-                onConfirm = { /* TODO: 회원 탈퇴 후, Alert Dismiss */ },
+                onConfirm = { viewModel.handleAction(ConfirmResign) },
                 onCancel = { alertMenu = null }
             )
             MyPageMenu.LOGOUT -> LogOutAlert(
-                onConfirm = { /* TODO: 로그 아웃, Alert Dismiss */ },
+                onConfirm = {
+                    viewModel.handleAction(ConfirmLogout)
+                },
                 onCancel = { alertMenu = null }
             )
             else->{}
         }
     }
+
+//    BindSuccessAlert(
+//        message = successMessage,
+//        completion = {
+//            successMessage = null
+//            navController.navigate()
+//        }
+//    )
+//
+//    BindErrorAlert(
+//        error = alertError,
+//        completion = { alertError = null }
+//    )
 
     Scaffold(
         topBar = { DefaultTopAppBar(title = "마이페이지") },
@@ -258,4 +282,32 @@ fun LogOutAlert(
 @Composable
 private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+}
+
+@Composable
+fun BindErrorAlert(
+    error: APIException?,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = { completion() }
+        )
+    }
+}
+
+@Composable
+fun BindSuccessAlert(
+    message: String?,
+    completion: () -> Unit
+) {
+    message?.let {
+        UpSingleButtonAlertDialog(
+            message = message,
+            style = AlertStyle.Complete,
+            onDismiss = { completion() }
+        )
+    }
 }

@@ -36,10 +36,10 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.AddInterestTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckBox
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckDuplicateButton
-import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapDetailButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapSubmitButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.GetTerms
+import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.SetAccessToken
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.SetMyTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.UpdateNickNameTextField
 import com.presentation.login.scenes.sign_up.navgraph.NavConstant
@@ -76,8 +76,9 @@ fun SignUpScene(
         .collectAsState()
 
     LaunchedEffect(accessToken) {
-        viewModel.handleAction(SignUpViewModel.Action.SetAccessToken, accessToken)
+        viewModel.handleAction(SetAccessToken, accessToken)
     }
+
     LaunchedEffect(uiState.terms.isEmpty()) {
         if (uiState.terms.isEmpty()) {
             viewModel.handleAction(GetTerms)
@@ -153,7 +154,9 @@ fun SignUpScene(
             TermsSection(
                 terms = uiState.terms,
                 onCheckBoxClick = { viewModel.handleAction(DidTapCheckBox, it) },
-                onDetailClick = { viewModel.handleAction(DidTapDetailButton, it) },
+                onDetailClick = { navHostController.navigate(
+                    NavConstant.destTermsDetail(url = "www.naver.com"))
+                },
             )
         }
         SubmitButton(
@@ -180,7 +183,7 @@ fun TermsSection(
             label = "약관 전체 동의",
             code = TermCode.ALL,
             onCheckboxClick = { onCheckBoxClick(TermCode.ALL) },
-            onDetailClick = {}
+            onDetailClick = { onDetailClick(it) }
         )
 
         HorizontalDivider(

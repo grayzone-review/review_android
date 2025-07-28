@@ -54,6 +54,8 @@ android {
 
 dependencies {
     implementation(project(":data:dto"))
+    implementation(project(":data:storage"))
+    implementation(project(":domain:entity"))
     implementation(Deps.coreKtx)
 
     implementation(DaggerHilt.hilt)
