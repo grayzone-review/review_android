@@ -113,7 +113,7 @@ fun FeedScene(
             ReviewFeedList(
                 reviewFeeds = uiState.reviews,
                 companyFeeds = uiState.companies,
-                onCLickCompanyCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
+                onClickCompanyCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
                     .replace("{companyId}", it.id.toString()))
                 },
                 onClickReviewCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
@@ -158,7 +158,7 @@ private fun TopAppBar(
 private fun ReviewFeedList(
     reviewFeeds: List<ReviewFeed>,
     companyFeeds: List<ReviewFeed>,
-    onCLickCompanyCard: (CompactCompany) -> Unit,
+    onClickCompanyCard: (CompactCompany) -> Unit,
     onClickReviewCard: (ReviewFeed) -> Unit,
     onLikeReviewButtonClock: (Review) -> Unit,
     onCommentButtonClick: (ReviewFeed) -> Unit,
@@ -189,7 +189,7 @@ private fun ReviewFeedList(
                         companyFeeds.getOrNull(companyIndex)?.let { companyFeed ->
                             CompanyCard(
                                 company = companyFeed.compactCompany,
-                                onClick = { onCLickCompanyCard(companyFeed.compactCompany) }
+                                onClick = { onClickCompanyCard(companyFeed.compactCompany) }
                             )
                         }
                     }

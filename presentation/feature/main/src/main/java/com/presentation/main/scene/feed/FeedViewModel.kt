@@ -150,7 +150,7 @@ class FeedViewModel @Inject constructor(
 
             Action.DismissCommentBottomSheet -> {
                 val feed = currentState.commentTargetFeed
-
+                /* TODO: 최신화 로직 어떻게? */
                 _uiState.update {
                     it.copy(shouldShowCommentBottomSheet = false)
                 }
