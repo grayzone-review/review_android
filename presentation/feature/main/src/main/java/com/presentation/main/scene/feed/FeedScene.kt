@@ -1,5 +1,6 @@
 package com.presentation.main.scene.feed
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -97,6 +98,14 @@ fun FeedScene(
         onDismissRequest = { viewModel.handleAction(DismissCommentBottomSheet) }
     )
     CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
+
+    BackHandler {
+        when {
+            uiState.shouldShowCommentBottomSheet -> { viewModel.handleAction(DismissCommentBottomSheet) }
+            uiState.shouldShowCreateReviewSheet -> { viewModel.handleAction(DismissCrateReviewSheet) }
+            else -> { navController.popBackStack() }
+        }
+    }
 
     Scaffold(
         topBar = {
