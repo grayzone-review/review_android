@@ -3,6 +3,7 @@ package com.presentation.main.scene.feed
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
@@ -66,7 +67,14 @@ class FeedViewModel @Inject constructor(
         val currentState = _uiState.value
         when (action) {
             Action.OnAppear -> {
-                val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
+                val (latitude, longitude) = runCatching {
+                    UpDataStoreService.lastKnownLocation
+                        .split(',')
+                        .map { it.toDouble() }
+                        .let { it[0] to it[1] }
+                }.getOrElse {
+                    UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                }
                 viewModelScope.launch {
                     try {
                         val userResult = userUseCase.userInfo()
@@ -85,7 +93,14 @@ class FeedViewModel @Inject constructor(
             }
             Action.GetMoreFeeds -> {
                 if (!currentState.hasNext || currentState.isLoading) return
-                val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
+                val (latitude, longitude) = runCatching {
+                    UpDataStoreService.lastKnownLocation
+                        .split(',')
+                        .map { it.toDouble() }
+                        .let { it[0] to it[1] }
+                }.getOrElse {
+                    UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                }
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
                     try {

@@ -78,8 +78,14 @@ class AfterContentViewModel @Inject constructor(
                 val query=(value as? String)?.trim() ?: return
                 if(query.isBlank()||currentState.isLoading||!currentState.hasNext) return
 
-                val (lat, lng) = UpDataStoreService.lastKnownLocation.split(",")
-                    .map(String::toDouble)
+                val (lat, lng) = runCatching {
+                    UpDataStoreService.lastKnownLocation
+                        .split(',')
+                        .map { it.toDouble() }
+                        .let { it[0] to it[1] }
+                }.getOrElse {
+                    UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                }
                 val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
                 val nextPage = currentState.currentPage + 1
                 viewModelScope.launch {
