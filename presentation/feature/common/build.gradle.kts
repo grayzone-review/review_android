@@ -46,6 +46,10 @@ dependencies {
     implementation(project(":domain:usecase"))
     implementation(project(":data:location"))
 
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation(Deps.coroutinesPlayServices)
+
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation(Location.permission)
     implementation(Location.gmsLocationService)
     implementation(DaggerHilt.hilt)
