@@ -57,9 +57,9 @@ import com.presentation.design_system.appbar.appbars.UpBottomBar
 import com.presentation.design_system.appbar.appbars.UpTab
 import com.presentation.main.NavConstant
 import com.presentation.main.scene.feed.BindAlert
+import com.presentation.main.scene.main.MainViewModel.Action.CacheLocationAndGetFeeds
 import com.presentation.main.scene.main.MainViewModel.Action.DismissCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
-import com.presentation.main.scene.main.MainViewModel.Action.GetFeeds
 import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
 import com.presentation.main.scene.main.MainViewModel.Action.ShowCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
@@ -112,7 +112,7 @@ fun MainScene(
     LaunchedEffect(permissionState.allPermissionsGranted) {
         when {
             permissionState.allPermissionsGranted -> {
-                viewModel.handleAction(GetFeeds)
+                viewModel.handleAction(CacheLocationAndGetFeeds)
             }
             permissionState.shouldShowRationale -> {
                 viewModel.handleAction(ShowSettingAlert)
@@ -137,7 +137,7 @@ fun MainScene(
         onConfirm = { context.openAppSettings() },
         onCancel = {
             viewModel.handleAction(DismissSettingAlert)
-            viewModel.handleAction(GetFeeds)
+            viewModel.handleAction(CacheLocationAndGetFeeds)
         }
     )
     
