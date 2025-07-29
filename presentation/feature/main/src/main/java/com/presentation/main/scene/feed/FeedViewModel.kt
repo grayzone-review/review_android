@@ -150,10 +150,21 @@ class FeedViewModel @Inject constructor(
             }
 
             Action.DismissCommentBottomSheet -> {
-                val feed = currentState.commentTargetFeed
-                /* TODO: 최신화 로직 어떻게? */
+                _uiState.update { it.copy(shouldShowCommentBottomSheet = false) }
+                val writtenReviewCount = value as? Int ?: return
+                val targetFeed = currentState.commentTargetFeed ?: return
+                val updatedReview = targetFeed.review.copy(
+                    commentCount = targetFeed.review.commentCount + writtenReviewCount
+                )
+                val updatedFeed = targetFeed.copy(review = updatedReview)
+                val updatedReviewList = currentState.reviews.map {
+                    if (it.review.id == updatedFeed.review.id) updatedFeed else it
+                }
                 _uiState.update {
-                    it.copy(shouldShowCommentBottomSheet = false)
+                    it.copy(
+                        reviews = updatedReviewList,
+                        commentTargetFeed = null
+                    )
                 }
             }
         }

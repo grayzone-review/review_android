@@ -114,7 +114,6 @@ object BottomSheetHelper {
     fun hide() {
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
         inputBarView?.visibility = View.GONE
-        onDismissRequest()
     }
 
     fun isVisible(): Boolean {

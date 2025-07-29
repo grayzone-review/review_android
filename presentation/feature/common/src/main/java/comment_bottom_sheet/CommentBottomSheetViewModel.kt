@@ -35,7 +35,9 @@ data class CommentInputState(
 
     val currentPage: Int = 0,                   // 댓글의 현재 페이지
     val hasNext: Boolean = false,               // 댓글의 다음 페이지 존재 여부
-    val isLoading: Boolean = false              // 댓글을 가져 오는 중인지 여부
+    val isLoading: Boolean = false,             // 댓글을 가져 오는 중인지 여부
+
+    val commentsWritten: Int = 0                // 시트 내에서 코멘트 한 횟수 (종료 시, handler 로 전달 하여 값 반영을 위함)
 )
 
 @HiltViewModel
@@ -141,18 +143,29 @@ class CommentBottomSheetViewModel @Inject constructor(
                             result?.let { reply ->
                                 val updatedList = (currentState.repliesMap[commentId].orEmpty() + reply).sortedByDescending { it.createdAt }
                                 val updatedRepliesMap = currentState.repliesMap + (commentId to updatedList)
-                                _uiState.update { it.copy(repliesMap = updatedRepliesMap) }
+                                _uiState.update {
+                                    it.copy(
+                                        repliesMap = updatedRepliesMap,
+                                        commentsWritten = it.commentsWritten + 1
+                                    )
+                                }
                             }
                         } else {
                             val result = reviewUseCase.writeComment(
                                 reviewID = currentState.reviewID,
                                 content = currentState.text,
-                                isSecret = currentState.isSecret
+                                isSecret = currentState.isSecret,
                             )
                             result?.let { comment ->
                                 val updatedComments = (listOf(comment) + currentState.comments)
                                     .sortedByDescending { it.createdAt }
-                                _uiState.update { it.copy(comments = updatedComments) }
+                                _uiState.update {
+                                    it.copy(
+                                        comments = updatedComments,
+                                        commentsWritten = it.commentsWritten + 1
+                                    )
+                                }
+                                Log.d("현재 개수:", currentState.commentsWritten.toString())
                             }
                         }
                         /* 2. 입력 상태 초기화 */

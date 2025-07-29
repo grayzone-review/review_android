@@ -95,7 +95,7 @@ fun FeedScene(
     CommentBottomSheet(
         reviewID = uiState.commentTargetFeed?.review?.id ?: 0,
         isShow = uiState.shouldShowCommentBottomSheet,
-        onDismissRequest = { viewModel.handleAction(DismissCommentBottomSheet) }
+        onDismissRequest = { viewModel.handleAction(DismissCommentBottomSheet, it) }
     )
     CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
 

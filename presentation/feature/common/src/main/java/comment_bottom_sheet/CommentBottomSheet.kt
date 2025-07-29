@@ -60,7 +60,17 @@ import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
 import com.example.presentation.designsystem.typography.Typography
-import comment_bottom_sheet.CommentBottomSheetViewModel.Action.*
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapCancelReplyButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.GetCommentsMore
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.OnAppear
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -76,7 +86,7 @@ import preset_ui.icons.Sendable
 fun CommentBottomSheet(
     reviewID: Int,
     isShow: Boolean,
-    onDismissRequest: () -> Unit,
+    onDismissRequest: (Int) -> Unit,
     viewModel: CommentBottomSheetViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -88,9 +98,9 @@ fun CommentBottomSheet(
     LaunchedEffect(isShow) {
         if (isShow) {
             viewModel.handleAction(OnAppear, reviewID)
-
             BottomSheetHelper.setDismissHandler{
-                onDismissRequest()
+                val writtenCount = uiState.commentsWritten
+                onDismissRequest(uiState.commentsWritten)
                 viewModel.reset()
             }
 
@@ -143,6 +153,8 @@ fun CommentBottomSheet(
 
             BottomSheetHelper.show(context = context)
         } else {
+            val written = uiState.commentsWritten
+            onDismissRequest(written)
             viewModel.reset()
             BottomSheetHelper.hide()
         }
