@@ -2,6 +2,7 @@ package com.presentation.mypage.scene.modify_user
 
 import address_finder.AddressFinder
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -32,32 +35,43 @@ fun ModifySearchAddressScene(
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .addFocusCleaner(focusManager = LocalFocusManager.current)
-            .background(CS.Gray.White)
-    ) {
-        SearchableTopAppBar(
-            keyword = uiState.query,
-            onKeywordChange = { viewModel.handleAction(UpdateQueryFromSearching, it) },
-            onBack = { navController.popBackStack() },
-            onCancel = { }
-        )
-        Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(color = CS.Gray.G10))
-        AddressFinder(
-            query = uiState.query,
-            onFindMyLocationButtonClick = { viewModel.handleAction(UpdateQueryFromLocation, it) },
-            onAddressItemClick = {
-                scope.launch {
-                    navController.previousBackStackEntry?.savedStateHandle?.apply {
-                        set("selectedLegalDistrictInfo", it)
-                        set("selectedMode", uiState.mode)
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .addFocusCleaner(focusManager = LocalFocusManager.current)
+                .background(CS.Gray.White)
+        ) {
+            SearchableTopAppBar(
+                keyword = uiState.query,
+                onKeywordChange = { viewModel.handleAction(UpdateQueryFromSearching, it) },
+                onBack = { navController.popBackStack() },
+                onCancel = { }
+            )
+            Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(color = CS.Gray.G10))
+            AddressFinder(
+                query = uiState.query,
+                onFindMyLocationButtonClick = { viewModel.handleAction(UpdateQueryFromLocation, it) },
+                onAddressItemClick = {
+                    scope.launch {
+                        navController.previousBackStackEntry?.savedStateHandle?.apply {
+                            set("selectedLegalDistrictInfo", it)
+                            set("selectedMode", uiState.mode)
+                        }
+                        delay(timeMillis = 300)
+                        navController.popBackStack()
                     }
-                    delay(timeMillis = 300)
-                    navController.popBackStack()
                 }
+            )
+
+            if (uiState.needTapConsumeBox) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent)
+                        .pointerInput(Unit) {}
+                )
             }
-        )
+        }
     }
 }
