@@ -25,6 +25,7 @@ import com.data.network.response.APIResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -107,19 +108,22 @@ interface UpAPIService {
     @GET(UpEndpoint.Path.POPULAR_REVIEWS)
     suspend fun popularReviews(
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.MY_TOWN_REVIEWS)
     suspend fun myTownReviews(
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.INTEREST_REGIONS_REVIEWS)
     suspend fun interestRegionsReviews(
         @Query(UpEndpoint.Query.LATITUDE) latitude: Double,
-        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double
+        @Query(UpEndpoint.Query.LONGITUDE) longitude: Double,
+        @Query(UpEndpoint.Query.PAGE) page: Int
     ): APIResponse<ReviewFeedResponseDTO>
 
     @GET(UpEndpoint.Path.MY_INTERACTION_COUNT)
@@ -168,7 +172,7 @@ interface UpAPIService {
         @Body requestModel: ModifyUserRequestModel
     ): APIResponse<Unit>
 
-    @DELETE(UpEndpoint.Path.MY_INFO)
+    @HTTP(method = "DELETE", path = UpEndpoint.Path.MY_INFO, hasBody = true)
     suspend fun resign(
         @Body requestModel: ResignRequestModel
     ): APIResponse<Unit>

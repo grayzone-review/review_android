@@ -3,7 +3,8 @@ package com.data.network.di
 import com.data.network.api_service.UpAPIService
 import com.data.network.endpoint.UpEndpoint
 import com.data.network.interceptor.BearerTokenInterceptor
-import com.data.network.interceptor.ErrorInterceptor
+import com.data.network.interceptor.ForceSuccessInterceptor
+import com.data.network.interceptor.TokenAuthenticator
 import com.data.network.mapper.SearchCompaniesRequestMapper
 import dagger.Module
 import dagger.Provides
@@ -22,12 +23,15 @@ object UpNetworkModule {
     @Provides
     @Singleton
     @Named("Up")
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(
+        authenticator: TokenAuthenticator
+    ): OkHttpClient {
         return OkHttpClient.Builder()
-            .readTimeout(30, TimeUnit.SECONDS)      // 응답 수신
-            .callTimeout(35, TimeUnit.SECONDS)      // (연결~응답) 전체 호출
+            .readTimeout(30, TimeUnit.SECONDS)
+            .callTimeout(35, TimeUnit.SECONDS)
             .addInterceptor(BearerTokenInterceptor())
-            .addInterceptor(ErrorInterceptor())
+            .addInterceptor(ForceSuccessInterceptor())
+            .authenticator(authenticator = authenticator)
             .build()
     }
 

@@ -3,25 +3,25 @@ package com.domain.entity
 import kotlin.math.roundToInt
 
 data class Reviews(
-    val currentPage: Int? = null,
-    val hasNext: Boolean? = null,
-    val reviews: List<Review>? = null
+    val currentPage: Int,
+    val hasNext: Boolean,
+    val reviews: List<Review>
 )
 
 data class Review(
-    val id: Int? = null,
-    val ratings: Ratings? = null,
-    val author: String? = null,
-    val title: String? = null,
-    val advantagePoint: String? = null,
-    val disadvantagePoint: String? = null,
-    val managementFeedback: String? = null,
-    val jobRole: String? = null,
-    val employmentPeriod: String? = null,
-    val createdAt: String? = null,
-    val likeCount: Int? = null,
-    val commentCount: Int? = null,
-    val liked: Boolean? = null
+    val id: Int,
+    val ratings: Ratings,
+    val author: String,
+    val title: String,
+    val advantagePoint: String,
+    val disadvantagePoint: String,
+    val managementFeedback: String,
+    val jobRole: String,
+    val employmentPeriod: String,
+    val createdAt: String,
+    val likeCount: Int,
+    val commentCount: Int,
+    val liked: Boolean
 )
 
 data class Ratings(

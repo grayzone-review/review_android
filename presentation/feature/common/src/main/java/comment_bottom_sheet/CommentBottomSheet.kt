@@ -1,4 +1,4 @@
-package com.presentation.company_detail.Scene.sheet
+package comment_bottom_sheet
 
 import BottomSheetHelper
 import androidx.compose.foundation.background
@@ -60,18 +60,17 @@ import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
 import com.example.presentation.designsystem.typography.Typography
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapCancelReplyButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetComments
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.GetCommentsMore
-import com.presentation.company_detail.Scene.sheet.CommentBottomSheetViewModel.Action.SetReviewID
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapCancelReplyButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapOutSideOfTextField
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapSecretButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapSendButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapShowRepliesButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidTapWriteReplyButton
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidUpdateCommentText
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.GetCommentsMore
+import comment_bottom_sheet.CommentBottomSheetViewModel.Action.OnAppear
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -87,7 +86,8 @@ import preset_ui.icons.Sendable
 fun CommentBottomSheet(
     reviewID: Int,
     isShow: Boolean,
-    viewModel: CommentBottomSheetViewModel = hiltViewModel()
+    onDismissRequest: (Int) -> Unit,
+    viewModel: CommentBottomSheetViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
@@ -97,8 +97,13 @@ fun CommentBottomSheet(
 
     LaunchedEffect(isShow) {
         if (isShow) {
-            viewModel.handleAction(SetReviewID, reviewID)
-            viewModel.handleAction(GetComments)
+            viewModel.handleAction(OnAppear, reviewID)
+            BottomSheetHelper.setDismissHandler{
+                val writtenCount = uiState.commentsWritten
+                onDismissRequest(uiState.commentsWritten)
+                viewModel.reset()
+            }
+
             BottomSheetHelper.setContent {
                 Box(
                     modifier = Modifier
@@ -148,6 +153,8 @@ fun CommentBottomSheet(
 
             BottomSheetHelper.show(context = context)
         } else {
+            val written = uiState.commentsWritten
+            onDismissRequest(written)
             viewModel.reset()
             BottomSheetHelper.hide()
         }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.domain.entity.LegalDistrictInfo
 import com.domain.usecase.UpAuthUseCase
 import com.domain.usecase.UserUseCase
+import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edit_profile_address_component.FieldState
 import edit_profile_address_component.NickNameField
@@ -17,14 +18,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface ModifyUserUIEvent {
-    data object Pop : ModifyUserUIEvent
+    data class ShowAlert(val error: APIException? = null) : ModifyUserUIEvent
+    data class ShowSuccessAlert(val message: String): ModifyUserUIEvent
 }
 
 data class ModifyUserUIState(
     val nickNameField: NickNameField = NickNameField(),
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
-    val isSubmitEnabled: Boolean = false
+    val isSubmitEnabled: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -54,18 +57,20 @@ class ModifyUserViewModel @Inject constructor(
                 if (currentState.nickNameField.value.isNotEmpty()) return
                 viewModelScope.launch {
                     val result = userUseCase.userInfo()
-                    val userNickNameField = NickNameField(
-                        value = result.nickname ?: "",
-                        fieldState = FieldState.ServerSuccess,
-                        errorMessage = ""
-                    )
-                    _uiState.update {
-                        it.copy(
-                            nickNameField = userNickNameField,
-                            myTown = result.mainRegion,
-                            interestTowns = result.interestedRegions ?: emptyList(),
-                            isSubmitEnabled = true
+                    result?.let { bindingResult ->
+                        val userNickNameField = NickNameField(
+                            value = bindingResult.nickname ?: "",
+                            fieldState = FieldState.ServerSuccess,
+                            errorMessage = ""
                         )
+                        _uiState.update {
+                            it.copy(
+                                nickNameField = userNickNameField,
+                                myTown = bindingResult.mainRegion,
+                                interestTowns = bindingResult.interestedRegions ?: emptyList(),
+                                isSubmitEnabled = true
+                            )
+                        }
                     }
                 }
             }
@@ -124,13 +129,18 @@ class ModifyUserViewModel @Inject constructor(
             }
             Action.DidTapSubmitButton -> {
                 viewModelScope.launch {
-                    val result = userUseCase.modifyUserInfo(
-                        mainRegionID = currentState.myTown?.id ?: 0,
-                        interestedRegionIds = currentState.interestTowns.map { it.id },
-                        nickname = currentState.nickNameField.value
-                    )
-                    if (result.success) {
-                        _event.emit(ModifyUserUIEvent.Pop)
+                    try {
+                        _uiState.update { it.copy(isLoading = true) }
+                        userUseCase.modifyUserInfo(
+                            mainRegionID = currentState.myTown?.id ?: 0,
+                            interestedRegionIds = currentState.interestTowns.map { it.id },
+                            nickname = currentState.nickNameField.value
+                        )
+                        _event.emit(ModifyUserUIEvent.ShowSuccessAlert("내 정보가 성공적으로 수정되었습니다."))
+                        _uiState.update { it.copy(isLoading = false) }
+                    } catch (error: APIException) {
+                        _event.emit(ModifyUserUIEvent.ShowAlert(error))
+                        _uiState.update { it.copy(isLoading = false) }
                     }
                 }
             }

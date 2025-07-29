@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 data class SearchAddressUIState(
     val query: String = "",
-    val mode: String = ""
+    val mode: String = "",
+    val needTapConsumeBox: Boolean = false
 )
 
 class SearchAddressViewModel @Inject constructor(
@@ -19,7 +20,8 @@ class SearchAddressViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         UpdateQueryFromSearching,
-        UpdateQueryFromLocation
+        UpdateQueryFromLocation,
+        BlockUserInteraction
     }
 
     private val townArgument = savedStateHandle.get<String>("town") ?: ""
@@ -44,6 +46,9 @@ class SearchAddressViewModel @Inject constructor(
                 val dong = region.region_3depth_name
                 val regionQuery = "$si $gu $dong"
                 _uiState.update { it.copy(query = regionQuery) }
+            }
+            Action.BlockUserInteraction -> {
+                _uiState.update { it.copy(needTapConsumeBox = true) }
             }
         }
     }

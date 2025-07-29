@@ -27,7 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,7 +48,10 @@ import com.presentation.mypage.scene.report.ReportViewModel.Action.UpdateDetailR
 import com.presentation.mypage.scene.report.ReportViewModel.Action.UpdateReportedUserNickName
 import com.presentation.mypage.scene.report.ReportViewModel.Action.UpdateSelectReason
 import com.presentation.mypage.scene.report.type.ReportReason
+import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.extension.addFocusCleaner
+import common_ui.AlertStyle
+import common_ui.UpSingleButtonAlertDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import preset_ui.SimpleTextField
@@ -60,6 +66,8 @@ fun ReportScene(
     navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -72,7 +80,8 @@ fun ReportScene(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                ReportUIEvent.Pop -> { navController.popBackStack() }
+                is ReportUIEvent.ShowAlert -> { alertError = event.error }
+                is ReportUIEvent.ShowSuccessAlert -> { successMessage = event.message }
             }
         }
     }
@@ -88,6 +97,19 @@ fun ReportScene(
             }
        },
         onCloseButtonClick = { scope.launch { sheetState.hide() } }
+    )
+
+    BindSuccessAlert(
+        message = successMessage,
+        completion = {
+            successMessage = null
+            navController.popBackStack()
+        }
+    )
+
+    BindErrorAlert(
+        error = alertError,
+        completion = { alertError = null }
     )
 
     Scaffold(
@@ -369,6 +391,34 @@ fun ReportReasonContent(
             style = Typography.body1Regular,
             color = CS.Gray.G70,
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun BindErrorAlert(
+    error: APIException?,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = { completion() }
+        )
+    }
+}
+
+@Composable
+fun BindSuccessAlert(
+    message: String?,
+    completion: () -> Unit
+) {
+    message?.let {
+        UpSingleButtonAlertDialog(
+            message = message,
+            style = AlertStyle.Complete,
+            onDismiss = { completion() }
         )
     }
 }

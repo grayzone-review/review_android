@@ -9,7 +9,7 @@ import com.domain.entity.ResignResult
 import com.domain.entity.User
 
 interface UserRepository {
-    suspend fun userInfo(): User
+    suspend fun userInfo(): User?
     suspend fun modifyUserInfo(mainRegionID: Int, interestedRegionIds: List<Int>, nickname: String): ModifyUserInfoResult
     suspend fun resign(refreshToken: String): ResignResult
     suspend fun report(reporterName: String, targetName: String, reportType: String, description: String): ReportResult

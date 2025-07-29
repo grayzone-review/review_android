@@ -1,7 +1,7 @@
 package com.data.network.di
 import com.data.network.api_service.UpAuthService
 import com.data.network.endpoint.UpEndpoint
-import com.data.network.interceptor.ErrorInterceptor
+import com.data.network.interceptor.ForceSuccessInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +20,7 @@ object UpAuthNetworkModule {
     @Named("UpAuth")
     fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
-            .addInterceptor(ErrorInterceptor())
+            .addInterceptor(ForceSuccessInterceptor())
             .build()
 
     @Provides

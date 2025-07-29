@@ -42,7 +42,14 @@ import preset_ui.icons.StarOutline
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ReviewCard(review: Review, isFullMode: Boolean, modifier: Modifier, onReviewCardClick: () -> Unit, onLikeReviewButtonClock: () -> Unit, onCommentButtonClick: () -> Unit) {
+fun ReviewCard(
+    review: Review,
+    isFullMode: Boolean,
+    modifier: Modifier,
+    onReviewCardClick: () -> Unit,
+    onLikeReviewButtonClock: () -> Unit,
+    onCommentButtonClick: () -> Unit
+) {
     val interactionSource = remember { MutableInteractionSource() }
 
     Column(
@@ -52,7 +59,7 @@ fun ReviewCard(review: Review, isFullMode: Boolean, modifier: Modifier, onReview
         WriterProfile(review, Modifier.padding(top = 20.dp))
         RatingSummary(review, Modifier.padding(vertical = 16.dp))
         if (isFullMode) RatingBox(review, Modifier)
-        ReviewTextContent(review, isFullMode = isFullMode, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick)
+        ReviewTextContent(review, isFullMode = isFullMode, Modifier.padding(top = 20.dp), onLikeReviewButtonClick = onLikeReviewButtonClock, onCommentButtonClick = onCommentButtonClick)
     }
 }
 

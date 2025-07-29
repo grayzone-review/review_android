@@ -1,5 +1,6 @@
 package com.feature.comments.scene
 
+import GpsSettingChecker
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -28,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,23 +38,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import colors.CS
+import com.data.location.UpLocationService
 import com.domain.entity.CompactCompany
 import com.domain.entity.Company
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapFilterButtons
 import com.feature.comments.scene.SearchViewModel.ContentAction.DidTapRecentQueryButton
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.CacheLocation
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidFocusSearchBar
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapCancelButton
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapClearButton
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidTapIMEDone
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUnFocusSearchBar
 import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DidUpdateSearchBarValue
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.DismissSettingAlert
+import com.feature.comments.scene.SearchViewModel.SearchInterfaceAction.ShowSettingAlert
 import com.feature.comments.scene.contents.AfterContent
 import com.feature.comments.scene.contents.AfterContentViewModel
 import com.feature.comments.scene.contents.BeforeContent
@@ -60,13 +67,19 @@ import com.feature.comments.scene.contents.BeforeContentViewModel
 import com.feature.comments.scene.contents.SearchingContent
 import com.feature.comments.scene.contents.SearchingContentViewModel
 import com.feature.comments.scene.contents.TagButtonType
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.team.common.feature_api.extension.addFocusCleaner
+import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import common_ui.UpAlertIconDialog
 import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.CloseFillIcon
+import preset_ui.icons.MapPinTintable
 import preset_ui.icons.SearchLineIcon
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun SearchScene(
     viewModel: SearchViewModel,
@@ -74,6 +87,8 @@ fun SearchScene(
 ) {
     val focusManager = LocalFocusManager.current
     val searchUIState by viewModel.searchUIState.collectAsState()
+    val permissionState = rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
+    val context = LocalContext.current
 
     BackHandler {
         when (searchUIState.phase) {
@@ -82,6 +97,25 @@ fun SearchScene(
             SearchPhase.After -> { viewModel.handleAction(DidTapCancelButton) }
         }
     }
+
+    GpsSettingChecker()
+    LaunchedEffect(permissionState.allPermissionsGranted) {
+        when {
+            permissionState.allPermissionsGranted -> {
+                viewModel.handleAction(CacheLocation)
+            }
+            permissionState.shouldShowRationale -> {
+                viewModel.handleAction(ShowSettingAlert)
+            }
+            else -> permissionState.launchMultiplePermissionRequest()
+        }
+    }
+
+    SettingDialog(
+        isShow = searchUIState.isShowSettingAlertDialog,
+        onConfirm = { context.openAppSettings() },
+        onCancel = { viewModel.handleAction(DismissSettingAlert) }
+    )
 
     Column(Modifier
         .fillMaxSize()
@@ -278,4 +312,26 @@ fun Content(
             )
         }
     }
+}
+
+@Composable
+private fun SettingDialog(
+    isShow: Boolean,
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    if (!isShow) return
+
+    UpAlertIconDialog(
+        icon = { MapPinTintable(28.dp, 28.dp, tint = CS.Gray.White) },
+        title = "위치 권한 필요",
+        message = """
+            기능을 사용하려면 위치 권한이 필요합니다.
+            설정 > 권한에서 위치를 허용해주세요.
+        """.trimIndent(),
+        confirmText = "설정으로 이동",
+        cancelText = "취소",
+        onConfirm = onConfirm,
+        onCancel = onCancel
+    )
 }

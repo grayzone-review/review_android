@@ -2,10 +2,13 @@ package create_review_dialog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
+import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.CompactCompany
 import com.domain.entity.Ratings
 import com.domain.usecase.ReviewUseCase
 import com.domain.usecase.SearchCompaniesUseCase
+import com.team.common.feature_api.error.APIException
 import create_review_dialog.contents.isFullyRated
 import create_review_dialog.sheet_contents.WorkPeriod
 import create_review_dialog.type.CreateReviewPhase
@@ -24,6 +27,8 @@ import javax.inject.Inject
 
 sealed interface CreateReviewUIEvent {
     data object DismissDialog : CreateReviewUIEvent
+    data class ShowAlert(val error: APIException? = null) : CreateReviewUIEvent
+    data class ShowSuccessAlert(val message: String): CreateReviewUIEvent
 }
 
 sealed class BottomSheetState {
@@ -57,6 +62,7 @@ class CreateReviewDialogViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         // 모달, 시트 흐름 제어
+        OnAppear,
         DidTapNextButton,
         DidTapPreviousButton,
         DidTapSubmitButton,
@@ -80,6 +86,10 @@ class CreateReviewDialogViewModel @Inject constructor(
     fun handleAction(action: Action, value: Any? = null) {
         val currentState = _uiState.value
         when (action) {
+            Action.OnAppear -> {
+                val company = value as? CompactCompany ?: return
+                _uiState.update { it.copy(company = company) }
+            }
             Action.DidTapNextButton -> {
                 _uiState.update { state ->
                     state.phase.next()?.let { nextPhase ->
@@ -149,10 +159,32 @@ class CreateReviewDialogViewModel @Inject constructor(
             }
             Action.UpdateSearchQuery -> {
                 val query = value as? String ?: return
-                _uiState.update {
-                    it.copy(searchTextFieldValue = query)
+                _uiState.update { it.copy(searchTextFieldValue = query)}
+                viewModelScope.launch {
+                    if (query.isBlank()) {
+                        clearSearchResults()
+                        return@launch
+                    }
+
+                    val (lat, lng) = runCatching {
+                        UpDataStoreService.lastKnownLocation
+                            .split(',')
+                            .map { it.toDouble() }
+                            .let { it[0] to it[1] }
+                    }.getOrElse {
+                        UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                    }
+
+                    val result = searchCompaniesUseCase.searchCompanies(
+                        keyword = query,
+                        latitude = lat,
+                        longitude = lng,
+                        size = 20,
+                        page = 0
+                    )
+                    _uiState.update { it.copy(searchedCompanies = result.companies) }
                 }
-                searchCompanies(query = query)
+
             }
             Action.UpdateCompany -> {
                 val newCompany = value as? CompactCompany ?: return
@@ -176,49 +208,26 @@ class CreateReviewDialogViewModel @Inject constructor(
             Action.DidTapSubmitButton -> {
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
-
-                    reviewUseCase.createReview(
-                        companyID = currentState.company?.id ?: 0,
-                        advantagePoint = currentState.advantagePoint,
-                        disadvantagePoint = currentState.disadvantagePoint,
-                        managementFeedback = currentState.managementFeedBack,
-                        jobRole = currentState.jobRole,
-                        employmentPeriod = currentState.employmentPeriod?.rawValue ?: "",
-                        welfare = currentState.rating.welfare ?: 0.0,
-                        workLifeBalance = currentState.rating.workLifeBalance ?: 0.0,
-                        salary = currentState.rating.salary ?: 0.0,
-                        companyCulture = currentState.rating.companyCulture ?: 0.0,
-                        management = currentState.rating.management ?: 0.0
-                    )
-
-                    _uiState.update { it.copy(isLoading = false) }
-                    _event.emit(CreateReviewUIEvent.DismissDialog)
+                    try {
+                        reviewUseCase.createReview(
+                            companyID = currentState.company?.id ?: 0,
+                            advantagePoint = currentState.advantagePoint,
+                            disadvantagePoint = currentState.disadvantagePoint,
+                            managementFeedback = currentState.managementFeedBack,
+                            jobRole = currentState.jobRole,
+                            employmentPeriod = currentState.employmentPeriod?.rawValue ?: "",
+                            welfare = currentState.rating.welfare ?: 0.0,
+                            workLifeBalance = currentState.rating.workLifeBalance ?: 0.0,
+                            salary = currentState.rating.salary ?: 0.0,
+                            companyCulture = currentState.rating.companyCulture ?: 0.0,
+                            management = currentState.rating.management ?: 0.0
+                        )
+                        _event.emit(CreateReviewUIEvent.ShowSuccessAlert("리뷰가 정상적으로 등록되었습니다!"))
+                        _uiState.update { it.copy(isLoading = false) }
+                    } catch (error: APIException) {
+                        _event.emit(CreateReviewUIEvent.ShowAlert(error))
+                    }
                 }
-            }
-        }
-    }
-
-    private fun searchCompanies(query: String) {
-        if (query.isBlank()) {
-            clearSearchResults()
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                val result = searchCompaniesUseCase.searchCompanies(
-                    keyword = query,
-                    latitude = 37.5665,
-                    longitude = 126.9780,
-                    size = 20,
-                    page = 0
-                )
-
-                _uiState.update { it.copy(searchedCompanies = result.companies) }
-            } catch (e: Exception) {
-
-            } finally {
-                // 로딩 처리
             }
         }
     }

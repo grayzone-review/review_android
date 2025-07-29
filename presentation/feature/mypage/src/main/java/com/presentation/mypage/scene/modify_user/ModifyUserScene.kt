@@ -16,6 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
@@ -33,7 +36,11 @@ import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.DidT
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.OnAppear
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.SetMyTown
 import com.presentation.mypage.scene.modify_user.ModifyUserViewModel.Action.UpdateNickNameTextField
+import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.extension.addFocusCleaner
+import common_ui.AlertStyle
+import common_ui.UpIndicator
+import common_ui.UpSingleButtonAlertDialog
 import edit_profile_address_component.InterestInput
 import edit_profile_address_component.MyTownInput
 import edit_profile_address_component.NicknameInput
@@ -45,6 +52,8 @@ fun ModifyUserScene(
     navController: NavHostController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
     val focusManager = LocalFocusManager.current
     val savedStateHandle = navController.currentBackStackEntry!!.savedStateHandle
     val selectedAddress by savedStateHandle
@@ -54,16 +63,6 @@ fun ModifyUserScene(
         .getStateFlow<String?>("selectedMode", null)
         .collectAsState()
 
-//    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(com.presentation.design_system.R.raw.insider_loading))
-//
-//    /* iterations = LottieConstants.IterateForever 로 무한 반복 */
-//    val progress by animateLottieCompositionAsState(
-//        composition = composition,
-//        iterations = LottieConstants.IterateForever,    // ★ 핵심
-//        isPlaying = true,                               // 기본값 true 지만 명시해 두면 헷갈리지 않음
-//        speed = 1f
-//    )
-
     LaunchedEffect(Unit) {
         viewModel.handleAction(OnAppear)
     }
@@ -71,7 +70,8 @@ fun ModifyUserScene(
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
             when (event) {
-                ModifyUserUIEvent.Pop -> { navController.popBackStack() }
+                is ModifyUserUIEvent.ShowAlert -> { alertError = event.error }
+                is ModifyUserUIEvent.ShowSuccessAlert -> { successMessage = event.message }
             }
         }
     }
@@ -87,6 +87,19 @@ fun ModifyUserScene(
         savedStateHandle["selectedLegalDistrictInfo"] = null
         savedStateHandle["selectedMode"] = null
     }
+
+    BindSuccessAlert(
+        message = successMessage,
+        completion = {
+            successMessage = null
+            navController.popBackStack()
+        }
+    )
+
+    BindErrorAlert(
+        error = alertError,
+        completion = { alertError = null }
+    )
 
     Box(
     ) {
@@ -128,12 +141,7 @@ fun ModifyUserScene(
             )
         }
 
-//        LottieAnimation(
-//            composition = composition,
-//            progress = { progress },
-//            modifier = Modifier.fillMaxSize()
-//                .align(Alignment.Center)
-//        )
+        UpIndicator(isShow = uiState.isLoading, needDim = uiState.isLoading)
     }
 }
 
@@ -173,5 +181,33 @@ private fun SubmitButton(
         elevation = null
     ) {
         Text(text = "수정하기", style = Typography.body1Bold)
+    }
+}
+
+@Composable
+fun BindErrorAlert(
+    error: APIException?,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = { completion() }
+        )
+    }
+}
+
+@Composable
+fun BindSuccessAlert(
+    message: String?,
+    completion: () -> Unit
+) {
+    message?.let {
+        UpSingleButtonAlertDialog(
+            message = message,
+            style = AlertStyle.Complete,
+            onDismiss = { completion() }
+        )
     }
 }

@@ -10,9 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-data class SearchAddressUIState(
+data class ModifySearchAddressUIState(
     val query: String = "",
-    val mode: String = ""
+    val mode: String = "",
+    val needTapConsumeBox: Boolean = false
 )
 
 @HiltViewModel
@@ -21,13 +22,14 @@ class ModifySearchAddressViewModel @Inject constructor(
 ): ViewModel() {
     enum class Action {
         UpdateQueryFromSearching,
-        UpdateQueryFromLocation
+        UpdateQueryFromLocation,
+        BlockUserInteraction
     }
 
     private val townArgument = savedStateHandle.get<String>("town") ?: ""
     private val modeArgument = savedStateHandle.get<String>("mode") ?: NavConstant.Mode.MY.value
 
-    private val _uiState = MutableStateFlow(SearchAddressUIState(
+    private val _uiState = MutableStateFlow(ModifySearchAddressUIState(
         query = townArgument,
         mode = modeArgument
     ))
@@ -46,6 +48,9 @@ class ModifySearchAddressViewModel @Inject constructor(
                 val dong = region.region_3depth_name
                 val regionQuery = "$si $gu $dong"
                 _uiState.update { it.copy(query = regionQuery) }
+            }
+            Action.BlockUserInteraction -> {
+                _uiState.update { it.copy(needTapConsumeBox = true) }
             }
         }
     }

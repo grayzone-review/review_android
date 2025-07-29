@@ -53,6 +53,21 @@ fun Chat2Fill(
     )
 }
 
+@Composable
+fun ChatReviewIcon(
+    width: Dp,
+    height: Dp,
+    tint: Color = Color.Unspecified,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.chat_review),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = tint
+    )
+}
+
 
 @Composable
 fun RockClose(
@@ -267,6 +282,20 @@ fun InfoIcon(
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = tint
+    )
+}
+
+@Composable
+fun InfoIconAlert(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.info_fill_alert),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
     )
 }
 
@@ -628,6 +657,20 @@ fun AlertIcon(
 
     Icon(
         painter = painterResource(iconRes),
+        contentDescription = null,
+        modifier = modifier.size(width = width, height = height),
+        tint = Color.Unspecified
+    )
+}
+
+@Composable
+fun SignInLogo(
+    width: Dp,
+    height: Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        painter = painterResource(com.presentation.design_system.R.drawable.sign_in_logo),
         contentDescription = null,
         modifier = modifier.size(width = width, height = height),
         tint = Color.Unspecified

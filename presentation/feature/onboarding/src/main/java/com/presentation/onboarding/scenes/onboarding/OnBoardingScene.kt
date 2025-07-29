@@ -1,4 +1,4 @@
-package com.presentation.onboarding.scenes
+package com.presentation.onboarding.scenes.onboarding
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -27,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
+import com.data.storage.datastore.UpDataStoreService
 import com.example.presentation.designsystem.typography.Typography
 import com.team.common.feature_api.extension.screenHeightDp
 import com.team.common.feature_api.extension.screenWidthDp
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import kotlinx.coroutines.launch
 import preset_ui.icons.OnboardFirst
 import preset_ui.icons.OnboardSecond
@@ -64,7 +66,13 @@ fun OnBoardingScene(
 
         PagerActionButton(
             pagerState = pagerState,
-            onFinishClick = { navController.navigate("home") },
+            onFinishClick = {
+                UpDataStoreService.needOnBoardingScene = false
+                navController.navigate(NavigationRouteConstant.loginSceneRoute) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    launchSingleTop = true
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
     }

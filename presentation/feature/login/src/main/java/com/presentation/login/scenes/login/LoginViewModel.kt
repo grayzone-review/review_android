@@ -8,6 +8,8 @@ import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.usecase.UpAuthUseCase
 import com.kakao.sdk.auth.model.OAuthToken
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.ErrorAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +17,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import token_storage.TokenStoreService
 import javax.inject.Inject
 
 sealed interface LoginUIEvent {
-    data object ShowSettingAlert : LoginUIEvent
+//    data object ShowSettingAlert : LoginUIEvent
+    data object NavigateToMain: LoginUIEvent
 }
 
 data class LoginUIState(
@@ -53,24 +55,21 @@ class LoginViewModel @Inject constructor(
         when (action) {
             Action.SuccessKakaoLogin -> {
                 val oAuthToken = value as? OAuthToken ?: return
+                Log.d("오스토큰:", value.toString())
                 viewModelScope.launch {
                     try {
                         val result = upAuthUseCase.login(oAuthToken = oAuthToken.accessToken)
-                        TokenStoreService.save(loginResult = result)
-                        // TODO: Navigate To Main
-                        val savedAccess = TokenStoreService.accessToken()
-                        val savedRefresh = TokenStoreService.refreshToken()
-                        val savedIsAvailable = TokenStoreService.isAccessTokenValid()
-
-                        Log.d("값들", "${savedAccess} + ${savedRefresh} + ${savedIsAvailable} ")
-                    } catch (error: HttpException) {
-                        when (error.code()) {
-                            404 -> _uiState.update { it.copy(accessToken = oAuthToken.accessToken, shouldShowCreateAccountDialog = true) }
+                        result?.let { bindingResult -> TokenStoreService.save(loginResult = bindingResult) }
+                        Log.d("토큰값", result.toString())
+                        _event.emit(LoginUIEvent.NavigateToMain)
+                    } catch (error: APIException) {
+                        Log.d("값들실패들", oAuthToken.accessToken)
+                        if (error.action == ErrorAction.Login) {
+                            _uiState.update { it.copy(shouldShowCreateAccountDialog = true, accessToken = oAuthToken.accessToken) }
                         }
                     }
                 }
             }
-
             Action.FailedKakaoLogin -> {
                 Log.e(TAG, "카카오 로그인 실패: $value")
             }
@@ -81,9 +80,16 @@ class LoginViewModel @Inject constructor(
             Action.CompletedSignUp -> {
                 _uiState.update { it.copy(shouldShowCreateAccountDialog = false) }
                 viewModelScope.launch {
-                    val result = upAuthUseCase.login(oAuthToken = currentState.accessToken)
-                    TokenStoreService.save(loginResult = result)
-                    // TODO: Navigate To Main
+                    try {
+                        val result = upAuthUseCase.login(oAuthToken = currentState.accessToken)
+                        Log.d("토큰값", result.toString())
+                        result?.let { bindingResult -> TokenStoreService.save(loginResult = bindingResult) }
+                        _event.emit(LoginUIEvent.NavigateToMain)
+                    } catch (error: APIException) {
+                        if (error.action == ErrorAction.Login) {
+                            // TODO:
+                        }
+                    }
                 }
             }
             Action.CacheLocation -> {

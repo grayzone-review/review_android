@@ -11,7 +11,7 @@ import com.domain.repository_interface.UserRepository
 import javax.inject.Inject
 
 interface UserUseCase {
-    suspend fun userInfo(): User
+    suspend fun userInfo(): User?
     suspend fun modifyUserInfo(mainRegionID: Int, interestedRegionIds: List<Int>, nickname: String): ModifyUserInfoResult
     suspend fun resign(refreshToken: String): ResignResult
     suspend fun report(reporterName: String, targetName: String, reportType: String, description: String): ReportResult
@@ -24,7 +24,7 @@ interface UserUseCase {
 class UserUseCaseImpl @Inject constructor(
     private val userRepository: UserRepository
 ): UserUseCase {
-    override suspend fun userInfo(): User {
+    override suspend fun userInfo(): User? {
         return userRepository.userInfo()
     }
 

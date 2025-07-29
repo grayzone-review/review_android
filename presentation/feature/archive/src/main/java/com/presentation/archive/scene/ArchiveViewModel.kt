@@ -43,7 +43,7 @@ class ArchiveViewModel @Inject constructor(
             Action.OnAppear -> {
                 viewModelScope.launch {
                     val userResult = userUseCase.userInfo()
-                    _uiState.update { it.copy(user = userResult) }
+                    userResult?.let { bindingResult -> _uiState.update { it.copy(user = bindingResult) } }
 
                     val result = userUseCase.myInteractionCounts()
                     val stats = listOf(

@@ -2,12 +2,15 @@ package com.feature.comments.scene
 
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
 import com.feature.comments.scene.contents.TagButtonType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 enum class SearchPhase {
@@ -19,6 +22,7 @@ enum class SearchPhase {
 data class SearchUIState(
     val searchBarValue: TextFieldValue = TextFieldValue(""),
     val hasFocus: Boolean = false,
+    val isShowSettingAlertDialog: Boolean = false,
     val phase: SearchPhase = SearchPhase.Before,
     val selectedTagButtonType: TagButtonType? = null
 )
@@ -26,12 +30,15 @@ data class SearchUIState(
 @HiltViewModel
 class SearchViewModel @Inject constructor() : ViewModel() {
     enum class SearchInterfaceAction {
+        CacheLocation,
         DidUpdateSearchBarValue,
         DidFocusSearchBar,
         DidUnFocusSearchBar,
         DidTapClearButton,
         DidTapCancelButton,
-        DidTapIMEDone
+        DidTapIMEDone,
+        ShowSettingAlert,
+        DismissSettingAlert
     }
     enum class ContentAction {
         DidTapRecentQueryButton,
@@ -43,6 +50,13 @@ class SearchViewModel @Inject constructor() : ViewModel() {
 
     fun handleAction(searchInterfaceAction: SearchInterfaceAction, value: Any? = null) {
         when (searchInterfaceAction) {
+            SearchInterfaceAction.CacheLocation -> {
+                viewModelScope.launch {
+                    UpLocationService.fetchCurrentLocation()?.let { (lat, lon) ->
+                        UpDataStoreService.lastKnownLocation = "$lat,$lon"
+                    }
+                }
+            }
             SearchInterfaceAction.DidUpdateSearchBarValue -> {
                 val newQuery = value as? String ?: return
                 _searchUISate.update { it.copy(searchBarValue = TextFieldValue(text = newQuery)) }
@@ -78,9 +92,14 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 }
             }
             SearchInterfaceAction.DidTapIMEDone -> {
-                val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
-                queries.add(index = 0, element = searchUIState.value.searchBarValue.text)
+                val newQuery = searchUIState.value.searchBarValue.text
+                val queries = UpDataStoreService.recentQueries
+                    .split(",")
+                    .filter { it.isNotBlank() && it != newQuery }
+                    .toMutableList()
+                queries.add(0, newQuery)
                 UpDataStoreService.recentQueries = queries.joinToString(",")
+
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
@@ -88,6 +107,12 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                         phase = SearchPhase.After
                     )
                 }
+            }
+            SearchInterfaceAction.ShowSettingAlert -> {
+                _searchUISate.update { it.copy(isShowSettingAlertDialog = true) }
+            }
+            SearchInterfaceAction.DismissSettingAlert -> {
+                _searchUISate.update { it.copy(isShowSettingAlertDialog = false) }
             }
         }
     }

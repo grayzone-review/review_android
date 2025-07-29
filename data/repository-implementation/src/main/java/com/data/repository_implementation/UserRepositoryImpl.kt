@@ -13,14 +13,17 @@ import com.domain.entity.ReportResult
 import com.domain.entity.ResignResult
 import com.domain.entity.User
 import com.domain.repository_interface.UserRepository
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.toErrorAction
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
     private val upAPIService: UpAPIService
 ): UserRepository {
-    override suspend fun userInfo(): User {
+    override suspend fun userInfo(): User? {
         val responseDTO = upAPIService.userInfo()
-        return responseDTO.data?.toDomain()!!
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun modifyUserInfo(
@@ -30,6 +33,7 @@ class UserRepositoryImpl @Inject constructor(
     ): ModifyUserInfoResult {
         val requestDTO = ModifyUserRequestModel(mainRegionId = mainRegionID, interestedRegionIds = interestedRegionIds, nickname = nickname)
         val responseDTO = upAPIService.modifyUserInfo(requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return ModifyUserInfoResult(success = responseDTO.success, message = responseDTO.message)
     }
 
@@ -38,6 +42,7 @@ class UserRepositoryImpl @Inject constructor(
     ): ResignResult {
         val requestDTO = ResignRequestModel(refreshToken = refreshToken)
         val responseDTO = upAPIService.resign(requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return ResignResult(success = responseDTO.success, message = responseDTO.message)
     }
 
@@ -49,6 +54,7 @@ class UserRepositoryImpl @Inject constructor(
     ): ReportResult {
         val requestDTO = ReportRequestModel(reporterName = reporterName, targetName = targetName, reportType = reportType, description = description)
         val responseDTO = upAPIService.report(requestModel = requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return ReportResult(success = responseDTO.success, message = responseDTO.message)
     }
 

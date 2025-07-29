@@ -1,5 +1,6 @@
 package address_finder
 
+import GpsSettingChecker
 import address_finder.AddressFinderViewModel.Action.DismissSettingAlert
 import address_finder.AddressFinderViewModel.Action.FindMyLocation
 import address_finder.AddressFinderViewModel.Action.ShoudShowSettingAlert
@@ -65,6 +66,7 @@ fun AddressFinder(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    GpsSettingChecker()
     LaunchedEffect(query) { viewModel.handleAction(UpdateAddressesFromChangingQuery, query) }
     LaunchedEffect(Unit) {
         viewModel.event.collect { locationEvent ->
@@ -171,7 +173,7 @@ fun AddressBulletItem(
         Text(text = "•", style = selectFont, color = selectColor, modifier = Modifier
             .padding(end = 8.dp)
         )
-        Text(text = "${index}" + legalDistrict.name, style = selectFont, color = selectColor, modifier = Modifier
+        Text(text = legalDistrict.name, style = selectFont, color = selectColor, modifier = Modifier
             .weight(1f)
         )
 

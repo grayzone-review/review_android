@@ -15,6 +15,8 @@ import com.domain.entity.SignUpResult
 import com.domain.entity.Terms
 import com.domain.entity.VerifyNickNameResult
 import com.domain.repository_interface.UpAuthRepository
+import com.team.common.feature_api.error.APIException
+import com.team.common.feature_api.error.toErrorAction
 import javax.inject.Inject
 
 class UpAuthRepositoryImpl @Inject constructor(
@@ -22,10 +24,11 @@ class UpAuthRepositoryImpl @Inject constructor(
 ): UpAuthRepository {
     override suspend fun login(
         oAuthToken: String
-    ): LoginResult {
+    ): LoginResult? {
         val requestModel = AuthLoginRequestModel(oauthToken = oAuthToken)
         val responseDTO = upAuthService.login(body = requestModel)
-        return responseDTO.data?.toDomain()!!
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun signUp(
@@ -43,6 +46,7 @@ class UpAuthRepositoryImpl @Inject constructor(
             agreements = agreements.map { it.name }
         )
         val responseDTO = upAuthService.signUp(requestDTO)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
         return SignUpResult(message = responseDTO.message, success = responseDTO.success)
     }
 
@@ -73,7 +77,8 @@ class UpAuthRepositoryImpl @Inject constructor(
     ): ReissueResult {
         val requestDTO = ReissueRequestModel(refreshToken = refreshToken)
         val responseDTO = upAuthService.reissueToken(body = requestDTO)
-        return ReissueResult(accessToken = responseDTO.data?.accessToken!!, refreshToken = responseDTO.data?.refreshToken!!)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return ReissueResult(accessToken = responseDTO.data?.accessToken ?: "", refreshToken = responseDTO.data?.refreshToken ?: "")
     }
 
 }

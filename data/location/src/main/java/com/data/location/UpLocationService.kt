@@ -12,6 +12,8 @@ import kotlin.coroutines.cancellation.CancellationException
 object UpLocationService {
     private lateinit var appContext: Context
 
+    val DEFAULT_SEOUL_TOWNHALL: Pair<Double, Double> = 37.566535 to 126.9779692
+
     fun init(context: Context) {
         appContext = context.applicationContext
     }

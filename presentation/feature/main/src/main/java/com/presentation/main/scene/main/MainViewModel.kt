@@ -2,11 +2,13 @@ package com.presentation.main.scene.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
 import com.domain.usecase.ReviewUseCase
 import com.domain.usecase.UserUseCase
+import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +19,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 sealed interface MainUIEvent {
-    data object ShowSettingAlert : MainUIEvent
+    data class ShowAlert(val error: APIException? = null) : MainUIEvent
 }
 
 data class MainUIState(
@@ -39,7 +40,7 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     enum class Action {
         OnAppear,
-        GetFeeds,
+        CacheLocationAndGetFeeds,
         ShowSettingAlert,
         DismissSettingAlert,
         ShowCreateReviewSheet,
@@ -56,21 +57,37 @@ class MainViewModel @Inject constructor(
             Action.OnAppear -> {
                 viewModelScope.launch {
                     val result = userUseCase.userInfo()
-                    _uiState.update { it.copy(user = result) }
+                    result?.let { _uiState.update { it.copy(user = result) } }
                 }
             }
-            Action.GetFeeds -> {
+            Action.CacheLocationAndGetFeeds -> {
                 viewModelScope.launch {
-                    val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
-                    val popularFeeds = reviewUseCase.popularReviewFeeds(latitude = latitude, longitude = longitude)
-                    val myTownFeeds = reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude)
-                    val interestRegionsFeeds = reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude)
-                    _uiState.update {
-                        it.copy(
-                            popularFeeds = popularFeeds,
-                            myTownFeeds = myTownFeeds,
-                            interestRegionsFeeds = interestRegionsFeeds
-                        )
+                    val gps = UpLocationService.fetchCurrentLocation()?.also { (lat, lon) ->
+                        UpDataStoreService.lastKnownLocation = "$lat,$lon"
+                    }
+
+                    val (latitude, longitude) = gps ?:
+                    runCatching {
+                        UpDataStoreService.lastKnownLocation
+                            .split(',')
+                            .map { it.toDouble() }
+                            .let { it[0] to it[1] }
+                    }.getOrElse { UpLocationService.DEFAULT_SEOUL_TOWNHALL }
+
+                    try {
+                        val popular = reviewUseCase.popularReviewFeeds(latitude, longitude, page = 0)
+                        val myTown = reviewUseCase.myTownReviewFeeds(latitude, longitude, page = 0)
+                        val interest = reviewUseCase.interestRegionsReviewFeeds(latitude, longitude, page = 0)
+
+                        _uiState.update {
+                            it.copy(
+                                popularFeeds = popular?.reviewFeeds.orEmpty(),
+                                myTownFeeds = myTown?.reviewFeeds.orEmpty(),
+                                interestRegionsFeeds = interest?.reviewFeeds.orEmpty()
+                            )
+                        }
+                    } catch (e: APIException) {
+                        _event.emit(MainUIEvent.ShowAlert(e))
                     }
                 }
             }

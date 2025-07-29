@@ -4,9 +4,12 @@ import com.domain.entity.CompactCompany
 import com.domain.entity.Ratings
 import com.domain.entity.Review
 import com.domain.entity.ReviewFeed
+import com.domain.entity.ReviewFeeds
 
 data class ReviewFeedResponseDTO(
     val reviews: List<ReviewFeedItemDTO>,
+    val hasNext: Boolean,
+    val currentPage: Int
 )
 
 data class ReviewFeedItemDTO(
@@ -48,8 +51,12 @@ data class ReviewFeedCompactCompanyDTO(
     val following: Boolean,
 )
 
-fun ReviewFeedResponseDTO.toDomain(): List<ReviewFeed> {
-    return reviews.map { it.toDomain() }
+fun ReviewFeedResponseDTO.toDomain(): ReviewFeeds {
+    return ReviewFeeds(
+        reviewFeeds = reviews.map { it.toDomain() } ,
+        hasNext = hasNext,
+        currentPage = currentPage
+    )
 }
 
 private fun ReviewFeedItemDTO.toDomain(): ReviewFeed {

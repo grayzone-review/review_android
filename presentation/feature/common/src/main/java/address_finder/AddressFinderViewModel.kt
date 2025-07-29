@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.data.location.UpLocationService
+import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.LegalDistrictInfo
 import com.domain.entity.Region
 import com.domain.usecase.KakaoMapUseCase
@@ -101,10 +102,26 @@ class AddressFinderViewModel @Inject constructor(
             }
             Action.FindMyLocation -> {
                 viewModelScope.launch {
-                    val (latitude, longitude) = UpLocationService.fetchCurrentLocation() ?: return@launch
-                    val reverseGeocodingRegions = kakaoMapUseCase.reverseGeocoding(xLongitude = longitude, yLatitude = latitude)
-                    val region = reverseGeocodingRegions.regions.first()
-                    _event.emit(LocationEvent.RegionFound(region = region))
+                    /* 현위치 뽑아 오기 */
+                    val gps = UpLocationService.fetchCurrentLocation()
+                    /* 캐시저장 */
+                    gps?.let { (lat, lon) -> UpDataStoreService.lastKnownLocation = "$lat,$lon" }
+
+                    val (latitude, longitude) = gps ?:
+                    // 대안 (1) - 최근 위치
+                    runCatching {
+                        UpDataStoreService.lastKnownLocation
+                            .split(',')
+                            .map { it.toDouble() }
+                            .let { it[0] to it[1] }
+                    }.getOrElse {
+                        // 대안 (2) - 서울 시청
+                        UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                    }
+                    // 카카오 리버스 지오코딩
+                    val region = kakaoMapUseCase.reverseGeocoding(xLongitude = longitude, yLatitude = latitude)
+                        .regions.firstOrNull() ?: return@launch
+                    _event.emit(LocationEvent.RegionFound(region))
                 }
             }
             Action.ShoudShowSettingAlert -> {

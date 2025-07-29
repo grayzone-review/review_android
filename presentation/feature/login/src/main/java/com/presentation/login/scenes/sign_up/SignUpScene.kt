@@ -20,6 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -33,14 +36,17 @@ import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.AddInterestTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckBox
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapCheckDuplicateButton
-import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapDetailButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapRemoveInterestTownButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.DidTapSubmitButton
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.GetTerms
+import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.SetAccessToken
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.SetMyTown
 import com.presentation.login.scenes.sign_up.SignUpViewModel.Action.UpdateNickNameTextField
 import com.presentation.login.scenes.sign_up.navgraph.NavConstant
+import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.extension.addFocusCleaner
+import common_ui.AlertStyle
+import common_ui.UpSingleButtonAlertDialog
 import edit_profile_address_component.InterestInput
 import edit_profile_address_component.MyTownInput
 import edit_profile_address_component.NicknameInput
@@ -57,6 +63,8 @@ fun SignUpScene(
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var alertError by remember { mutableStateOf<APIException?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     val savedStateHandle = navHostController.currentBackStackEntry!!.savedStateHandle
@@ -68,13 +76,36 @@ fun SignUpScene(
         .collectAsState()
 
     LaunchedEffect(accessToken) {
-        viewModel.handleAction(SignUpViewModel.Action.SetAccessToken, accessToken)
+        viewModel.handleAction(SetAccessToken, accessToken)
     }
+
     LaunchedEffect(uiState.terms.isEmpty()) {
         if (uiState.terms.isEmpty()) {
             viewModel.handleAction(GetTerms)
         }
     }
+
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                is SignUpUIEvent.ShowAlert -> { alertError = event.error }
+                is SignUpUIEvent.ShowSuccessAlert -> { successMessage = event.message }
+            }
+        }
+    }
+
+    BindSuccessAlert(
+        message = successMessage,
+        completion = {
+            successMessage = null
+            onSubmitCompleted()
+        }
+    )
+
+    BindErrorAlert(
+        error = alertError,
+        completion = { alertError = null }
+    )
 
     LaunchedEffect(selectedAddress, mode) {
         val selectedLegalDistrict = selectedAddress ?: return@LaunchedEffect
@@ -123,7 +154,9 @@ fun SignUpScene(
             TermsSection(
                 terms = uiState.terms,
                 onCheckBoxClick = { viewModel.handleAction(DidTapCheckBox, it) },
-                onDetailClick = { viewModel.handleAction(DidTapDetailButton, it) },
+                onDetailClick = { navHostController.navigate(
+                    NavConstant.destTermsDetail(url = "www.naver.com"))
+                },
             )
         }
         SubmitButton(
@@ -150,7 +183,7 @@ fun TermsSection(
             label = "약관 전체 동의",
             code = TermCode.ALL,
             onCheckboxClick = { onCheckBoxClick(TermCode.ALL) },
-            onDetailClick = {}
+            onDetailClick = { onDetailClick(it) }
         )
 
         HorizontalDivider(
@@ -254,5 +287,33 @@ private fun SubmitButton(
         elevation = null
     ) {
         Text(text = "가입하기", style = Typography.body1Bold)
+    }
+}
+
+@Composable
+fun BindErrorAlert(
+    error: APIException?,
+    completion: () -> Unit
+) {
+    error?.let {
+        UpSingleButtonAlertDialog(
+            message = it.message,
+            style = AlertStyle.Error,
+            onDismiss = { completion() }
+        )
+    }
+}
+
+@Composable
+fun BindSuccessAlert(
+    message: String?,
+    completion: () -> Unit
+) {
+    message?.let {
+        UpSingleButtonAlertDialog(
+            message = message,
+            style = AlertStyle.Complete,
+            onDismiss = { completion() }
+        )
     }
 }

@@ -3,6 +3,8 @@
 
     <!-- 공통 속성을 담은 베이스 테마 -->
     <style name="Base.Theme.ReviewAndroid" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- 기본 스플래시 투명 처리 -->
+        <item name="android:windowIsTranslucent">true</item>
         <!-- 상태바 배경색 -->
         <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>

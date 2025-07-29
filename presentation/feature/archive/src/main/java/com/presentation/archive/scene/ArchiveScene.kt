@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -255,13 +256,51 @@ private fun ReviewCard(
             Spacer(Modifier.height(8.dp))
             /* ───── 상호 · 직무 · 날짜 ───── */
             Row(
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = review.companyName, style = Typography.captionRegular, color = CS.Gray.G50)
-                Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
-                Text(text = review.jobRole, style = Typography.captionRegular, color = CS.Gray.G50)
-                Spacer(modifier = Modifier.width(1.dp).height(18.dp).background(CS.Gray.G20))
+                // 업체명 ─ 말줄임 + 남는 폭 안 차지
+                Text(
+                    text = review.companyName,
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .widthIn(max = 120.dp),
+                    style = Typography.captionRegular,
+                    color = CS.Gray.G50,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false
+                )
+
+                Spacer(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(18.dp)
+                        .background(CS.Gray.G20)
+                )
+
+                // 직무명 ─ 동일 처리
+                Text(
+                    text = review.jobRole,
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .widthIn(max = 120.dp),
+                    style = Typography.captionRegular,
+                    color = CS.Gray.G50,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false
+                )
+
+                Spacer(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(18.dp)
+                        .background(CS.Gray.G20)
+                )
+
+                // 작성일 ─ 고정 폭
                 Text(
                     text = review.createdAt?.substring(0, 7)?.replace("-", ".") + " 작성",
                     style = Typography.captionRegular,

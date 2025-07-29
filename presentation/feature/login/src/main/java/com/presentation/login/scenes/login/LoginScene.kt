@@ -1,7 +1,13 @@
 package com.presentation.login.scenes.login
 
+import GpsSettingChecker
+import android.app.Activity
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,10 +17,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +33,7 @@ import com.data.location.UpLocationService
 import com.example.presentation.designsystem.typography.Typography
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
@@ -38,10 +46,12 @@ import com.presentation.login.scenes.login.LoginViewModel.Action.ShowSettingAler
 import com.presentation.login.scenes.login.LoginViewModel.Action.SuccessKakaoLogin
 import com.presentation.login.scenes.sign_up.SignUpRootDialog
 import com.team.common.feature_api.extension.openAppSettings
+import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import com.team.common.feature_api.utility.Utility
 import common_ui.UpAlertIconDialog
 import preset_ui.icons.KakaoBubble
 import preset_ui.icons.MapPinTintable
+import preset_ui.icons.SignInLogo
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -50,11 +60,27 @@ fun LoginScene(
     navController: NavController
 ) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val uiState by viewModel.uiState.collectAsState()
     val permissionState = rememberMultiplePermissionsState(
         UpLocationService.locationPermissions.toList()
     )
-    val scope = rememberCoroutineScope()
+    val systemUiController= rememberSystemUiController()
+    val statusBarColor= CS.PrimaryOrange.O40
+
+    BackHandler {
+        activity?.finishAffinity()
+    }
+
+    GpsSettingChecker()
+
+    SideEffect {
+        systemUiController.setStatusBarColor(color = statusBarColor, darkIcons = false)
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { systemUiController.setStatusBarColor(color = CS.Gray.White, darkIcons = true) }
+    }
 
     LaunchedEffect(permissionState.allPermissionsGranted) {
         when {
@@ -68,10 +94,27 @@ fun LoginScene(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.event.collect { event ->
+            when (event) {
+                LoginUIEvent.NavigateToMain -> {
+                    navController.navigate(NavigationRouteConstant.mainNestedRoute) {
+                        popUpTo(NavigationRouteConstant.loginNestedRoute) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+
+            }
+        }
+    }
+
     SettingDialog(
-        isShow = uiState.shouldShowCreateAccountDialog,
-        onConfirm = { context.openAppSettings() },
-        onCancel = { viewModel.handleAction(DismissSettingAlert)}
+        isShow = uiState.shouldShowSettingAlert,
+        onConfirm = {
+            viewModel.handleAction(DismissSettingAlert)
+            context.openAppSettings()
+        },
+        onCancel = { viewModel.handleAction(DismissSettingAlert) }
     )
 
     ResisterCreateAccountDialog(
@@ -81,10 +124,14 @@ fun LoginScene(
         onSubmitCompleted = { viewModel.handleAction(CompletedSignUp) }
     )
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(CS.PrimaryOrange.O40)
     ) {
-        Spacer(Modifier.weight(1f))
+        LogoAndTitle(
+            modifier = Modifier.align(Alignment.Center)
+        )
         KakaoLoginButton(
             onClick =  {
                 if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
@@ -112,19 +159,42 @@ fun LoginScene(
                         }
                     }
                 }
-            }
+            },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 20.dp)
         )
     }
 }
 
 @Composable
+private fun LogoAndTitle(
+    modifier: Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        SignInLogo(64.dp, 64.dp)
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "현직자들이 말하는\n" + "소규모 사업장 리뷰",
+            style = Typography.h1,
+            color = CS.Gray.White
+        )
+    }
+}
+
+
+@Composable
 fun KakaoLoginButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier
 ) {
     val kakaoYellow = Utility.hexToColor(hex = "#FEE500")
     val kakaoBrown = Utility.hexToColor(hex = "#3D1D1C")
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .padding(bottom = 20.dp)
