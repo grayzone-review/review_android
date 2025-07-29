@@ -110,8 +110,11 @@ fun LoginScene(
 
     SettingDialog(
         isShow = uiState.shouldShowSettingAlert,
-        onConfirm = { context.openAppSettings() },
-        onCancel = { viewModel.handleAction(DismissSettingAlert)}
+        onConfirm = {
+            viewModel.handleAction(DismissSettingAlert)
+            context.openAppSettings()
+        },
+        onCancel = { viewModel.handleAction(DismissSettingAlert) }
     )
 
     ResisterCreateAccountDialog(

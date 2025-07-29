@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":presentation:design-system"))
     implementation(project(":domain:usecase"))
     implementation(project(":data:location"))
+    implementation(project(":data:storage"))
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(Deps.coroutinesPlayServices)

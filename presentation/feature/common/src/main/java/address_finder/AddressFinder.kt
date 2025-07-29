@@ -1,5 +1,6 @@
 package address_finder
 
+import GpsSettingChecker
 import address_finder.AddressFinderViewModel.Action.DismissSettingAlert
 import address_finder.AddressFinderViewModel.Action.FindMyLocation
 import address_finder.AddressFinderViewModel.Action.ShoudShowSettingAlert
@@ -65,6 +66,7 @@ fun AddressFinder(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    GpsSettingChecker()
     LaunchedEffect(query) { viewModel.handleAction(UpdateAddressesFromChangingQuery, query) }
     LaunchedEffect(Unit) {
         viewModel.event.collect { locationEvent ->

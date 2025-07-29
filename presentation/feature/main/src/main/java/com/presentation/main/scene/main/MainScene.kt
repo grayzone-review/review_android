@@ -1,5 +1,6 @@
 package com.presentation.main.scene.main
 
+import GpsSettingChecker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -107,6 +108,7 @@ fun MainScene(
         }
     }
 
+    GpsSettingChecker()
     LaunchedEffect(permissionState.allPermissionsGranted) {
         when {
             permissionState.allPermissionsGranted -> {
@@ -133,7 +135,10 @@ fun MainScene(
     SettingDialog(
         isShow = uiState.isShowSettingAlertDialog,
         onConfirm = { context.openAppSettings() },
-        onCancel = { viewModel.handleAction(DismissSettingAlert)}
+        onCancel = {
+            viewModel.handleAction(DismissSettingAlert)
+            viewModel.handleAction(GetFeeds)
+        }
     )
     
     Box(
