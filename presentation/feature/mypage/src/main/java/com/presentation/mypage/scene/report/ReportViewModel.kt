@@ -52,7 +52,7 @@ class ReportViewModel @Inject constructor(
             Action.OnAppear -> {
                 viewModelScope.launch {
                     val result = userUseCase.userInfo()
-                    _uiState.update { it.copy(user = result) }
+                    result?.let { bindingResult -> _uiState.update { it.copy(user = bindingResult) } }
                 }
             }
             Action.UpdateSelectReason -> {

@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":presentation:feature:common"))
     implementation(project(":presentation:design-system"))
     implementation(project(":data:location"))
+    implementation(project(":data:storage"))
 
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)

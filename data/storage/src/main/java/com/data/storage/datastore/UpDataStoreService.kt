@@ -34,4 +34,12 @@ object UpDataStoreService {
         set(value) = runBlocking {
             UpDataStore.write(appContext, UpDataStoreKey.LastKnownLocation, value)
         }
+
+    var needOnBoardingScene: Boolean
+        get() = runBlocking {
+            UpDataStore.read(appContext, UpDataStoreKey.NeedOnBoardingScene, true).first()
+        }
+        set(value) = runBlocking {
+            UpDataStore.write(appContext, UpDataStoreKey.NeedOnBoardingScene, value)
+        }
 }

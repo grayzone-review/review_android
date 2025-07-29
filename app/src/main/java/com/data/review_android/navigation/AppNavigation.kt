@@ -12,7 +12,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRouteConstant.loginNestedRoute
+        startDestination = NavigationRouteConstant.onboardingNestedRoute
     ) {
         navigationProvider.mainAPI.registerGraph(navController, this)
         navigationProvider.companyDetailAPI.registerGraph(navController, this)

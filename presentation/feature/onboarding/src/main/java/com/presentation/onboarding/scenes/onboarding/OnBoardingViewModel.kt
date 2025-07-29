@@ -1,4 +1,4 @@
-package com.presentation.onboarding.scenes
+package com.presentation.onboarding.scenes.onboarding
 
 import androidx.lifecycle.ViewModel
 import com.domain.usecase.ReviewUseCase

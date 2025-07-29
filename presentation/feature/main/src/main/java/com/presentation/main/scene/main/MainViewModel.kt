@@ -56,7 +56,7 @@ class MainViewModel @Inject constructor(
             Action.OnAppear -> {
                 viewModelScope.launch {
                     val result = userUseCase.userInfo()
-                    _uiState.update { it.copy(user = result) }
+                    result?.let { _uiState.update { it.copy(user = result) } }
                 }
             }
             Action.GetFeeds -> {

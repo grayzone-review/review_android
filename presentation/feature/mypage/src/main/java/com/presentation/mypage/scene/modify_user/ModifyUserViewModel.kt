@@ -57,18 +57,20 @@ class ModifyUserViewModel @Inject constructor(
                 if (currentState.nickNameField.value.isNotEmpty()) return
                 viewModelScope.launch {
                     val result = userUseCase.userInfo()
-                    val userNickNameField = NickNameField(
-                        value = result.nickname ?: "",
-                        fieldState = FieldState.ServerSuccess,
-                        errorMessage = ""
-                    )
-                    _uiState.update {
-                        it.copy(
-                            nickNameField = userNickNameField,
-                            myTown = result.mainRegion,
-                            interestTowns = result.interestedRegions ?: emptyList(),
-                            isSubmitEnabled = true
+                    result?.let { bindingResult ->
+                        val userNickNameField = NickNameField(
+                            value = bindingResult.nickname ?: "",
+                            fieldState = FieldState.ServerSuccess,
+                            errorMessage = ""
                         )
+                        _uiState.update {
+                            it.copy(
+                                nickNameField = userNickNameField,
+                                myTown = bindingResult.mainRegion,
+                                interestTowns = bindingResult.interestedRegions ?: emptyList(),
+                                isSubmitEnabled = true
+                            )
+                        }
                     }
                 }
             }

@@ -16,7 +16,6 @@ object TokenRefresher {
             val responseDTO = upAuthService.reissueToken(body = requestDTO)
             val data = responseDTO.data ?: throw IllegalStateException("ERROR: 토큰 재발급 실패 failed")
 
-            // ② LoginResult 생성(만료시간은 사용하지 않아 0으로 고정)
             val loginResult = LoginResult(
                 accessToken = data.accessToken,
                 refreshToken = data.refreshToken,

@@ -77,7 +77,8 @@ class UpAuthRepositoryImpl @Inject constructor(
     ): ReissueResult {
         val requestDTO = ReissueRequestModel(refreshToken = refreshToken)
         val responseDTO = upAuthService.reissueToken(body = requestDTO)
-        return ReissueResult(accessToken = responseDTO.data?.accessToken!!, refreshToken = responseDTO.data?.refreshToken!!)
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return ReissueResult(accessToken = responseDTO.data?.accessToken ?: "", refreshToken = responseDTO.data?.refreshToken ?: "")
     }
 
 }

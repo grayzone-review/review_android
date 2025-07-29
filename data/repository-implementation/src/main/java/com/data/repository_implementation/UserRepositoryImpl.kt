@@ -20,9 +20,10 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val upAPIService: UpAPIService
 ): UserRepository {
-    override suspend fun userInfo(): User {
+    override suspend fun userInfo(): User? {
         val responseDTO = upAPIService.userInfo()
-        return responseDTO.data?.toDomain()!!
+        responseDTO.code?.let { throw APIException(action = it.toErrorAction(), message = responseDTO.message) }
+        return responseDTO.data?.toDomain()
     }
 
     override suspend fun modifyUserInfo(

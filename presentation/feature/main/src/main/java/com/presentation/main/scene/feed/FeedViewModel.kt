@@ -68,9 +68,10 @@ class FeedViewModel @Inject constructor(
             Action.OnAppear -> {
                 val (latitude, longitude) = UpDataStoreService.lastKnownLocation.split(",").map { it.toDouble() }
                 viewModelScope.launch {
-                    val userResult = userUseCase.userInfo()
-                    _uiState.update { it.copy(user = userResult) }
                     try {
+                        val userResult = userUseCase.userInfo()
+                        userResult?.let { bindingResult -> _uiState.update { it.copy(user = bindingResult) } }
+
                         val feedsResult = when (section) {
                             NavConstant.Section.MyTown.value -> reviewUseCase.myTownReviewFeeds(latitude = latitude, longitude = longitude, page = 0)
                             NavConstant.Section.InterestRegions.value -> reviewUseCase.interestRegionsReviewFeeds(latitude = latitude, longitude = longitude, page = 0)

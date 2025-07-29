@@ -106,7 +106,7 @@ fun LoginScene(
     }
 
     SettingDialog(
-        isShow = uiState.shouldShowCreateAccountDialog,
+        isShow = uiState.shouldShowSettingAlert,
         onConfirm = { context.openAppSettings() },
         onCancel = { viewModel.handleAction(DismissSettingAlert)}
     )
