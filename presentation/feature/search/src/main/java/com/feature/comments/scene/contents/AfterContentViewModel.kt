@@ -2,6 +2,7 @@ package com.feature.comments.scene.contents
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.CompactCompany
 import com.domain.usecase.CompanyDetailUseCase
@@ -44,9 +45,15 @@ class AfterContentViewModel @Inject constructor(
             Action.DidUpdateSearchQuery -> {
                 val query = (value as? String)?.trim() ?: return
                 if (query.isBlank()) { clearSearchResults(); return }
-                val (lat, lng) = UpDataStoreService.lastKnownLocation
-                    .split(",")
-                    .map(String::toDouble)
+                val (lat, lng) = runCatching {
+                    UpDataStoreService.lastKnownLocation
+                        .split(',')
+                        .map { it.toDouble() }
+                        .let { it[0] to it[1] }
+                }.getOrElse {
+                    UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                }
+
                 val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true, error = null) }
