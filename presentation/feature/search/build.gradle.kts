@@ -45,6 +45,7 @@ dependencies {
     implementation(project(":data:storage"))
     implementation(project(":domain:usecase"))
     implementation(project(":data:location"))
+    implementation(project(":presentation:feature:common"))
 
     implementation(Location.permission)
     implementation(Location.gmsLocationService)

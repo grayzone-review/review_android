@@ -89,8 +89,7 @@ fun MainScene(
     navController: NavHostController,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val permissionState =
-        rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
+    val permissionState = rememberMultiplePermissionsState(UpLocationService.locationPermissions.toList())
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()

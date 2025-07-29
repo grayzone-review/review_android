@@ -2,9 +2,10 @@ package com.feature.comments.scene.contents
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
-import com.domain.entity.Company
 import com.domain.entity.CompactCompany
+import com.domain.entity.Company
 import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.SearchCompaniesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,18 +35,38 @@ class SearchingContentViewModel @Inject constructor(
 
     private val _recentCompanies = MutableStateFlow<List<Company>>(emptyList())
     val recentCompany: StateFlow<List<Company>> = _recentCompanies.asStateFlow()
-
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
 
     fun handleAction(action: Action, text: String? = null, compactCompany: CompactCompany? = null, recentCompany: Company? = null) {
         when (action) {
             Action.DidUpdateSearchBarValue -> {
-                text?.let {
-                    searchCompanies(query = it)
+                if (_isLoading.value) return
+                text?.let { query ->
+                    if (query.isBlank()) {
+                        _autocompletedCompanies.value = emptyList()
+                        return@let
+                    }
+                    viewModelScope.launch {
+                        _isLoading.value = true
+
+                        val (latitude, longitude) = runCatching {
+                            UpDataStoreService.lastKnownLocation
+                                .split(',')
+                                .map { it.toDouble() }
+                                .let { it[0] to it[1] }
+                        }.getOrElse {
+                            UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                        }
+                        val result = searchCompaniesUseCase.searchCompanies(
+                            keyword = query,
+                            latitude = latitude,
+                            longitude = longitude,
+                            size = 20,
+                            page = 0
+                        )
+                        _autocompletedCompanies.value = result.companies
+                        _isLoading.value = false
+                    }
                 }
             }
             Action.LoadRecentCompanies -> {
@@ -102,38 +123,5 @@ class SearchingContentViewModel @Inject constructor(
             val companies = results.filterNotNull()
             _recentCompanies.value = companies
         }
-    }
-
-    private fun searchCompanies(query: String) {
-        if (query.isBlank()) {
-            clearSearchResults()
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                _error.value = null
-                
-                val result = searchCompaniesUseCase.searchCompanies(
-                    keyword = query,
-                    latitude = 37.5665,
-                    longitude = 126.9780,
-                    size = 20,
-                    page = 0
-                )
-                
-                _autocompletedCompanies.value = result.companies
-            } catch (e: Exception) {
-                _error.value = e.message ?: "검색 중 오류가 발생했습니다."
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    private fun clearSearchResults() {
-        _autocompletedCompanies.value = emptyList()
-        _error.value = null
     }
 } 
