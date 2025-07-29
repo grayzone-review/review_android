@@ -2,6 +2,8 @@ package create_review_dialog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.data.location.UpLocationService
+import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.CompactCompany
 import com.domain.entity.Ratings
 import com.domain.usecase.ReviewUseCase
@@ -157,10 +159,32 @@ class CreateReviewDialogViewModel @Inject constructor(
             }
             Action.UpdateSearchQuery -> {
                 val query = value as? String ?: return
-                _uiState.update {
-                    it.copy(searchTextFieldValue = query)
+                _uiState.update { it.copy(searchTextFieldValue = query)}
+                viewModelScope.launch {
+                    if (query.isBlank()) {
+                        clearSearchResults()
+                        return@launch
+                    }
+
+                    val (lat, lng) = runCatching {
+                        UpDataStoreService.lastKnownLocation
+                            .split(',')
+                            .map { it.toDouble() }
+                            .let { it[0] to it[1] }
+                    }.getOrElse {
+                        UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                    }
+
+                    val result = searchCompaniesUseCase.searchCompanies(
+                        keyword = query,
+                        latitude = lat,
+                        longitude = lng,
+                        size = 20,
+                        page = 0
+                    )
+                    _uiState.update { it.copy(searchedCompanies = result.companies) }
                 }
-                searchCompanies(query = query)
+
             }
             Action.UpdateCompany -> {
                 val newCompany = value as? CompactCompany ?: return
@@ -204,31 +228,6 @@ class CreateReviewDialogViewModel @Inject constructor(
                         _event.emit(CreateReviewUIEvent.ShowAlert(error))
                     }
                 }
-            }
-        }
-    }
-
-    private fun searchCompanies(query: String) {
-        if (query.isBlank()) {
-            clearSearchResults()
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                val result = searchCompaniesUseCase.searchCompanies(
-                    keyword = query,
-                    latitude = 37.5665,
-                    longitude = 126.9780,
-                    size = 20,
-                    page = 0
-                )
-
-                _uiState.update { it.copy(searchedCompanies = result.companies) }
-            } catch (e: Exception) {
-
-            } finally {
-                // 로딩 처리
             }
         }
     }
