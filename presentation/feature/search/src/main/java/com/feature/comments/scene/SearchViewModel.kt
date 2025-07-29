@@ -78,9 +78,14 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                 }
             }
             SearchInterfaceAction.DidTapIMEDone -> {
-                val queries = UpDataStoreService.recentQueries.split(",").toMutableList()
-                queries.add(index = 0, element = searchUIState.value.searchBarValue.text)
+                val newQuery = searchUIState.value.searchBarValue.text
+                val queries = UpDataStoreService.recentQueries
+                    .split(",")
+                    .filter { it.isNotBlank() && it != newQuery }
+                    .toMutableList()
+                queries.add(0, newQuery)
                 UpDataStoreService.recentQueries = queries.joinToString(",")
+
                 _searchUISate.update {
                     it.copy(
                         hasFocus = false,
