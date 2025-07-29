@@ -1,6 +1,6 @@
 package address_finder
 
-import GpsSettingChecker
+import gps_setting_checker.GpsSettingChecker
 import address_finder.AddressFinderViewModel.Action.DismissSettingAlert
 import address_finder.AddressFinderViewModel.Action.FindMyLocation
 import address_finder.AddressFinderViewModel.Action.ShoudShowSettingAlert

@@ -1,6 +1,6 @@
 package com.presentation.login.scenes.login
 
-import GpsSettingChecker
+import gps_setting_checker.GpsSettingChecker
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
