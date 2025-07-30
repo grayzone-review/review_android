@@ -29,11 +29,14 @@ object Versions {
     // ── Coroutines ─────────────────────────────
     const val coroutineCore       = "1.10.2"
 
-    // ── Location ─────────────────────────────
+    // ── Location ───────────────────────────────
     const val gmsLocationService  = "21.3.0"
     const val permission          = "0.37.3"
-    // ── Lottie ─────────────────────────────
+    // ── Lottie ─────────────────────────────────
     const val lottieCompose       = "6.6.6"
+    // ── UI ─────────────────────────────────────
+    const val systemuicontroller  = "0.36.0"
+
 }
 
 object Deps {
@@ -93,4 +96,8 @@ object Location {
 
 object Lottie {
     const val lottieCompose             = "com.airbnb.android:lottie-compose:${Versions.lottieCompose}"
+}
+
+object UI {
+    const val systemuicontroller        = "com.google.accompanist:accompanist-systemuicontroller:${Versions.systemuicontroller}"
 }

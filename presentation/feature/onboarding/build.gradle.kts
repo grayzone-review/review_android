@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":data:location"))
     implementation(project(":data:storage"))
 
+    implementation(UI.systemuicontroller)
     implementation(DaggerHilt.hilt)
     kapt(DaggerHilt.hiltCompiler)
     implementation(DaggerHilt.hiltNavigationCompose)

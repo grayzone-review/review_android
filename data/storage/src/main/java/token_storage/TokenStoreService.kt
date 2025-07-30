@@ -24,7 +24,7 @@ object TokenStoreService {
             preferences[REFRESH_TOKEN] = loginResult.refreshToken
 //            preferences[EXPIRE_AT] = System.currentTimeMillis() + loginResult.expiresIn * 1_000
         }
-        Log.d("[로그인 끝 토큰저장]", "access: ${loginResult.accessToken} / refresh: ${loginResult.refreshToken} / expire: ${loginResult.expiresIn}")
+        Log.d("[TokenStoreService:토큰저장]", "access: ${loginResult.accessToken} / refresh: ${loginResult.refreshToken} / expire: ${loginResult.expiresIn}")
     }
 
     suspend fun accessToken(): String {
