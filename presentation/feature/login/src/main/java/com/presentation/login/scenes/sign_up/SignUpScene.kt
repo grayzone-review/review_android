@@ -154,8 +154,16 @@ fun SignUpScene(
             TermsSection(
                 terms = uiState.terms,
                 onCheckBoxClick = { viewModel.handleAction(DidTapCheckBox, it) },
-                onDetailClick = { navHostController.navigate(
-                    NavConstant.destTermsDetail(url = "www.naver.com"))
+                onDetailClick = {
+                    val url = when (it) {
+                        TermCode.ALL -> {""}
+                        TermCode.SERVICE -> { "https://translucent-fall-6f6.notion.site/23c10746acf98094aa7ee08bf627d7f8?source=copy_link" }
+                        TermCode.PRIVACY -> { "https://translucent-fall-6f6.notion.site/23c10746acf980248e6ef9e7665dd3d3?source=copy_link" }
+                        TermCode.LOCATION -> { "https://translucent-fall-6f6.notion.site/23c10746acf9804fa5cec48c5f26b371?source=copy_link" }
+                    }
+                    navHostController.navigate(NavConstant
+                        .destTermsDetail(url = url)
+                    )
                 },
             )
         }

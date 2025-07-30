@@ -2,26 +2,24 @@ package com.presentation.login.scenes.terms
 
 import android.webkit.WebView
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.presentation.login.scenes.sign_up.navgraph.NavConstant
 
 @Composable
 fun TermDetailScene(
-    navHostController: NavController
+    navHostController: NavController,
+    viewModel: TermDetailViewModel = hiltViewModel()
 ) {
-    val url = remember {
-        navHostController.previousBackStackEntry
-            ?.savedStateHandle
-            ?.get<String>(NavConstant.ARGUMENT_URL)
-            .orEmpty()
-    }
+    val uiState by viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
     val webView = remember {
@@ -35,17 +33,18 @@ fun TermDetailScene(
             }
         }
     }
-
-    key(url) {
-        AndroidView(
-            factory = { webView },
-            modifier = Modifier.fillMaxSize(),
-            update = { if (url.isNotBlank()) it.loadUrl(url) }
-        )
-    }
-
     BackHandler {
         if (webView.canGoBack()) webView.goBack()
         else navHostController.popBackStack()
+    }
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        AndroidView(
+            factory = { webView },
+            modifier = Modifier.fillMaxSize(),
+            update = { if (uiState.url.isNotBlank()) it.loadUrl(uiState.url) }
+        )
     }
 }

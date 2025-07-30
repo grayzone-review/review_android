@@ -1,6 +1,5 @@
 package com.presentation.login.scenes.login
 
-import gps_setting_checker.GpsSettingChecker
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -49,6 +48,7 @@ import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import com.team.common.feature_api.utility.Utility
 import common_ui.UpAlertIconDialog
+import gps_setting_checker.GpsSettingChecker
 import preset_ui.icons.KakaoBubble
 import preset_ui.icons.MapPinTintable
 import preset_ui.icons.SignInLogo
@@ -103,7 +103,6 @@ fun LoginScene(
                         launchSingleTop = true
                     }
                 }
-
             }
         }
     }
