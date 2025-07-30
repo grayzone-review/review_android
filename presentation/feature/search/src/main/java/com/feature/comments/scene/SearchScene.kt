@@ -1,6 +1,6 @@
 package com.feature.comments.scene
 
-import GpsSettingChecker
+import gps_setting_checker.GpsSettingChecker
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility

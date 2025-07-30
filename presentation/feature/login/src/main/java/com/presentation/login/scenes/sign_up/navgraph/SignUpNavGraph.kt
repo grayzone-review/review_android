@@ -11,6 +11,7 @@ import com.presentation.login.scenes.search_address.SearchAddressViewModel
 import com.presentation.login.scenes.sign_up.SignUpScene
 import com.presentation.login.scenes.sign_up.SignUpViewModel
 import com.presentation.login.scenes.terms.TermDetailScene
+import com.presentation.login.scenes.terms.TermDetailViewModel
 
 internal object NavConstant {
     enum class Mode(val value: String) { MY("my"), INTEREST("interest") }
@@ -67,7 +68,9 @@ fun SignUpNavGraph(
             )
         }
         composable(SignUpNavRoute.TermDetail.route) {
+            val viewModel: TermDetailViewModel = hiltViewModel<TermDetailViewModel>()
             TermDetailScene(
+                viewModel = viewModel,
                 navHostController = navController
             )
         }

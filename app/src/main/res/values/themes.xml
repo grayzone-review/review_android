@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- 공통 속성을 담은 베이스 테마 -->
     <style name="Base.Theme.ReviewAndroid" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- 기본 스플래시 투명 처리 -->

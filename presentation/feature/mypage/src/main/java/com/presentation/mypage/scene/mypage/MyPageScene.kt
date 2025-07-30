@@ -232,8 +232,9 @@ private fun NameRow(
             color = gray
         )
         Spacer(Modifier.width(4.dp))
+        val nicknameText = if (nickname.isEmpty()) "" else "${nickname}님"
         Text(
-            text = "${nickname}님",
+            text = nicknameText,
             style = Typography.h3,
             color = orange
         )

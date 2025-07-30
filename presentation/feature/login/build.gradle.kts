@@ -48,8 +48,7 @@ dependencies {
     implementation(project(":domain:usecase"))
     implementation(project(":data:location"))
 
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
-
+    implementation(UI.systemuicontroller)
     implementation(Location.permission)
     implementation(Location.gmsLocationService)
     implementation(Kakao.login)

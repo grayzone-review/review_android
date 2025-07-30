@@ -91,6 +91,13 @@ object Typography {
     val zenDotsTitle = TextStyle(
         fontFamily = ZenDots,
         fontWeight = FontWeight.Normal,
+        fontSize = 36.sp,
+        lineHeight = 36.sp * 1.3f
+    )
+
+    val zenDotsSubTitle = TextStyle(
+        fontFamily = ZenDots,
+        fontWeight = FontWeight.Normal,
         fontSize = 22.sp,
         lineHeight = 22.sp * 1.3f
     )

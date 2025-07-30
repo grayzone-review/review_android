@@ -172,7 +172,7 @@ fun LogoUserTopAppBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(text = "Up", style = Typography.zenDotsTitle, color = CS.PrimaryOrange.O40, modifier = Modifier
+        Text(text = "Up", style = Typography.zenDotsSubTitle, color = CS.PrimaryOrange.O40, modifier = Modifier
             .clickable { onLogoClick() }
         )
         Spacer(modifier = Modifier.weight(1f))

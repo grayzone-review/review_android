@@ -1,3 +1,5 @@
+package gps_setting_checker
+
 import android.app.Activity
 import android.content.Context
 import android.widget.Toast

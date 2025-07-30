@@ -1,6 +1,5 @@
 package com.presentation.main.scene.main
 
-import GpsSettingChecker
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -72,6 +71,7 @@ import common_ui.AlertStyle
 import common_ui.UpAlertIconDialog
 import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
+import gps_setting_checker.GpsSettingChecker
 import kotlinx.coroutines.launch
 import preset_ui.IconTextFieldOutlined
 import preset_ui.icons.Chat2Fill
@@ -172,7 +172,8 @@ fun MainScene(
                     },
                     onAddButtonClick = { viewModel.handleAction(ShowCreateReviewSheet) },
                 )
-            }
+            },
+            containerColor = CS.Gray.White
         ) { inner ->
             Column(
                 modifier = Modifier
