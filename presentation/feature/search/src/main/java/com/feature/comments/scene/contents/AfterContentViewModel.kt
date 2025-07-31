@@ -89,9 +89,9 @@ class AfterContentViewModel @Inject constructor(
                 val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
                 val nextPage = currentState.currentPage + 1
                 viewModelScope.launch {
-                    _uiState.update{it.copy(isLoading=true)}
+                    _uiState.update { it.copy(isLoading = true) }
 
-                    val result=when(tag){
+                    val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = nextPage)
                         TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = nextPage)
                         TagButtonType.Interest -> searchCompaniesUseCase.interestRegionsCompanies(lat, lng, page = nextPage)

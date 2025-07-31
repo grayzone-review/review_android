@@ -53,6 +53,8 @@ import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidUpdat
 import com.feature.comments.scene.contents.TagButtonType.Around
 import com.feature.comments.scene.contents.TagButtonType.Interest
 import com.feature.comments.scene.contents.TagButtonType.MyTown
+import common_ui.UpGrayIndicator
+import common_ui.UpIndicator
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -61,6 +63,7 @@ import preset_ui.icons.FollowAddOffIcon
 import preset_ui.icons.FollowPersonOnIcon
 import preset_ui.icons.InterestIcon
 import preset_ui.icons.MytownIcon
+import preset_ui.icons.SearchLineIcon
 import preset_ui.icons.StarFilled
 
 @Composable
@@ -128,20 +131,36 @@ private fun SearchResultList(
             .padding(horizontal = 20.dp)
     ) {
         ResultCountText(totalCount = totalCount)
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            items(
-                items = searchedCompanies,
-            ) { company ->
-                SearchedResultItem(
-                    company = company,
-                    onClickSearchResult = { onClickSearchResult(company) },
-                    onFollowClick = { onClickFollowButton(company) }
-                )
+
+        when {
+            // 0 페이지 검색 중 (주황 indicator)
+            uiState.searchedCompanies.isEmpty() && uiState.isLoading -> {
+                UpIndicator(isShow = true)
+            }
+            // 검색 결과 없음
+            uiState.searchedCompanies.isEmpty() && !uiState.isLoading -> {
+                EmptyResultView()
+            }
+            // 검색 결과 존재
+            else -> {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(bottom = 40.dp)
+                ) {
+                    items(items = searchedCompanies) { company ->
+                        SearchedResultItem(
+                            company = company,
+                            onClickSearchResult = { onClickSearchResult(company) },
+                            onFollowClick = { onClickFollowButton(company) }
+                        )
+                    }
+                    // Next Paging 검색 시 (회색 indicator)
+                    if (uiState.isLoading) {
+                        item { UpGrayIndicator(isShow = true) }
+                    }
+                }
             }
         }
     }
@@ -304,6 +323,21 @@ fun CompanyFilterChips(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun EmptyResultView() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        val textRes = "검색 결과를 찾을 수 없습니다."
+        SearchLineIcon(48.dp, 48.dp, tint = CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = textRes, color = CS.Gray.G50, style = Typography.body1Regular)
     }
 }
 
