@@ -8,9 +8,9 @@ data class Replies(
 
 data class Reply(
     val id: Int,
-    val comment: String,
-    val authorName: String,
-    val createdAt: String,
+    val comment: String? = null,
+    val authorName: String? = null,
+    val createdAt: String? = null,
     val secret: Boolean,
     val visible: Boolean
 )

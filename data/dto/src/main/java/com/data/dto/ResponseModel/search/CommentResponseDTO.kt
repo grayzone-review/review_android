@@ -11,9 +11,9 @@ data class CommentsDTO(
 
 data class CommentDto(
     val id: Int,
-    val comment: String,
-    val authorName: String,
-    val createdAt: String,
+    val comment: String? = null,
+    val authorName: String? = null,
+    val createdAt: String? = null,
     val replyCount: Int,
     val secret: Boolean,
     val visible: Boolean

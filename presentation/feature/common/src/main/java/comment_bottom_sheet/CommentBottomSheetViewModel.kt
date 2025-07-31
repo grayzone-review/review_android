@@ -68,6 +68,7 @@ class CommentBottomSheetViewModel @Inject constructor(
         when (action) {
             Action.OnAppear -> {
                 val reviewID = value as? Int ?: return
+                Log.d("[바텀 시트 코멘트 조회]", "리뷰 번호: ${reviewID}")
                 if (currentState.isLoading) return
                 viewModelScope.launch {
                     _uiState.update { it.copy(reviewID = reviewID, isLoading = true) }
@@ -200,6 +201,7 @@ class CommentBottomSheetViewModel @Inject constructor(
                 val commentID = value as? Int ?: return
                 viewModelScope.launch {
                     try {
+                        Log.d("나는 코멘아이디", commentID.toString())
                         val result = reviewUseCase.commentReplies(commentID = commentID, page = 0)
                         result?.let { bindingResult ->
                             val sortedReplies = bindingResult.replies.sortedByDescending { it.createdAt }
