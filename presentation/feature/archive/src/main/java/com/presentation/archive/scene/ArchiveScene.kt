@@ -351,6 +351,7 @@ private fun CompanyList(
     onClick: (MyArchiveCompany) -> Unit
 ) {
     LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
