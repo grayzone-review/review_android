@@ -468,7 +468,7 @@ private fun CommentInputBar(
         decorationBox = commentDecorationBox(
             inputState = inputState,
             isFocused = isFocused,
-            onLockClick = onLockClick,
+            onLockClick = { if (inputState.replyToComment?.secret == false) onLockClick() },
             onSendClick = onSendClick,
             onCancelReplyClick = onCancelReplyClick
         ),
