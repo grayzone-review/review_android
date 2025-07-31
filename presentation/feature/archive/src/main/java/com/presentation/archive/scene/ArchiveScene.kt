@@ -56,6 +56,7 @@ import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import preset_ui.icons.BackBarButtonIcon
+import preset_ui.icons.Chat2Fill
 import preset_ui.icons.StarFilled
 import preset_ui.icons.StarHalf
 import preset_ui.icons.StarOutline
@@ -207,9 +208,18 @@ fun ArchiveCollection(
             beyondViewportPageCount = 1,
         ) { page ->
             when (tabs[page]) {
-                CollectionTab.REVIEW   -> { ReviewList(reviews = wroteReviews, onClick = onClickReview) }
-                CollectionTab.INTEREST -> { ReviewList(reviews = interestReviews, onClick = onClickReview) }
-                CollectionTab.BOOKMARK -> { CompanyList(companies = followCompanies, onClick = onClickCompany) }
+                CollectionTab.REVIEW -> {
+                    if (wroteReviews.isEmpty()) ReviewEmptyView() else
+                        ReviewList(reviews = wroteReviews, onClick = onClickReview)
+                }
+                CollectionTab.INTEREST -> {
+                    if (interestReviews.isEmpty()) InterestEmptyView() else
+                        ReviewList(reviews = interestReviews, onClick = onClickReview)
+                }
+                CollectionTab.BOOKMARK -> {
+                    if (followCompanies.isEmpty()) FollowCompanyEmptyView() else
+                        CompanyList(companies = followCompanies, onClick = onClickCompany)
+                }
             }
         }
     }
@@ -481,4 +491,43 @@ private fun WriteReviewButton(
 @Composable
 private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+}
+
+@Composable
+private fun ReviewEmptyView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Chat2Fill(48.dp, 48.dp, CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = "작성된 리뷰가 없습니다.", style = Typography.body1Regular, color = CS.Gray.G50)
+    }
+}
+
+@Composable
+private fun InterestEmptyView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Chat2Fill(48.dp, 48.dp, CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = "좋아요 또는 댓글을 남긴\n" + "리뷰가 없습니다.", style = Typography.body1Regular, color = CS.Gray.G50)
+    }
+}
+
+@Composable
+private fun FollowCompanyEmptyView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Chat2Fill(48.dp, 48.dp, CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = "팔로우 한 업체가 없습니다.", style = Typography.body1Regular, color = CS.Gray.G50)
+    }
 }
