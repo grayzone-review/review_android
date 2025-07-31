@@ -18,7 +18,6 @@ import javax.inject.Inject
 data class AfterContentUIState(
     val searchedCompanies: List<CompactCompany> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null,
     val totalCount: Int = 0,
     val currentPage: Int = 0,
     val hasNext: Boolean = false
@@ -56,7 +55,7 @@ class AfterContentViewModel @Inject constructor(
 
                 val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
                 viewModelScope.launch {
-                    _uiState.update { it.copy(isLoading = true, error = null) }
+                    _uiState.update { it.copy(isLoading = true) }
                     val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = 0)
                         TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = 0)
@@ -133,8 +132,7 @@ class AfterContentViewModel @Inject constructor(
                         totalCount = 0,
                         currentPage = 0,
                         hasNext = false,
-                        isLoading = false,
-                        error = null
+                        isLoading = false
                     )
                 }
             }
