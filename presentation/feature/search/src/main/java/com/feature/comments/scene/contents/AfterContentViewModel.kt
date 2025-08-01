@@ -59,7 +59,14 @@ class AfterContentViewModel @Inject constructor(
                     }
 
                     val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
-                    _uiState.update { it.copy(isLoading = true, searchedCompanies = emptyList()) }
+                    _uiState.update { // 초기화 후, 다시 검색
+                        it.copy(
+                            isLoading = true,
+                            searchedCompanies = emptyList(),
+                            totalCount = 0,
+                            currentPage = 0
+                        )
+                    }
                     val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = 0)
                         TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = 0)
