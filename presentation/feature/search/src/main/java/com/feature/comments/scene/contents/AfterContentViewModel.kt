@@ -8,6 +8,7 @@ import com.domain.entity.CompactCompany
 import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.SearchCompaniesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,9 +33,10 @@ class AfterContentViewModel @Inject constructor(
         DidUpdateSearchQuery,
         DidRequestLoadMore,
         DidTapFollowCompanyButton,
-        DidTapFilterButton
+        DidTapCancelFilterButton
     }
 
+    private var searchJob: Job? = null
     private val _uiState = MutableStateFlow(AfterContentUIState())
     val uiState: StateFlow<AfterContentUIState> = _uiState.asStateFlow()
 
@@ -44,17 +46,21 @@ class AfterContentViewModel @Inject constructor(
             Action.DidUpdateSearchQuery -> {
                 val query = (value as? String)?.trim() ?: return
                 if (query.isBlank()) { clearSearchResults(); return }
-                val (lat, lng) = runCatching {
-                    UpDataStoreService.lastKnownLocation
-                        .split(',')
-                        .map { it.toDouble() }
-                        .let { it[0] to it[1] }
-                }.getOrElse {
-                    UpLocationService.DEFAULT_SEOUL_TOWNHALL
-                }
+                // 기 검색 요청 사항이 있다면 취소
+                searchJob?.cancel()
 
-                val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
-                viewModelScope.launch {
+                searchJob = viewModelScope.launch {
+                    val (lat, lng) = runCatching {
+                        UpDataStoreService.lastKnownLocation
+                            .split(',')
+                            .map { it.toDouble() }
+                            .let { it[0] to it[1] }
+                    }.getOrElse {
+                        UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                    }
+
+                    val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
+
                     _uiState.update { it.copy(isLoading = true) }
                     val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = 0)
@@ -125,7 +131,9 @@ class AfterContentViewModel @Inject constructor(
                     }
                 }
             }
-            Action.DidTapFilterButton -> {
+            Action.DidTapCancelFilterButton -> {
+                searchJob?.cancel()
+                searchJob = null
                 _uiState.update {
                     it.copy(
                         searchedCompanies = emptyList(),
