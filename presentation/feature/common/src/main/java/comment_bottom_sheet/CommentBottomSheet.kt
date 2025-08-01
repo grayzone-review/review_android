@@ -366,8 +366,6 @@ private fun SecretCard(commentType: CommentType) {
     }
 }
 
-
-
 @Composable
 private fun SheetTitle(modifier: Modifier) {
     Row(
