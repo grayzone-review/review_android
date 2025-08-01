@@ -346,16 +346,18 @@ private fun ReplyCard(reply: Reply, targetComment: Comment) {
 enum class CommentType { Comment, Reply }
 @Composable
 private fun SecretCard(commentType: CommentType) {
-    val textRes = if (commentType == CommentType.Reply) "비밀 답글입니다." else "비밀 댓글입니다."
+    val textRes = if (commentType == CommentType.Reply) "비밀답글입니다." else "비밀댓글입니다."
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(width = 12.dp, height = 1.dp)
-                    .background(CS.Gray.G20)
-            )
+            if (commentType == CommentType.Reply) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 12.dp, height = 1.dp)
+                        .background(CS.Gray.G20)
+                )
+            }
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = textRes, color = CS.Gray.G50, style = Typography.body2Bold)
             Spacer(modifier = Modifier.width(2.dp))
