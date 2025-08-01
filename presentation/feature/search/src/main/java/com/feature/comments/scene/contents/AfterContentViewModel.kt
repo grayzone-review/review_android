@@ -32,8 +32,7 @@ class AfterContentViewModel @Inject constructor(
     enum class Action {
         DidUpdateSearchQuery,
         DidRequestLoadMore,
-        DidTapFollowCompanyButton,
-        DidTapCancelFilterButton
+        DidTapFollowCompanyButton
     }
 
     private var searchJob: Job? = null
@@ -60,8 +59,7 @@ class AfterContentViewModel @Inject constructor(
                     }
 
                     val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
-
-                    _uiState.update { it.copy(isLoading = true) }
+                    _uiState.update { it.copy(isLoading = true, searchedCompanies = emptyList()) }
                     val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = 0)
                         TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = 0)
@@ -129,19 +127,6 @@ class AfterContentViewModel @Inject constructor(
                             .apply { this[targetIndex] = this[targetIndex].copy(following = !targetCompanyFollowingState) }
                         _uiState.update { it.copy(searchedCompanies = updated) }
                     }
-                }
-            }
-            Action.DidTapCancelFilterButton -> {
-                searchJob?.cancel()
-                searchJob = null
-                _uiState.update {
-                    it.copy(
-                        searchedCompanies = emptyList(),
-                        totalCount = 0,
-                        currentPage = 0,
-                        hasNext = false,
-                        isLoading = false
-                    )
                 }
             }
         }

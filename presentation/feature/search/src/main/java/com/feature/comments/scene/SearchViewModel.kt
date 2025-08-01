@@ -137,15 +137,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             }
             ContentAction.DidTapFilterButtons -> {
                 val newSelectedTagButtonType = value as? TagButtonType ?: return
-                if (currentState.selectedTagButtonType == newSelectedTagButtonType) {
-                    _searchUISate.update {
-                        it.copy(
-                            searchBarValue = TextFieldValue(text = ""),
-                            selectedTagButtonType = null,
-                            phase = SearchPhase.After
-                        )
-                    }
-                } else {
+                if (currentState.selectedTagButtonType != newSelectedTagButtonType) {
                     _searchUISate.update {
                         it.copy(
                             searchBarValue = TextFieldValue(text = "#${newSelectedTagButtonType.label}"),
@@ -157,5 +149,14 @@ class SearchViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
-
 }
+
+// 같은 탭을 한번 더 눌러서 선택을 제거하는 로직 (ContentAction.DidTapFilterButtons)
+//                if (currentState.selectedTagButtonType == newSelectedTagButtonType) {
+//                    _searchUISate.update {
+//                        it.copy(
+//                            searchBarValue = TextFieldValue(text = ""),
+//                            selectedTagButtonType = null,
+//                            phase = SearchPhase.After
+//                        )
+//                    }
