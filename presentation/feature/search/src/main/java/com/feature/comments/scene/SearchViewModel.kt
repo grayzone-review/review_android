@@ -131,7 +131,7 @@ class SearchViewModel @Inject constructor() : ViewModel() {
                     it.copy(
                         searchBarValue = TextFieldValue(text = query),
                         selectedTagButtonType = null,
-                        phase = SearchPhase.Searching
+                        phase = SearchPhase.After
                     )
                 }
             }
