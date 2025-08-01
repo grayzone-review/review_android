@@ -43,12 +43,12 @@ import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewMod
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.GetReviewsMore
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.OnAppear
 import com.presentation.company_detail.Scene.company_detail.CompanyDetailViewModel.Action.ShowCreateReviewSheet
-import comment_bottom_sheet.CommentBottomSheet
 import com.presentation.design_system.R
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.team.common.feature_api.error.APIException
 import com.team.common.feature_api.error.ErrorAction
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
+import comment_bottom_sheet.CommentBottomSheet
 import common_ui.AlertStyle
 import common_ui.UpSingleButtonAlertDialog
 import create_review_dialog.CreateReviewDialog
@@ -105,11 +105,13 @@ fun CompanyDetailScene(
         }
     )
     Content(viewModel = viewModel, detailUIState = uiState, navController = navController)
-    CommentBottomSheet(
-        reviewID = uiState.tappedCommentReviewID,
-        isShow = uiState.showBottomSheet,
-        onDismissRequest = { viewModel.handleAction(DidCloseBottomSheet) }
-    )
+    uiState.tappedCommentReview?.let {
+        CommentBottomSheet(
+            review = it,
+            isShow = uiState.showBottomSheet,
+            onDismissRequest = { viewModel.handleAction(DidCloseBottomSheet) }
+        )
+    }
 }
 
 @Composable
@@ -177,7 +179,7 @@ fun Content(viewModel: CompanyDetailViewModel, detailUIState: DetailUIState, nav
                         isFullMode = detailUIState.isFullModeList[index],
                         onReviewCardClick = { viewModel.handleAction(DidTapReviewCard, index) },
                         onLikeReviewButtonClock = { viewModel.handleAction(DidTapLikeReviewButton, index) },
-                        onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, index) },
+                        onCommentButtonClick = { viewModel.handleAction(DidTapCommentButton, reviewItem) },
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
                     CSSpacerHorizontal(modifier = Modifier, height = 1.dp, color = CS.Gray.G20)

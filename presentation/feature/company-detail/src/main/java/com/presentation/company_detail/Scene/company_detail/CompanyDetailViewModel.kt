@@ -31,7 +31,7 @@ data class DetailUIState(
     val hasNext: Boolean = false,
     val isLoading: Boolean = false,
     val shouldShowCreateReviewSheet: Boolean = false,
-    val tappedCommentReviewID: Int = 0
+    val tappedCommentReview: Review? = null
 )
 
 @HiltViewModel
@@ -161,14 +161,15 @@ class CompanyDetailViewModel @Inject constructor(
                 _uiState.update { it.copy(isFullModeList = updatedFullModeList) }
             }
             Action.DidTapCommentButton -> {
-                val index = value as? Int ?: return
+                val tappedReview = value as? Review ?: return
                 _uiState.update {
-                    it.copy(showBottomSheet = true, tappedCommentReviewID = currentState.reviews[index].id)
+                    it.copy(showBottomSheet = true, tappedCommentReview = tappedReview)
                 }
             }
             Action.DidCloseBottomSheet -> {
+                _uiState.update { it.copy(showBottomSheet = false) }
                 viewModelScope.launch {
-                    val reviewID = currentState.tappedCommentReviewID ?: return@launch
+                    val reviewID = currentState.tappedCommentReview?.id ?: return@launch
                     val companyID = currentState.companyID ?: return@launch
 
                     var page = 0
@@ -187,8 +188,7 @@ class CompanyDetailViewModel @Inject constructor(
                             if (idx < 0) return@update state
                             state.copy(
                                 reviews = state.reviews.toMutableList().apply { this[idx] = serverReview },
-                                showBottomSheet = false,
-                                tappedCommentReviewID = 0
+                                tappedCommentReview = null
                             )
                         }
                     }

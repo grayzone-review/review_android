@@ -59,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
+import com.domain.entity.Review
 import com.example.presentation.designsystem.typography.Typography
 import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
 import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
@@ -84,7 +85,7 @@ import preset_ui.icons.Sendable
 
 @Composable
 fun CommentBottomSheet(
-    reviewID: Int,
+    review: Review,
     isShow: Boolean,
     onDismissRequest: (Int) -> Unit,
     viewModel: CommentBottomSheetViewModel = hiltViewModel(),
@@ -97,7 +98,7 @@ fun CommentBottomSheet(
 
     LaunchedEffect(isShow) {
         if (isShow) {
-            viewModel.handleAction(OnAppear, reviewID)
+            viewModel.handleAction(OnAppear, review)
             BottomSheetHelper.setDismissHandler{
                 val writtenCount = uiState.commentsWritten
                 onDismissRequest(uiState.commentsWritten)
@@ -525,7 +526,7 @@ private fun commentDecorationBox(
             Box(modifier = Modifier.weight(1f)) {
                 if (inputState.text.isEmpty() && !isFocused && !isReplyMode) {
                     Text(
-                        text = "000님에게 댓글 추가…",
+                        text = "${inputState.review?.author}님에게 댓글 추가…",
                         color = CS.Gray.G40,
                         style = Typography.body1Regular
                     )

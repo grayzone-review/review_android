@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.Comment
 import com.domain.entity.Reply
+import com.domain.entity.Review
 import com.domain.usecase.ReviewUseCase
 import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,7 @@ sealed interface CommentInputUIEvent {
 }
 
 data class CommentInputState(
-    val reviewID: Int = 0,                                  // 회사 리뷰 ID
+    val review: Review? = null,                           // 회사 리뷰 ID
     val comments: List<Comment> = emptyList(),              // 전체 댓글 목록
     val repliesMap: Map<Int, List<Reply>> = emptyMap(),     // (댓글 ID) to 답글 목록
 
@@ -67,13 +68,13 @@ class CommentBottomSheetViewModel @Inject constructor(
         val currentState = _uiState.value
         when (action) {
             Action.OnAppear -> {
-                val reviewID = value as? Int ?: return
-                Log.d("[바텀 시트 코멘트 조회]", "리뷰 번호: ${reviewID}")
+                val review = value as? Review ?: return
+                Log.d("[바텀 시트 코멘트 조회]", "리뷰 번호: ${review.id}")
                 if (currentState.isLoading) return
                 viewModelScope.launch {
-                    _uiState.update { it.copy(reviewID = reviewID, isLoading = true) }
+                    _uiState.update { it.copy(review = review, isLoading = true) }
                     try {
-                        val result = reviewUseCase.reviewComments(reviewID = reviewID, page = 0)
+                        val result = reviewUseCase.reviewComments(reviewID = review.id, page = 0)
                         Log.d("코멘트", result.toString())
                         result?.let { bindingResult ->
                             val sortedComments = bindingResult.comments.sortedByDescending { it.createdAt }
@@ -98,10 +99,9 @@ class CommentBottomSheetViewModel @Inject constructor(
                 viewModelScope.launch {
                     _uiState.update { it.copy(isLoading = true) }
                     try {
-                        val result = reviewUseCase.reviewComments(reviewID = currentState.reviewID, page = nextPage)
-                        val sortedComments = result?.comments
-                            ?.sortedByDescending { comment -> comment.createdAt }
-                            .orEmpty()
+                        val result = reviewUseCase.reviewComments(reviewID = currentState.review?.id ?: 0, page = nextPage)
+                        val merged = currentState.comments + (result?.comments ?: emptyList())
+                        val sortedComments = merged.sortedByDescending { it.createdAt }
                         _uiState.update {
                             it.copy(
                                 comments = sortedComments,
@@ -153,7 +153,7 @@ class CommentBottomSheetViewModel @Inject constructor(
                             }
                         } else {
                             val result = reviewUseCase.writeComment(
-                                reviewID = currentState.reviewID,
+                                reviewID = currentState.review?.id ?: 0,
                                 content = currentState.text,
                                 isSecret = currentState.isSecret,
                             )

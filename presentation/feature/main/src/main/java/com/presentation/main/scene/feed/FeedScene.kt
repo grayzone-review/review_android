@@ -92,11 +92,13 @@ fun FeedScene(
         completion = { alertError = null }
     )
 
-    CommentBottomSheet(
-        reviewID = uiState.commentTargetFeed?.review?.id ?: 0,
-        isShow = uiState.shouldShowCommentBottomSheet,
-        onDismissRequest = { viewModel.handleAction(DismissCommentBottomSheet, it) }
-    )
+    uiState.commentTargetFeed?.review?.let {
+        CommentBottomSheet(
+            review = it,
+            isShow = uiState.shouldShowCommentBottomSheet,
+            onDismissRequest = { viewModel.handleAction(DismissCommentBottomSheet, it) }
+        )
+    }
     CreateReviewSheet(isShow = uiState.shouldShowCreateReviewSheet, onDismiss = { viewModel.handleAction(DismissCrateReviewSheet) })
 
     BackHandler {
