@@ -1,5 +1,6 @@
 package com.presentation.company_detail.Scene.company_detail
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -69,6 +70,7 @@ class CompanyDetailViewModel @Inject constructor(
         when (action) {
             Action.OnAppear -> {
                 viewModelScope.launch {
+                    Log.d("[CompanyDetailScene - OnAppear]", "기업번호:$companyIDArgument")
                     _uiState.update { it.copy(isLoading = true) }
                     try {
                         val companyResult = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
@@ -102,7 +104,7 @@ class CompanyDetailViewModel @Inject constructor(
                         result?.let { bindingResult ->
                             _uiState.update {
                                 it.copy(
-                                    reviews = bindingResult.reviews,
+                                    reviews = currentState.reviews + bindingResult.reviews,
                                     isFullModeList = it.isFullModeList + List(bindingResult.reviews.size) { false },
                                     isLoading = false,
                                     currentPage = currentState.currentPage + 1,
