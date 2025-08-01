@@ -47,7 +47,6 @@ class AfterContentViewModel @Inject constructor(
                 if (query.isBlank()) { clearSearchResults(); return }
                 // 기 검색 요청 사항이 있다면 취소
                 searchJob?.cancel()
-
                 searchJob = viewModelScope.launch {
                     val (lat, lng) = runCatching {
                         UpDataStoreService.lastKnownLocation

@@ -1,6 +1,5 @@
 package com.feature.comments.scene
 
-import gps_setting_checker.GpsSettingChecker
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -74,6 +73,7 @@ import com.team.common.feature_api.extension.addFocusCleaner
 import com.team.common.feature_api.extension.openAppSettings
 import com.team.common.feature_api.navigation_constant.NavigationRouteConstant
 import common_ui.UpAlertIconDialog
+import gps_setting_checker.GpsSettingChecker
 import preset_ui.icons.BackBarButtonIcon
 import preset_ui.icons.CloseFillIcon
 import preset_ui.icons.MapPinTintable
@@ -130,6 +130,7 @@ fun SearchScene(
             searchUIState = searchUIState,
             onTextChange = { viewModel.handleAction(DidUpdateSearchBarValue, it) },
             onFocusChange = { if (it.isFocused) viewModel.handleAction(DidFocusSearchBar) else viewModel.handleAction(DidUnFocusSearchBar) },
+            onBackButtonClick = { navController.popBackStack() },
             onClickClearButton = { viewModel.handleAction(DidTapClearButton) },
             onClickCancelButton = {
                 focusManager.clearFocus()
@@ -192,6 +193,7 @@ fun Appbar(
 private fun SearchTextField(
     searchUIState: SearchUIState,
     onTextChange: (String) -> Unit,
+    onBackButtonClick: () -> Unit,
     onFocusChange: (FocusState) -> Unit,
     onClickCancelButton: () -> Unit,
     onClickClearButton: () -> Unit,
@@ -209,6 +211,12 @@ private fun SearchTextField(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (searchUIState.phase == SearchPhase.After) {
+            BackBarButtonIcon(
+                width = 24.dp, height = 24.dp, tint = CS.Gray.G90, modifier = Modifier
+                    .clickable { onBackButtonClick() })
+        }
+        Spacer(Modifier.width(16.dp))
         BasicTextField(
             value = searchUIState.searchBarValue.text,
             onValueChange = onTextChange,
