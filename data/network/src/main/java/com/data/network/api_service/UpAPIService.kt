@@ -15,7 +15,7 @@ import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
 import com.data.dto.ResponseModel.search.MyArchiveCompaniesResponseDTO
 import com.data.dto.ResponseModel.search.MyArchiveReviewsResponseDTO
 import com.data.dto.ResponseModel.search.RepliesResponseDTO
-import com.data.dto.ResponseModel.search.ReplyDto
+import com.data.dto.ResponseModel.search.ReplyDTO
 import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
 import com.data.dto.ResponseModel.search.UserInfoResponseDTO
@@ -97,7 +97,7 @@ interface UpAPIService {
     suspend fun writeReply(
         @Path(UpEndpoint.Query.COMMENT_ID) commentId: Int,
         @Body requestModel: WriteReplyRequestModel
-    ): APIResponse<ReplyDto>
+    ): APIResponse<ReplyDTO>
 
     @GET(UpEndpoint.Path.SEARCH_LEGAL_DISTRICTS)
     suspend fun searchLegalDistrict(

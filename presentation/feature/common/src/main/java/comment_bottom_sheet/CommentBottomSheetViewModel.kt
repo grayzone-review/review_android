@@ -217,7 +217,7 @@ class CommentBottomSheetViewModel @Inject constructor(
             Action.DidTapCancelReplyButton -> {
                 _uiState.update {
                     it.copy(
-                        isReplying = true,
+                        isReplying = false,
                         replyToComment = null,
                         isSendable = isValid(text = it.text)
                     )

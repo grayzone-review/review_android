@@ -4,12 +4,12 @@ import com.domain.entity.Replies
 import com.domain.entity.Reply
 
 data class RepliesResponseDTO(
-    val replies: List<ReplyDto>,
+    val replies: List<ReplyDTO>,
     val hasNext: Boolean,
     val currentPage: Int
 )
 
-data class ReplyDto(
+data class ReplyDTO(
     val id: Int,
     val comment: String? = null,
     val authorName: String? = null,
@@ -20,13 +20,13 @@ data class ReplyDto(
 
 fun RepliesResponseDTO.toDomain(): Replies {
     return Replies(
-        replies = replies.map(ReplyDto::toDomain),
+        replies = replies.map(ReplyDTO::toDomain),
         hasNext = hasNext,
         currentPage = currentPage
     )
 }
 
-fun ReplyDto.toDomain(): Reply {
+fun ReplyDTO.toDomain(): Reply {
     return Reply(
         id = id,
         comment = comment,
