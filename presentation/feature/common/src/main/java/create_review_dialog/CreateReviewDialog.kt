@@ -56,6 +56,7 @@ import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapPreviousBut
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapSubmitButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapTextField
 import create_review_dialog.CreateReviewDialogViewModel.Action.OnAppear
+import create_review_dialog.CreateReviewDialogViewModel.Action.Reset
 import create_review_dialog.CreateReviewDialogViewModel.Action.SheetDismissed
 import create_review_dialog.CreateReviewDialogViewModel.Action.UpdateCompany
 import create_review_dialog.CreateReviewDialogViewModel.Action.UpdateEmploymentPeriod
@@ -82,13 +83,20 @@ fun CreateReviewDialog(
     viewModel: CreateReviewDialogViewModel = hiltViewModel()
 ) {
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            viewModel.handleAction(Reset)
+            onDismiss()
+        },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
         )
     ) {
-        content(company = company, onDismiss = onDismiss, viewModel = viewModel)
+        content(
+            company = company,
+            onDismiss = { viewModel.handleAction(Reset); onDismiss() },
+            viewModel = viewModel
+        )
     }
 }
 

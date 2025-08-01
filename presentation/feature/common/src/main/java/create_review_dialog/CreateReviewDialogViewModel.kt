@@ -75,7 +75,9 @@ class CreateReviewDialogViewModel @Inject constructor(
         UpdateCompany,
         // 회사 검색 시트 액션
         UpdateSearchQuery,
-        DidTapClearButton
+        DidTapClearButton,
+        // 초기화
+        Reset
     }
 
     private var _uiState = MutableStateFlow(value = CreateReviewUIState())
@@ -229,6 +231,7 @@ class CreateReviewDialogViewModel @Inject constructor(
                     }
                 }
             }
+            Action.Reset -> { _uiState.update { CreateReviewUIState() } }
         }
     }
 
