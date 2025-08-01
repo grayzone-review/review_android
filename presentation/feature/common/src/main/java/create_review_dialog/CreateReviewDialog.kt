@@ -1,5 +1,6 @@
 package create_review_dialog
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -110,6 +111,14 @@ private fun content(
     val scrollState = rememberScrollState()
     var alertError by remember { mutableStateOf<APIException?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
+
+    BackHandler {
+        when (uiState.phase) {
+            CreateReviewPhase.First -> { onDismiss() }
+            CreateReviewPhase.Second -> { viewModel.handleAction(DidTapPreviousButton) }
+            CreateReviewPhase.Third -> { viewModel.handleAction(DidTapPreviousButton) }
+        }
+    }
 
     LaunchedEffect(company != null) {
         viewModel.handleAction(OnAppear, company)
