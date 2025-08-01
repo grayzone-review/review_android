@@ -214,7 +214,7 @@ private fun SearchedResultItem(
                     ) {
                         StarFilled(16.dp, 16.dp)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = company.totalRating.toString(), style = Typography.captionBold, color = CS.Gray.G90)
+                        Text(text = "%.1f".format(company.totalRating), style = Typography.captionBold, color = CS.Gray.G90)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = company.companyAddress.take(n = 2), style = Typography.captionRegular, color = CS.Gray.G50)
                         Text(text = " · ", style = Typography.captionRegular, color = CS.Gray.G50)
