@@ -116,8 +116,11 @@ fun ModifyUserScene(
                     .padding(vertical = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(40.dp)
             ) {
+                val isEnabledNicknameDuplicationCheck = uiState.currentUserInfo?.nickname != uiState.nickNameField.value
+
                 NicknameInput(
                     nicknameField = uiState.nickNameField,
+                    enabledCheckDuplicateButton = isEnabledNicknameDuplicationCheck,
                     onValueChange = { viewModel.handleAction(UpdateNickNameTextField, it) },
                     onCheckDuplicate = { viewModel.handleAction(DidTapCheckDuplicateButton) }
                 )

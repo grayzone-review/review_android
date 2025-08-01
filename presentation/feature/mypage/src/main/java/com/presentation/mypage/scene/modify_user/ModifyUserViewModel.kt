@@ -3,6 +3,7 @@ package com.presentation.mypage.scene.modify_user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.LegalDistrictInfo
+import com.domain.entity.User
 import com.domain.usecase.UpAuthUseCase
 import com.domain.usecase.UserUseCase
 import com.team.common.feature_api.error.APIException
@@ -23,6 +24,7 @@ sealed interface ModifyUserUIEvent {
 }
 
 data class ModifyUserUIState(
+    val currentUserInfo: User? = null,
     val nickNameField: NickNameField = NickNameField(),
     val myTown: LegalDistrictInfo? = null,
     val interestTowns: List<LegalDistrictInfo> = emptyList(),
@@ -65,6 +67,7 @@ class ModifyUserViewModel @Inject constructor(
                         )
                         _uiState.update {
                             it.copy(
+                                currentUserInfo = bindingResult,
                                 nickNameField = userNickNameField,
                                 myTown = bindingResult.mainRegion,
                                 interestTowns = bindingResult.interestedRegions ?: emptyList(),
@@ -90,17 +93,23 @@ class ModifyUserViewModel @Inject constructor(
             }
             Action.UpdateNickNameTextField -> {
                 val newNickname = value as? String ?: return
-                val (fieldState, errorMessage) = if (newNickname.isNotEmpty() && newNickname.length < 2)
-                    FieldState.ClientError to "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
-                else
-                    FieldState.Normal to ""
+                // 현재 닉네임과 동일한지 검사
+                val (fieldState, errorMessage) = when {
+                    newNickname == currentState.currentUserInfo?.nickname ->
+                        FieldState.ServerSuccess to ""
+                    newNickname.isNotEmpty() && newNickname.length < 2 ->
+                        FieldState.ClientError to "※ 2~12자 이내로 입력가능하며, 한글, 영문, 숫자 사용이 가능합니다."
+                    else ->
+                        FieldState.Normal to ""
+                }
+
                 val updatedField = currentState.nickNameField.copy(
                     value = newNickname,
                     fieldState = fieldState,
                     errorMessage = errorMessage
                 )
-                _uiState.update {
-                    it.copy(nickNameField = updatedField)
+                _uiState.update{
+                    it.copy(nickNameField=updatedField)
                         .checkSubmitValidation()
                 }
             }
