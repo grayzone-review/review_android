@@ -200,17 +200,24 @@ class CommentBottomSheetViewModel @Inject constructor(
             Action.DidTapShowRepliesButton -> {
                 val commentID = value as? Int ?: return
                 viewModelScope.launch {
-                    try {
-                        Log.d("나는 코멘아이디", commentID.toString())
-                        val result = reviewUseCase.commentReplies(commentID = commentID, page = 0)
-                        result?.let { bindingResult ->
-                            val sortedReplies = bindingResult.replies.sortedByDescending { it.createdAt }
-                            _uiState.update {
-                                it.copy(repliesMap = currentState.repliesMap + (commentID to sortedReplies))
-                            }
+                    val allReplies = mutableListOf<Reply>()
+                    var page = 0
+
+                    while (true) {
+                        try {
+                            val result = reviewUseCase.commentReplies(commentID = commentID, page = page) ?: break
+                            allReplies += result.replies.orEmpty()
+                            if (!result.hasNext) break
+                            page++
+                        } catch (error: APIException) {
+                            _event.emit(CommentInputUIEvent.ShowAlert(error))
+                            return@launch
                         }
-                    } catch (error: APIException) {
-                        _event.emit(CommentInputUIEvent.ShowAlert(error))
+                    }
+
+                    val sortedReplies = allReplies.sortedByDescending { it.createdAt }
+                    _uiState.update {
+                        it.copy(repliesMap = currentState.repliesMap + (commentID to sortedReplies))
                     }
                 }
             }

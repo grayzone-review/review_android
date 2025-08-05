@@ -78,7 +78,8 @@ interface UpAPIService {
     @GET(UpEndpoint.Path.REVIEW_COMMENT)
     suspend fun reviewComments(
         @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int,
-        @Query(UpEndpoint.Query.PAGE) page: Int
+        @Query(UpEndpoint.Query.PAGE) page: Int,
+        @Query(UpEndpoint.Query.SORT) sort: String = UpEndpoint.Query.DESC_BY_CREATE
     ): APIResponse<CommentsDTO>
 
     @POST(UpEndpoint.Path.REVIEW_COMMENT)
@@ -90,7 +91,8 @@ interface UpAPIService {
     @GET(UpEndpoint.Path.COMMENT_REPLIES)
     suspend fun commentReplies(
         @Path(UpEndpoint.Query.COMMENT_ID) commentId: Int,
-        @Query(UpEndpoint.Query.PAGE) page: Int
+        @Query(UpEndpoint.Query.PAGE) page: Int,
+        @Query(UpEndpoint.Query.SORT) sort: String = UpEndpoint.Query.DESC_BY_CREATE
     ): APIResponse<RepliesResponseDTO>
 
     @POST(UpEndpoint.Path.COMMENT_REPLIES)

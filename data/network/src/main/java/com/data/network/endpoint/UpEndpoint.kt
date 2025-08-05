@@ -47,5 +47,7 @@ object UpEndpoint {
         const val COMPANY_ID    = "companyId"
         const val REVIEW_ID     = "reviewId"
         const val COMMENT_ID    = "commentId"
+        const val SORT          = "sort"
+        const val DESC_BY_CREATE= "createdAt,desc"
     }
 }
