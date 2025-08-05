@@ -68,7 +68,7 @@ private fun ReviewFeedItemDTO.toDomain(): ReviewFeed {
 
 private fun ReviewFeedCompanyReviewDTO.toDomain(): Review {
     return Review(
-        id = id.toInt(),          // Long → Int (필요 시 Long 유지)
+        id = id.toInt(),
         ratings = ratings.toDomain(),
         author = author,
         title = title,

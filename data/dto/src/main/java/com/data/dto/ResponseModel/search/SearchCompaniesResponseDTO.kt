@@ -15,7 +15,7 @@ data class CompanyDTO(
     val companyName: String,
     val companyAddress: String,
     val totalRating: Double,
-    val reviewTitle: String?,   // nullable
+    val reviewTitle: String?,
     val distance: Double,
     val following: Boolean
 )

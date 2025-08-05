@@ -154,11 +154,11 @@ private fun StatsRow(
 
 @Composable
 fun ArchiveCollection(
-    selectedTab: CollectionTab,                 // ← hoisted state
+    selectedTab: CollectionTab,
     wroteReviews: List<MyArchiveReview>,
     interestReviews: List<MyArchiveReview>,
     followCompanies: List<MyArchiveCompany>,
-    onTabChange: (CollectionTab) -> Unit,       // ← VM으로 이벤트 전달
+    onTabChange: (CollectionTab) -> Unit,
     onClickReview: (MyArchiveReview) -> Unit,
     onClickCompany: (MyArchiveCompany) -> Unit,
     modifier: Modifier = Modifier
