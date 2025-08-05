@@ -150,7 +150,8 @@ fun MainScene(
                 LogoUserTopAppBar(
                     userName = "${uiState.user.nickname}님",
                     onLogoClick = { scope.launch { scrollState.animateScrollTo(value = 0) } },
-                    onProfileClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
+                    onProfileClick = { navController.navigate(NavigationRouteConstant.archiveSceneRoute
+                        .replace("{tab}", "INTEREST")) }
                 )
             },
             bottomBar = {
@@ -187,8 +188,10 @@ fun MainScene(
                 )
                 DashBoardButtons(
                     onSearchClick = { navController.navigate(NavigationRouteConstant.searchNestedRoute) },
-                    onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) },
-                    onFollowClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
+                    onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveSceneRoute
+                        .replace("{tab}", "REVIEW")) },
+                    onFollowClick = { navController.navigate(NavigationRouteConstant.archiveSceneRoute
+                        .replace("{tab}", "BOOKMARK")) }
                 )
                 Spacer(modifier = Modifier.fillMaxWidth().height(20.dp))
                 if (uiState.user.interestedRegions.isNullOrEmpty()) {

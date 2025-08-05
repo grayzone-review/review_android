@@ -93,7 +93,7 @@ fun CreateReviewDialog(
             decorFitsSystemWindows = false
         )
     ) {
-        content(
+        Content(
             company = company,
             onDismiss = { viewModel.handleAction(Reset); onDismiss() },
             viewModel = viewModel
@@ -102,7 +102,7 @@ fun CreateReviewDialog(
 }
 
 @Composable
-private fun content(
+private fun Content(
     company: CompactCompany? = null,
     onDismiss: () -> Unit,
     viewModel: CreateReviewDialogViewModel

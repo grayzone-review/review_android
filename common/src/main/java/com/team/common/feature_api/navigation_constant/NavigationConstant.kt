@@ -15,7 +15,7 @@ object NavigationRouteConstant {
     const val loginSceneRoute = "login_scene_route"
 
     const val archiveNestedRoute = "archive_nested_route"
-    const val archiveSceneRoute = "archive_scene_route"
+    const val archiveSceneRoute = "archive_scene_route/{tab}"
 
     const val onboardingNestedRoute = "onboarding_nested_route"
     const val onboardingSceneRoute = "onboarding_scene_route"

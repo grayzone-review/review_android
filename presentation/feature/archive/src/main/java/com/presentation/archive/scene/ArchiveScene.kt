@@ -88,22 +88,29 @@ fun ArchiveScene(
                 .background(color = CS.Gray.G10))
             ArchiveCollection(
                 modifier = Modifier.weight(1f),
+                selectedTab = uiState.selectedTab,
                 wroteReviews = uiState.myReviews,
                 interestReviews = uiState.interestReviews,
                 followCompanies = uiState.followCompanies,
-                onClickReview = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
-                    .replace("{companyId}", it.companyId.toString()))
+                onClickReview = {
+                    navController.navigate(
+                        NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.companyId.toString())
+                    )
                 },
-                onClickCompany = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
-                    .replace("{companyId}", it.id.toString()))
+                onClickCompany = {
+                    navController.navigate(
+                        NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.id.toString())
+                    )
                 },
                 onTabChange = {
                     when (it) {
                         CollectionTab.REVIEW -> { viewModel.handleAction(GetMyReviews) }
-                        CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews)}
+                        CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews) }
                         CollectionTab.BOOKMARK -> { viewModel.handleAction(GetCompanyFollowList) }
                     }
-                }
+                },
             )
             WriteReviewButton(onClick = { viewModel.handleAction(ShowCreateReviewSheet) })
         }
@@ -145,22 +152,23 @@ private fun StatsRow(
     }
 }
 
-enum class CollectionTab(val rawValue: String) { REVIEW("리뷰"), INTEREST("관심 리뷰"), BOOKMARK("즐겨찾기") }
 @Composable
 fun ArchiveCollection(
+    selectedTab: CollectionTab,                 // ← hoisted state
     wroteReviews: List<MyArchiveReview>,
     interestReviews: List<MyArchiveReview>,
     followCompanies: List<MyArchiveCompany>,
-    onTabChange: (CollectionTab) -> Unit,
+    onTabChange: (CollectionTab) -> Unit,       // ← VM으로 이벤트 전달
     onClickReview: (MyArchiveReview) -> Unit,
     onClickCompany: (MyArchiveCompany) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val tabs = CollectionTab.entries
     val scope = rememberCoroutineScope()
+
     val pagerState = rememberPagerState(
         pageCount = { tabs.size },
-        initialPage = CollectionTab.REVIEW.ordinal
+        initialPage = selectedTab.ordinal
     )
 
     LaunchedEffect(pagerState) {
@@ -169,9 +177,13 @@ fun ArchiveCollection(
             .collect { page -> onTabChange(tabs[page]) }
     }
 
-    Column(
-        modifier = modifier
-    ) {
+    LaunchedEffect(selectedTab) {
+        if (pagerState.currentPage != selectedTab.ordinal) {
+            pagerState.animateScrollToPage(selectedTab.ordinal)
+        }
+    }
+
+    Column(modifier = modifier) {
         TabRow(
             selectedTabIndex = pagerState.currentPage,
             indicator = { tabPositions ->
@@ -187,7 +199,9 @@ fun ArchiveCollection(
             tabs.forEachIndexed { index, tab ->
                 Tab(
                     selected = pagerState.currentPage == index,
-                    onClick = { scope.launch { pagerState.animateScrollToPage(page = index) } },
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(index) }
+                    },
                     modifier = Modifier.background(CS.Gray.White),
                     text = {
                         Text(
@@ -205,25 +219,25 @@ fun ArchiveCollection(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 1,
+            beyondViewportPageCount = 1
         ) { page ->
             when (tabs[page]) {
-                CollectionTab.REVIEW -> {
-                    if (wroteReviews.isEmpty()) ReviewEmptyView() else
-                        ReviewList(reviews = wroteReviews, onClick = onClickReview)
-                }
-                CollectionTab.INTEREST -> {
-                    if (interestReviews.isEmpty()) InterestEmptyView() else
-                        ReviewList(reviews = interestReviews, onClick = onClickReview)
-                }
-                CollectionTab.BOOKMARK -> {
-                    if (followCompanies.isEmpty()) FollowCompanyEmptyView() else
-                        CompanyList(companies = followCompanies, onClick = onClickCompany)
-                }
+                CollectionTab.REVIEW ->
+                    if (wroteReviews.isEmpty()) ReviewEmptyView()
+                    else ReviewList(reviews = wroteReviews, onClick = onClickReview)
+
+                CollectionTab.INTEREST ->
+                    if (interestReviews.isEmpty()) InterestEmptyView()
+                    else ReviewList(reviews = interestReviews, onClick = onClickReview)
+
+                CollectionTab.BOOKMARK ->
+                    if (followCompanies.isEmpty()) FollowCompanyEmptyView()
+                    else CompanyList(companies = followCompanies, onClick = onClickCompany)
             }
         }
     }
 }
+
 
 @Composable
 private fun ReviewList(
