@@ -60,6 +60,7 @@ import com.presentation.main.scene.main.MainViewModel.Action.CacheLocationAndGet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
 import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
+import com.presentation.main.scene.main.MainViewModel.Action.RequestReLogin
 import com.presentation.main.scene.main.MainViewModel.Action.ShowCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.error.APIException
@@ -123,7 +124,15 @@ fun MainScene(
     BindAlert(
         error = alertError,
         navController = navController,
-        completion = { alertError = null }
+        completion = {
+            scope.launch {
+                alertError = null
+                viewModel.handleAction(RequestReLogin)
+                navController.navigate(NavigationRouteConstant.loginNestedRoute) {
+                    popUpTo(NavigationRouteConstant.mypageNestedRoute) { inclusive = true }
+                }
+            }
+        }
     )
 
     CreateReviewSheet(
