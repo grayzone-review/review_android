@@ -23,6 +23,8 @@ fun TermDetailScene(
 
     val context = LocalContext.current
     val webView = remember {
+        WebView.setWebContentsDebuggingEnabled(true)
+
         WebView(context).apply {
             settings.apply {
                 javaScriptEnabled = true
