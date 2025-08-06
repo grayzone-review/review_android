@@ -45,6 +45,7 @@ import com.example.presentation.designsystem.typography.Typography
 import com.presentation.design_system.appbar.appbars.DefaultTopAppBar
 import com.presentation.main.NavConstant
 import com.presentation.main.scene.feed.FeedViewModel.Action.DidTapCommentButton
+import com.presentation.main.scene.feed.FeedViewModel.Action.DidTapCompanyFollowButton
 import com.presentation.main.scene.feed.FeedViewModel.Action.DidTapLikeReviewButton
 import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCommentBottomSheet
 import com.presentation.main.scene.feed.FeedViewModel.Action.DismissCrateReviewSheet
@@ -62,6 +63,8 @@ import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import preset_ui.ReviewCard
 import preset_ui.icons.BackBarButtonIcon
+import preset_ui.icons.FollowAddOffIcon
+import preset_ui.icons.FollowPersonOnIcon
 import preset_ui.icons.StarFilled
 import preset_ui.icons.StarHalf
 import preset_ui.icons.StarOutline
@@ -127,6 +130,7 @@ fun FeedScene(
                 onClickCompanyCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
                     .replace("{companyId}", it.id.toString()))
                 },
+                onClickCompanyFollowButton = { viewModel.handleAction(DidTapCompanyFollowButton, it) },
                 onClickReviewCard = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
                     .replace("{companyId}", it.compactCompany.id.toString()))
                 },
@@ -170,6 +174,7 @@ private fun ReviewFeedList(
     reviewFeeds: List<ReviewFeed>,
     companyFeeds: List<ReviewFeed>,
     onClickCompanyCard: (CompactCompany) -> Unit,
+    onClickCompanyFollowButton: (CompactCompany) -> Unit,
     onClickReviewCard: (ReviewFeed) -> Unit,
     onLikeReviewButtonClock: (Review) -> Unit,
     onCommentButtonClick: (ReviewFeed) -> Unit,
@@ -200,7 +205,8 @@ private fun ReviewFeedList(
                         companyFeeds.getOrNull(companyIndex)?.let { companyFeed ->
                             CompanyCard(
                                 company = companyFeed.compactCompany,
-                                onClick = { onClickCompanyCard(companyFeed.compactCompany) }
+                                onClick = { onClickCompanyCard(companyFeed.compactCompany) },
+                                onFollowButtonClick = { onClickCompanyFollowButton(companyFeed.compactCompany) }
                             )
                         }
                     }
@@ -226,7 +232,8 @@ private fun ReviewFeedList(
 @Composable
 private fun CompanyCard(
     company: CompactCompany,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onFollowButtonClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -236,16 +243,26 @@ private fun CompanyCard(
             .clickable { onClick() }
             .padding(16.dp)
     ) {
-        Text(
-            text = company.companyName,
-            style = Typography.body1Bold,
-            color = CS.Gray.G90,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = company.companyName,
+                style = Typography.body1Bold,
+                color = CS.Gray.G90,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
 
+            if (company.following) {
+                FollowPersonOnIcon(32.dp, 32.dp, modifier = Modifier.clickable { onFollowButtonClick() })
+            } else {
+                FollowAddOffIcon(32.dp, 32.dp, modifier = Modifier.clickable { onFollowButtonClick() })
+            }
+        }
         Spacer(Modifier.height(8.dp))
-
+        /* 이름, 주소 Row */
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)

@@ -5,8 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.location.UpLocationService
 import com.data.storage.datastore.UpDataStoreService
+import com.domain.entity.CompactCompany
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
+import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.ReviewUseCase
 import com.domain.usecase.UserUseCase
 import com.presentation.main.NavConstant
@@ -41,7 +43,8 @@ data class FeedUIState(
 class FeedViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val reviewUseCase: ReviewUseCase,
-    private val userUseCase: UserUseCase
+    private val userUseCase: UserUseCase,
+    private val companyDetailUseCase: CompanyDetailUseCase
 ) : ViewModel() {
     enum class Action {
         OnAppear,
@@ -50,6 +53,7 @@ class FeedViewModel @Inject constructor(
         ShowCreateReviewSheet,
         DismissCrateReviewSheet,
         DidTapLikeReviewButton,
+        DidTapCompanyFollowButton,
         DidTapCommentButton,
         DismissCommentBottomSheet
     }
@@ -163,7 +167,30 @@ class FeedViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(commentTargetFeed = selectedReviewFeed, shouldShowCommentBottomSheet = true) }
             }
+            Action.DidTapCompanyFollowButton -> {
+                val target = value as? CompactCompany ?: return
+                val index = currentState.companies.indexOfFirst { it.compactCompany.id == target.id }
+                viewModelScope.launch {
+                    val result = if (!target.following) {
+                        companyDetailUseCase.followCompany(companyID = target.id)
+                    } else {
+                        companyDetailUseCase.unfollowCompany(companyID = target.id)
+                    }
+                    if (result.success) {
+                        val toggledCompany = currentState.companies[index]
+                            .compactCompany.copy(following = !target.following)
 
+                        val updatedItem = currentState.companies[index]
+                            .copy(compactCompany = toggledCompany)
+
+                        val updatedList = currentState.companies
+                            .toMutableList()
+                            .apply { this[index] = updatedItem }
+
+                        _uiState.update { it.copy(companies = updatedList) }
+                    }
+                }
+            }
             Action.DismissCommentBottomSheet -> {
                 _uiState.update { it.copy(shouldShowCommentBottomSheet = false) }
                 val writtenReviewCount = value as? Int ?: return
