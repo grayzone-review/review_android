@@ -1,6 +1,7 @@
 package com.presentation.mypage.scene.modify_user
 
 import address_finder.AddressFinder
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -34,6 +38,16 @@ fun ModifySearchAddressScene(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+    var isFocused: Boolean by remember { mutableStateOf(false) }
+
+    BackHandler {
+        if (isFocused) {
+            focusManager.clearFocus()
+        } else {
+            navController.popBackStack()
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         Column(
@@ -44,9 +58,12 @@ fun ModifySearchAddressScene(
         ) {
             SearchableTopAppBar(
                 keyword = uiState.query,
+                isFocused = isFocused,
+                focusManager = focusManager,
                 onKeywordChange = { viewModel.handleAction(UpdateQueryFromSearching, it) },
                 onBack = { navController.popBackStack() },
-                onCancel = { }
+                onCancel = { },
+                onFocusChanged = { isFocused = it.isFocused }
             )
             Spacer(modifier = Modifier.height(8.dp).fillMaxWidth().background(color = CS.Gray.G10))
             AddressFinder(
