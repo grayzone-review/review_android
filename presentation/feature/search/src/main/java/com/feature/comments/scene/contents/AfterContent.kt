@@ -1,7 +1,6 @@
 package com.feature.comments.scene.contents
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -218,7 +217,7 @@ private fun SearchedResultItem(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = company.companyAddress.take(n = 2), style = Typography.captionRegular, color = CS.Gray.G50)
                         Text(text = " · ", style = Typography.captionRegular, color = CS.Gray.G50)
-                        Text(text = "${formatDistance(company.distance)}km", style = Typography.captionRegular, color = CS.Gray.G50)
+                        Text(text = formatDistance(company.distance), style = Typography.captionRegular, color = CS.Gray.G50)
                     }
                 }
                 Box(
@@ -255,8 +254,6 @@ private fun SearchedResultItem(
     }
 }
 
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CompanyFilterChips(
     selectedTagButtonType: TagButtonType?,
@@ -338,6 +335,10 @@ private fun EmptyResultView() {
 }
 
 
-private fun formatDistance(distance: Double): Double {
-    return String.format("%.1f", distance).toDouble()
+private fun formatDistance(distance: Double): String {
+    return if (distance < 0.1) {
+        "${(distance * 1000).toInt()}m"
+    } else {
+        "${"%.1f".format(distance)}km"
+    }
 }
