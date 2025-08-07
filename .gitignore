@@ -16,3 +16,4 @@ local.properties
 
 # Ignore Android strings (API keys, sensitive info)
 app/src/main/res/values/strings.xml
+signing
