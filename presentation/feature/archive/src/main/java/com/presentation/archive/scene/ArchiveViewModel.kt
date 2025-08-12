@@ -77,35 +77,23 @@ class ArchiveViewModel @Inject constructor(
             }
             Action.GetMyReviews -> {
                 viewModelScope.launch {
+                    _uiState.update { it.copy(selectedTab = CollectionTab.REVIEW) }
                     val result = userUseCase.myReviews()
-                    _uiState.update {
-                        it.copy(
-                            myReviews = result.reviews,
-                            selectedTab = CollectionTab.REVIEW
-                        )
-                    }
+                    _uiState.update { it.copy(myReviews = result.reviews) }
                 }
             }
             Action.GetInterestReviews -> {
                 viewModelScope.launch {
+                    _uiState.update { it.copy(selectedTab = CollectionTab.INTEREST) }
                     val result = userUseCase.myInterestReviews()
-                    _uiState.update {
-                        it.copy(
-                            interestReviews = result.reviews,
-                            selectedTab = CollectionTab.INTEREST
-                        )
-                    }
+                    _uiState.update { it.copy(interestReviews = result.reviews) }
                 }
             }
             Action.GetCompanyFollowList -> {
                 viewModelScope.launch {
+                    _uiState.update { it.copy(selectedTab = CollectionTab.BOOKMARK) }
                     val result = userUseCase.myFollowCompanies()
-                    _uiState.update {
-                        it.copy(
-                            followCompanies = result.companies,
-                            selectedTab = CollectionTab.BOOKMARK
-                        )
-                    }
+                    _uiState.update { it.copy(followCompanies = result.companies) }
                 }
             }
             Action.ShowCreateReviewSheet -> { _uiState.update { it.copy(shouldShowCreateReviewSheet = true) } }
