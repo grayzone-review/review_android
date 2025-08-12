@@ -1,6 +1,5 @@
 package com.presentation.onboarding.scenes.splash
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.data.storage.datastore.UpDataStoreService
@@ -55,12 +54,11 @@ class SplashViewModel @Inject constructor(
                         if (UpDataStoreService.needOnBoardingScene) {
                             _uiState.update { it.copy(destination = NavigationRouteConstant.onboardingSceneRoute) }
                         } else {
-                            Log.d("그래서 여기타는거아닌가?", "ㅇㅇ")
                             _uiState.update { it.copy(destination = NavigationRouteConstant.loginNestedRoute) }
                         }
                     } finally {
                         // 스플래시를 최소 2초간 보여주기 위한 지연
-                        delay(2000)
+                        delay(1500)
                         _event.emit(SplashUIEvent.NavigateTo)
                     }
                 }

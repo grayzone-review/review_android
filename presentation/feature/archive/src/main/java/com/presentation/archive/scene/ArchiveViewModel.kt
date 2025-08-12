@@ -1,5 +1,7 @@
 package com.presentation.archive.scene
 
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.domain.entity.MyArchiveCompany
@@ -13,9 +15,20 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+enum class CollectionTab(val rawValue: String) {
+    REVIEW("리뷰"), INTEREST("관심 리뷰"), BOOKMARK("즐겨찾기");
+
+    companion object{
+        fun from(name:String?):CollectionTab=
+            entries.firstOrNull { it.name.equals(name, true) } ?: REVIEW
+    }
+}
+
 data class ArchiveUIState(
     val user: User = User(),
     val stats: List<Pair<String, Int>> = emptyList(),
+    val selectedTab: CollectionTab = CollectionTab.REVIEW,
     val myReviews: List<MyArchiveReview> = emptyList(),
     val interestReviews: List<MyArchiveReview> = emptyList(),
     val followCompanies: List<MyArchiveCompany> = emptyList(),
@@ -24,6 +37,7 @@ data class ArchiveUIState(
 
 @HiltViewModel
 class ArchiveViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val userUseCase: UserUseCase
 ) : ViewModel() {
     enum class Action {
@@ -35,12 +49,19 @@ class ArchiveViewModel @Inject constructor(
         DismissCrateReviewSheet
     }
 
-    private var _uiState = MutableStateFlow(value = ArchiveUIState())
+    private val tab: CollectionTab = CollectionTab.from(savedStateHandle["tab"])
+
+    private var _uiState = MutableStateFlow(
+        value = ArchiveUIState(
+            selectedTab = tab
+        )
+    )
     val uiState = _uiState.asStateFlow()
 
     fun handleAction(action: Action, value: Any? = null) {
         when (action) {
             Action.OnAppear -> {
+                Log.d("탭", "${_uiState.value.selectedTab}")
                 viewModelScope.launch {
                     val userResult = userUseCase.userInfo()
                     userResult?.let { bindingResult -> _uiState.update { it.copy(user = bindingResult) } }
@@ -56,18 +77,21 @@ class ArchiveViewModel @Inject constructor(
             }
             Action.GetMyReviews -> {
                 viewModelScope.launch {
+                    _uiState.update { it.copy(selectedTab = CollectionTab.REVIEW) }
                     val result = userUseCase.myReviews()
                     _uiState.update { it.copy(myReviews = result.reviews) }
                 }
             }
             Action.GetInterestReviews -> {
                 viewModelScope.launch {
+                    _uiState.update { it.copy(selectedTab = CollectionTab.INTEREST) }
                     val result = userUseCase.myInterestReviews()
                     _uiState.update { it.copy(interestReviews = result.reviews) }
                 }
             }
             Action.GetCompanyFollowList -> {
                 viewModelScope.launch {
+                    _uiState.update { it.copy(selectedTab = CollectionTab.BOOKMARK) }
                     val result = userUseCase.myFollowCompanies()
                     _uiState.update { it.copy(followCompanies = result.companies) }
                 }

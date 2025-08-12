@@ -77,14 +77,14 @@ class SearchingContentViewModel @Inject constructor(
             }
 
             Action.DidTapSearchedCompanyItem -> {
-                compactCompany?.let {
+                compactCompany?.let{
                     val idToAdd = it.id.toString()
-                    val ids: MutableList<String> = UpDataStoreService.recentCompanyIDs
+                    val ids = UpDataStoreService.recentCompanyIDs
                         .split(",")
-                        .filter { it.isNotBlank() }
+                        .filter{ it.isNotBlank() }
                         .toMutableList()
                     ids.remove(idToAdd)
-                    ids.add(idToAdd)
+                    ids.add(0,idToAdd)
                     UpDataStoreService.recentCompanyIDs = ids.joinToString(",")
                 }
             }

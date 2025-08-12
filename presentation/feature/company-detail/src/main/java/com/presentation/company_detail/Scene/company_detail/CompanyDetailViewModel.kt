@@ -1,5 +1,6 @@
 package com.presentation.company_detail.Scene.company_detail
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,7 +32,7 @@ data class DetailUIState(
     val hasNext: Boolean = false,
     val isLoading: Boolean = false,
     val shouldShowCreateReviewSheet: Boolean = false,
-    val tappedCommentReviewID: Int = 0
+    val tappedCommentReview: Review? = null
 )
 
 @HiltViewModel
@@ -69,6 +70,7 @@ class CompanyDetailViewModel @Inject constructor(
         when (action) {
             Action.OnAppear -> {
                 viewModelScope.launch {
+                    Log.d("[CompanyDetailScene - OnAppear]", "기업번호:$companyIDArgument")
                     _uiState.update { it.copy(isLoading = true) }
                     try {
                         val companyResult = companyDetailUseCase.getCompanyInfo(companyID = currentState.companyID ?: 0)
@@ -102,7 +104,7 @@ class CompanyDetailViewModel @Inject constructor(
                         result?.let { bindingResult ->
                             _uiState.update {
                                 it.copy(
-                                    reviews = bindingResult.reviews,
+                                    reviews = currentState.reviews + bindingResult.reviews,
                                     isFullModeList = it.isFullModeList + List(bindingResult.reviews.size) { false },
                                     isLoading = false,
                                     currentPage = currentState.currentPage + 1,
@@ -161,14 +163,15 @@ class CompanyDetailViewModel @Inject constructor(
                 _uiState.update { it.copy(isFullModeList = updatedFullModeList) }
             }
             Action.DidTapCommentButton -> {
-                val index = value as? Int ?: return
+                val tappedReview = value as? Review ?: return
                 _uiState.update {
-                    it.copy(showBottomSheet = true, tappedCommentReviewID = currentState.reviews[index].id)
+                    it.copy(showBottomSheet = true, tappedCommentReview = tappedReview)
                 }
             }
             Action.DidCloseBottomSheet -> {
+                _uiState.update { it.copy(showBottomSheet = false) }
                 viewModelScope.launch {
-                    val reviewID = currentState.tappedCommentReviewID ?: return@launch
+                    val reviewID = currentState.tappedCommentReview?.id ?: return@launch
                     val companyID = currentState.companyID ?: return@launch
 
                     var page = 0
@@ -187,8 +190,7 @@ class CompanyDetailViewModel @Inject constructor(
                             if (idx < 0) return@update state
                             state.copy(
                                 reviews = state.reviews.toMutableList().apply { this[idx] = serverReview },
-                                showBottomSheet = false,
-                                tappedCommentReviewID = 0
+                                tappedCommentReview = null
                             )
                         }
                     }

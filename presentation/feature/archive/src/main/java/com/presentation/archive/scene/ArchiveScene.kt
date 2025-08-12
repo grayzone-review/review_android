@@ -56,6 +56,7 @@ import create_review_dialog.CreateReviewDialog
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import preset_ui.icons.BackBarButtonIcon
+import preset_ui.icons.Chat2Fill
 import preset_ui.icons.StarFilled
 import preset_ui.icons.StarHalf
 import preset_ui.icons.StarOutline
@@ -87,22 +88,29 @@ fun ArchiveScene(
                 .background(color = CS.Gray.G10))
             ArchiveCollection(
                 modifier = Modifier.weight(1f),
+                selectedTab = uiState.selectedTab,
                 wroteReviews = uiState.myReviews,
                 interestReviews = uiState.interestReviews,
                 followCompanies = uiState.followCompanies,
-                onClickReview = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
-                    .replace("{companyId}", it.companyId.toString()))
+                onClickReview = {
+                    navController.navigate(
+                        NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.companyId.toString())
+                    )
                 },
-                onClickCompany = { navController.navigate(NavigationRouteConstant.reviewDetailSceneRoute
-                    .replace("{companyId}", it.id.toString()))
+                onClickCompany = {
+                    navController.navigate(
+                        NavigationRouteConstant.reviewDetailSceneRoute
+                            .replace("{companyId}", it.id.toString())
+                    )
                 },
                 onTabChange = {
                     when (it) {
                         CollectionTab.REVIEW -> { viewModel.handleAction(GetMyReviews) }
-                        CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews)}
+                        CollectionTab.INTEREST -> { viewModel.handleAction(GetInterestReviews) }
                         CollectionTab.BOOKMARK -> { viewModel.handleAction(GetCompanyFollowList) }
                     }
-                }
+                },
             )
             WriteReviewButton(onClick = { viewModel.handleAction(ShowCreateReviewSheet) })
         }
@@ -144,9 +152,9 @@ private fun StatsRow(
     }
 }
 
-enum class CollectionTab(val rawValue: String) { REVIEW("리뷰"), INTEREST("관심 리뷰"), BOOKMARK("즐겨찾기") }
 @Composable
 fun ArchiveCollection(
+    selectedTab: CollectionTab,
     wroteReviews: List<MyArchiveReview>,
     interestReviews: List<MyArchiveReview>,
     followCompanies: List<MyArchiveCompany>,
@@ -157,9 +165,10 @@ fun ArchiveCollection(
 ) {
     val tabs = CollectionTab.entries
     val scope = rememberCoroutineScope()
+
     val pagerState = rememberPagerState(
         pageCount = { tabs.size },
-        initialPage = CollectionTab.REVIEW.ordinal
+        initialPage = selectedTab.ordinal
     )
 
     LaunchedEffect(pagerState) {
@@ -168,9 +177,13 @@ fun ArchiveCollection(
             .collect { page -> onTabChange(tabs[page]) }
     }
 
-    Column(
-        modifier = modifier
-    ) {
+    LaunchedEffect(selectedTab) {
+        if (pagerState.currentPage != selectedTab.ordinal) {
+            pagerState.animateScrollToPage(selectedTab.ordinal)
+        }
+    }
+
+    Column(modifier = modifier) {
         TabRow(
             selectedTabIndex = pagerState.currentPage,
             indicator = { tabPositions ->
@@ -186,7 +199,9 @@ fun ArchiveCollection(
             tabs.forEachIndexed { index, tab ->
                 Tab(
                     selected = pagerState.currentPage == index,
-                    onClick = { scope.launch { pagerState.animateScrollToPage(page = index) } },
+                    onClick = {
+                        scope.launch { pagerState.animateScrollToPage(index) }
+                    },
                     modifier = Modifier.background(CS.Gray.White),
                     text = {
                         Text(
@@ -204,16 +219,25 @@ fun ArchiveCollection(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
-            beyondViewportPageCount = 1,
+            beyondViewportPageCount = 1
         ) { page ->
             when (tabs[page]) {
-                CollectionTab.REVIEW   -> { ReviewList(reviews = wroteReviews, onClick = onClickReview) }
-                CollectionTab.INTEREST -> { ReviewList(reviews = interestReviews, onClick = onClickReview) }
-                CollectionTab.BOOKMARK -> { CompanyList(companies = followCompanies, onClick = onClickCompany) }
+                CollectionTab.REVIEW ->
+                    if (wroteReviews.isEmpty()) ReviewEmptyView()
+                    else ReviewList(reviews = wroteReviews, onClick = onClickReview)
+
+                CollectionTab.INTEREST ->
+                    if (interestReviews.isEmpty()) InterestEmptyView()
+                    else ReviewList(reviews = interestReviews, onClick = onClickReview)
+
+                CollectionTab.BOOKMARK ->
+                    if (followCompanies.isEmpty()) FollowCompanyEmptyView()
+                    else CompanyList(companies = followCompanies, onClick = onClickCompany)
             }
         }
     }
 }
+
 
 @Composable
 private fun ReviewList(
@@ -351,6 +375,7 @@ private fun CompanyList(
     onClick: (MyArchiveCompany) -> Unit
 ) {
     LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -480,4 +505,43 @@ private fun WriteReviewButton(
 @Composable
 private fun CreateReviewSheet(isShow: Boolean, onDismiss: () -> Unit) {
     if (isShow) { CreateReviewDialog(onDismiss = onDismiss) }
+}
+
+@Composable
+private fun ReviewEmptyView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Chat2Fill(48.dp, 48.dp, CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = "작성된 리뷰가 없습니다.", style = Typography.body1Regular, color = CS.Gray.G50)
+    }
+}
+
+@Composable
+private fun InterestEmptyView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Chat2Fill(48.dp, 48.dp, CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = "좋아요 또는 댓글을 남긴\n" + "리뷰가 없습니다.", style = Typography.body1Regular, color = CS.Gray.G50)
+    }
+}
+
+@Composable
+private fun FollowCompanyEmptyView() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Chat2Fill(48.dp, 48.dp, CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = "팔로우 한 업체가 없습니다.", style = Typography.body1Regular, color = CS.Gray.G50)
+    }
 }

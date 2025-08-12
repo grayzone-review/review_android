@@ -59,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import colors.CS
 import com.domain.entity.Comment
 import com.domain.entity.Reply
+import com.domain.entity.Review
 import com.example.presentation.designsystem.typography.Typography
 import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidBeginTextEditing
 import comment_bottom_sheet.CommentBottomSheetViewModel.Action.DidClearFocusState
@@ -84,7 +85,7 @@ import preset_ui.icons.Sendable
 
 @Composable
 fun CommentBottomSheet(
-    reviewID: Int,
+    review: Review,
     isShow: Boolean,
     onDismissRequest: (Int) -> Unit,
     viewModel: CommentBottomSheetViewModel = hiltViewModel(),
@@ -97,7 +98,7 @@ fun CommentBottomSheet(
 
     LaunchedEffect(isShow) {
         if (isShow) {
-            viewModel.handleAction(OnAppear, reviewID)
+            viewModel.handleAction(OnAppear, review)
             BottomSheetHelper.setDismissHandler{
                 val writtenCount = uiState.commentsWritten
                 onDismissRequest(uiState.commentsWritten)
@@ -189,15 +190,19 @@ private fun CommentList(
             .fillMaxSize()
             .nestedScroll(nestedScrollConnection),
         verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(bottom = 200.dp),
     ) {
         items(comments) { comment ->
             val replies = repliesMap[comment.id].orEmpty()
-            CommentCard(
-                comment = comment,
-                replies = replies,
-                onAddReplyClick = { onAddReplyClick(comment.id) },
-                onShowRepliesClick = { onShowRepliesClick(comment.id) }
-            )
+            if (comment.visible)
+                CommentCard(
+                    comment = comment,
+                    replies = replies,
+                    onAddReplyClick = { onAddReplyClick(comment.id) },
+                    onShowRepliesClick = { onShowRepliesClick(comment.id) }
+                )
+            else
+                SecretCard(commentType = CommentType.Comment)
         }
     }
 }
@@ -233,8 +238,8 @@ private fun CommentContent(comment: Comment) {
         modifier = Modifier.padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(text = comment.authorName, color = CS.Gray.G90, style = Typography.body2Bold)
-        Text(text = comment.comment, color = CS.Gray.G90, style = Typography.body1Regular)
+        Text(text = comment.authorName ?: "", color = CS.Gray.G90, style = Typography.body2Bold)
+        Text(text = comment.comment ?: "", color = CS.Gray.G90, style = Typography.body1Regular)
     }
 }
 
@@ -299,10 +304,10 @@ private fun ReplyList(replies: List<Reply>, targetComment: Comment) {
             .fillMaxWidth()
     ) {
         sortedDescReplies.forEach { reply ->
-            if (!reply.secret)
+            if (reply.visible)
                 ReplyCard(reply = reply, targetComment = targetComment)
             else
-                SecretCard()
+                SecretCard(commentType = CommentType.Reply)
         }
     }
 }
@@ -319,7 +324,7 @@ private fun ReplyCard(reply: Reply, targetComment: Comment) {
                     .background(CS.Gray.G20)
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = reply.authorName, color = CS.Gray.G90, style = Typography.body2Bold)
+            Text(text = reply.authorName ?: "", color = CS.Gray.G90, style = Typography.body2Bold)
         }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
@@ -338,26 +343,28 @@ private fun ReplyCard(reply: Reply, targetComment: Comment) {
     }
 }
 
+enum class CommentType { Comment, Reply }
 @Composable
-private fun SecretCard() {
+private fun SecretCard(commentType: CommentType) {
+    val textRes = if (commentType == CommentType.Reply) "비밀답글입니다." else "비밀댓글입니다."
     Column(modifier = Modifier
         .fillMaxWidth()
         .padding(all = 20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(width = 12.dp, height = 1.dp)
-                    .background(CS.Gray.G20)
-            )
+            if (commentType == CommentType.Reply) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 12.dp, height = 1.dp)
+                        .background(CS.Gray.G20)
+                )
+            }
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "비밀댓글입니다.", color = CS.Gray.G50, style = Typography.body2Bold)
+            Text(text = textRes, color = CS.Gray.G50, style = Typography.body2Bold)
             Spacer(modifier = Modifier.width(2.dp))
             RockClose(width = 14.dp, height = 14.dp)
         }
     }
 }
-
-
 
 @Composable
 private fun SheetTitle(modifier: Modifier) {
@@ -462,7 +469,7 @@ private fun CommentInputBar(
         decorationBox = commentDecorationBox(
             inputState = inputState,
             isFocused = isFocused,
-            onLockClick = onLockClick,
+            onLockClick = { if (inputState.replyToComment?.secret == false) onLockClick() },
             onSendClick = onSendClick,
             onCancelReplyClick = onCancelReplyClick
         ),
@@ -519,7 +526,7 @@ private fun commentDecorationBox(
             Box(modifier = Modifier.weight(1f)) {
                 if (inputState.text.isEmpty() && !isFocused && !isReplyMode) {
                     Text(
-                        text = "000님에게 댓글 추가…",
+                        text = "${inputState.review?.author}님에게 댓글 추가…",
                         color = CS.Gray.G40,
                         style = Typography.body1Regular
                     )

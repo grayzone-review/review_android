@@ -8,6 +8,7 @@ import com.domain.entity.CompactCompany
 import com.domain.usecase.CompanyDetailUseCase
 import com.domain.usecase.SearchCompaniesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +19,6 @@ import javax.inject.Inject
 data class AfterContentUIState(
     val searchedCompanies: List<CompactCompany> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null,
     val totalCount: Int = 0,
     val currentPage: Int = 0,
     val hasNext: Boolean = false
@@ -32,10 +32,10 @@ class AfterContentViewModel @Inject constructor(
     enum class Action {
         DidUpdateSearchQuery,
         DidRequestLoadMore,
-        DidTapFollowCompanyButton,
-        DidTapFilterButton
+        DidTapFollowCompanyButton
     }
 
+    private var searchJob: Job? = null
     private val _uiState = MutableStateFlow(AfterContentUIState())
     val uiState: StateFlow<AfterContentUIState> = _uiState.asStateFlow()
 
@@ -45,18 +45,27 @@ class AfterContentViewModel @Inject constructor(
             Action.DidUpdateSearchQuery -> {
                 val query = (value as? String)?.trim() ?: return
                 if (query.isBlank()) { clearSearchResults(); return }
-                val (lat, lng) = runCatching {
-                    UpDataStoreService.lastKnownLocation
-                        .split(',')
-                        .map { it.toDouble() }
-                        .let { it[0] to it[1] }
-                }.getOrElse {
-                    UpLocationService.DEFAULT_SEOUL_TOWNHALL
-                }
+                // 기 검색 요청 사항이 있다면 취소
+                searchJob?.cancel()
+                searchJob = viewModelScope.launch {
+                    val (lat, lng) = runCatching {
+                        UpDataStoreService.lastKnownLocation
+                            .split(',')
+                            .map { it.toDouble() }
+                            .let { it[0] to it[1] }
+                    }.getOrElse {
+                        UpLocationService.DEFAULT_SEOUL_TOWNHALL
+                    }
 
-                val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
-                viewModelScope.launch {
-                    _uiState.update { it.copy(isLoading = true, error = null) }
+                    val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
+                    _uiState.update { // 초기화 후, 다시 검색
+                        it.copy(
+                            isLoading = true,
+                            searchedCompanies = emptyList(),
+                            totalCount = 0,
+                            currentPage = 0
+                        )
+                    }
                     val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = 0)
                         TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = 0)
@@ -89,9 +98,9 @@ class AfterContentViewModel @Inject constructor(
                 val tag = TagButtonType.entries.firstOrNull { it.label == query.removePrefix("#") }
                 val nextPage = currentState.currentPage + 1
                 viewModelScope.launch {
-                    _uiState.update{it.copy(isLoading=true)}
+                    _uiState.update { it.copy(isLoading = true) }
 
-                    val result=when(tag){
+                    val result = when (tag) {
                         TagButtonType.Around   -> searchCompaniesUseCase.nearbyCompanies(lat, lng, page = nextPage)
                         TagButtonType.MyTown   -> searchCompaniesUseCase.mainRegionCompanies(lat, lng, page = nextPage)
                         TagButtonType.Interest -> searchCompaniesUseCase.interestRegionsCompanies(lat, lng, page = nextPage)
@@ -124,18 +133,6 @@ class AfterContentViewModel @Inject constructor(
                             .apply { this[targetIndex] = this[targetIndex].copy(following = !targetCompanyFollowingState) }
                         _uiState.update { it.copy(searchedCompanies = updated) }
                     }
-                }
-            }
-            Action.DidTapFilterButton -> {
-                _uiState.update {
-                    it.copy(
-                        searchedCompanies = emptyList(),
-                        totalCount = 0,
-                        currentPage = 0,
-                        hasNext = false,
-                        isLoading = false,
-                        error = null
-                    )
                 }
             }
         }

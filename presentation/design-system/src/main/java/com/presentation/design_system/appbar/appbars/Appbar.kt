@@ -17,16 +17,13 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -83,13 +80,13 @@ fun DefaultTopAppBar(
 @Composable
 fun SearchableTopAppBar(
     keyword: String,
+    isFocused: Boolean,
     onKeywordChange: (String) -> Unit,
     onBack: () -> Unit,
     onCancel: () -> Unit,
+    focusManager: FocusManager,
+    onFocusChanged: (FocusState) -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
-    var isFocused by remember { mutableStateOf(false) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -114,7 +111,7 @@ fun SearchableTopAppBar(
                 .clip(RoundedCornerShape(8.dp))
                 .background(CS.Gray.G10)
                 .padding(horizontal = 16.dp)
-                .onFocusChanged { isFocused = it.isFocused },
+                .onFocusChanged { onFocusChanged(it) },
             decorationBox = { innerTextField ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

@@ -269,7 +269,7 @@ private fun SearchedCompanyItem(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     StarFilled(20.dp, 20.dp)
-                    Text(text = "${compactCompany.totalRating}", style = Typography.body1Bold, color = CS.Gray.G90, maxLines = 1)
+                    Text(text = "%.1f".format(compactCompany.totalRating), style = Typography.body1Bold, color = CS.Gray.G90, maxLines = 1)
                 }
             }
             Spacer(modifier = Modifier.height(4.dp))

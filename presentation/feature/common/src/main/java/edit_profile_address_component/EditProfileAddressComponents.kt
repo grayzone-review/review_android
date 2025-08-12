@@ -37,6 +37,7 @@ import preset_ui.icons.SignUpRemove
 @Composable
 fun NicknameInput(
     nicknameField: NickNameField,
+    enabledCheckDuplicateButton: Boolean = true,
     onValueChange: (String) -> Unit,
     onCheckDuplicate: () -> Unit,
 ) {
@@ -98,11 +99,14 @@ fun NicknameInput(
                     Button(
                         modifier = Modifier.padding(end = 16.dp),
                         onClick = onCheckDuplicate,
+                        enabled = enabledCheckDuplicateButton,
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 5.5.dp),
                         shape = RoundedCornerShape(100.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CS.PrimaryOrange.O40,
-                            contentColor = CS.Gray.White
+                            contentColor = CS.Gray.White,
+                            disabledContentColor = CS.Gray.White,
+                            disabledContainerColor = CS.PrimaryOrange.O20
                         ),
                         elevation = null
                     ) {

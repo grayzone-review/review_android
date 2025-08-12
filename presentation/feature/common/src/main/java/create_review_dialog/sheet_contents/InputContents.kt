@@ -154,7 +154,9 @@ fun TextContent(
     maxChars: Int
 ) {
     var text by rememberSaveable { mutableStateOf(initialText) }
-    val savable = text.length in minChars..maxChars && text != initialText
+    val savable = text.isNotBlank()                // 공백만 → false
+            && text.length in minChars..maxChars      // 글자 수 범위
+            && text != initialText                           // 내용 변경 여부
 
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
@@ -182,8 +184,21 @@ fun TextContent(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val textColorRes = if (text.isEmpty()) {
+                CS.Gray.G70
+            } else if (minChars <= text.length) {
+                CS.PrimaryOrange.O40
+            } else {
+                CS.System.Red
+            }
+
             Text(
-                text = "${text.length}/${minChars}자 - ${maxChars}자",
+                text = "${text.length}",
+                style = Typography.captionRegular,
+                color = textColorRes
+            )
+            Text(
+                text = "/${minChars}자 - ${maxChars}자",
                 style = Typography.captionRegular,
                 color = CS.Gray.G70
             )

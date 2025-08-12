@@ -1,5 +1,6 @@
 package com.presentation.login.scenes.sign_up
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,8 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import colors.CS
@@ -60,11 +63,12 @@ fun SignUpScene(
     onSubmitCompleted: () -> Unit,
     navHostController: NavHostController,
     accessToken: String,
-    viewModel: SignUpViewModel = hiltViewModel()
+    viewModel: SignUpViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var alertError by remember { mutableStateOf<APIException?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     val savedStateHandle = navHostController.currentBackStackEntry!!.savedStateHandle
@@ -161,9 +165,8 @@ fun SignUpScene(
                         TermCode.PRIVACY -> { "https://translucent-fall-6f6.notion.site/23c10746acf980248e6ef9e7665dd3d3?source=copy_link" }
                         TermCode.LOCATION -> { "https://translucent-fall-6f6.notion.site/23c10746acf9804fa5cec48c5f26b371?source=copy_link" }
                     }
-                    navHostController.navigate(NavConstant
-                        .destTermsDetail(url = url)
-                    )
+                    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                    context.startActivity(intent)
                 },
             )
         }
@@ -258,7 +261,7 @@ private fun TermRow(
 
 @Composable
 private fun TopAppBar(
-    onCloseButtonClick: () -> Unit
+    onCloseButtonClick: () -> Unit,
 ) {
     DefaultTopAppBar(
         title = "회원 가입",
@@ -275,7 +278,7 @@ private fun TopAppBar(
 @Composable
 private fun SubmitButton(
     isEnabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
@@ -301,7 +304,7 @@ private fun SubmitButton(
 @Composable
 fun BindErrorAlert(
     error: APIException?,
-    completion: () -> Unit
+    completion: () -> Unit,
 ) {
     error?.let {
         UpSingleButtonAlertDialog(
@@ -315,7 +318,7 @@ fun BindErrorAlert(
 @Composable
 fun BindSuccessAlert(
     message: String?,
-    completion: () -> Unit
+    completion: () -> Unit,
 ) {
     message?.let {
         UpSingleButtonAlertDialog(

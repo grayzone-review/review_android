@@ -7,6 +7,7 @@ import com.data.storage.datastore.UpDataStoreService
 import com.domain.entity.ReviewFeed
 import com.domain.entity.User
 import com.domain.usecase.ReviewUseCase
+import com.domain.usecase.UpAuthUseCase
 import com.domain.usecase.UserUseCase
 import com.team.common.feature_api.error.APIException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import token_storage.TokenStoreService
 import javax.inject.Inject
 
 sealed interface MainUIEvent {
@@ -36,7 +38,8 @@ data class MainUIState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val reviewUseCase: ReviewUseCase,
-    private val userUseCase: UserUseCase
+    private val userUseCase: UserUseCase,
+    private val upAuthUseCase: UpAuthUseCase
 ) : ViewModel() {
     enum class Action {
         OnAppear,
@@ -44,7 +47,8 @@ class MainViewModel @Inject constructor(
         ShowSettingAlert,
         DismissSettingAlert,
         ShowCreateReviewSheet,
-        DismissCreateReviewSheet
+        DismissCreateReviewSheet,
+        RequestReLogin
     }
 
     private var _uiState = MutableStateFlow(value = MainUIState())
@@ -56,8 +60,12 @@ class MainViewModel @Inject constructor(
         when (action) {
             Action.OnAppear -> {
                 viewModelScope.launch {
-                    val result = userUseCase.userInfo()
-                    result?.let { _uiState.update { it.copy(user = result) } }
+                    try {
+                        val result = userUseCase.userInfo()
+                        result?.let { bindingResult -> _uiState.update { it.copy(user = bindingResult) } }
+                    } catch (error: APIException) {
+                        _event.emit(MainUIEvent.ShowAlert(error))
+                    }
                 }
             }
             Action.CacheLocationAndGetFeeds -> {
@@ -89,6 +97,15 @@ class MainViewModel @Inject constructor(
                     } catch (e: APIException) {
                         _event.emit(MainUIEvent.ShowAlert(e))
                     }
+                }
+            }
+            Action.RequestReLogin -> {
+                viewModelScope.launch {
+                    try {
+                        val refreshToken = TokenStoreService.refreshToken()
+                        upAuthUseCase.logout(refreshToken = refreshToken)
+                        TokenStoreService.clear()
+                    } catch (error: APIException) { }
                 }
             }
             Action.ShowSettingAlert -> { _uiState.update { it.copy(isShowSettingAlertDialog = true) } }

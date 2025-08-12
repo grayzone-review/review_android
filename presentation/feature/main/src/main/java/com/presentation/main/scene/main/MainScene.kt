@@ -60,6 +60,7 @@ import com.presentation.main.scene.main.MainViewModel.Action.CacheLocationAndGet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.DismissSettingAlert
 import com.presentation.main.scene.main.MainViewModel.Action.OnAppear
+import com.presentation.main.scene.main.MainViewModel.Action.RequestReLogin
 import com.presentation.main.scene.main.MainViewModel.Action.ShowCreateReviewSheet
 import com.presentation.main.scene.main.MainViewModel.Action.ShowSettingAlert
 import com.team.common.feature_api.error.APIException
@@ -123,7 +124,15 @@ fun MainScene(
     BindAlert(
         error = alertError,
         navController = navController,
-        completion = { alertError = null }
+        completion = {
+            scope.launch {
+                alertError = null
+                viewModel.handleAction(RequestReLogin)
+                navController.navigate(NavigationRouteConstant.loginNestedRoute) {
+                    popUpTo(NavigationRouteConstant.mypageNestedRoute) { inclusive = true }
+                }
+            }
+        }
     )
 
     CreateReviewSheet(
@@ -150,7 +159,8 @@ fun MainScene(
                 LogoUserTopAppBar(
                     userName = "${uiState.user.nickname}님",
                     onLogoClick = { scope.launch { scrollState.animateScrollTo(value = 0) } },
-                    onProfileClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
+                    onProfileClick = { navController.navigate(NavigationRouteConstant.archiveSceneRoute
+                        .replace("{tab}", "INTEREST")) }
                 )
             },
             bottomBar = {
@@ -187,8 +197,10 @@ fun MainScene(
                 )
                 DashBoardButtons(
                     onSearchClick = { navController.navigate(NavigationRouteConstant.searchNestedRoute) },
-                    onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) },
-                    onFollowClick = { navController.navigate(NavigationRouteConstant.archiveNestedRoute) }
+                    onMyReviewClick = { navController.navigate(NavigationRouteConstant.archiveSceneRoute
+                        .replace("{tab}", "REVIEW")) },
+                    onFollowClick = { navController.navigate(NavigationRouteConstant.archiveSceneRoute
+                        .replace("{tab}", "BOOKMARK")) }
                 )
                 Spacer(modifier = Modifier.fillMaxWidth().height(20.dp))
                 if (uiState.user.interestedRegions.isNullOrEmpty()) {

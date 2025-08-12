@@ -87,36 +87,3 @@ fun App(
         navigationProvider = navigationProvider
     )
 }
-
-//    private fun test() {
-//        val locationRequest = com.google.android.gms.location.LocationRequest.create().apply {
-//            interval = 10000
-//            fastestInterval = 5000
-//            priority = LocationRequest.QUALITY_HIGH_ACCURACY
-//        }
-//
-//        val builder = LocationSettingsRequest.Builder()
-//            .addLocationRequest(locationRequest)
-//
-//        val client: SettingsClient = LocationServices.getSettingsClient(this)
-//        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
-//
-//        task.addOnSuccessListener {
-//            // GPS가 켜져있을 경우
-//        }
-//
-//        task.addOnFailureListener { exception ->
-//            // GPS가 꺼져있을 경우
-//            if (exception is ResolvableApiException) {
-//                Log.d(TAG, "OnFailure")
-//                try {
-//                    exception.startResolutionForResult(
-//                        this@MainActivity,
-//                        100
-//                    )
-//                } catch (sendEx: IntentSender.SendIntentException) {
-//                    Log.d(TAG, sendEx.message.toString())
-//                }
-//            }
-//        }
-//    }

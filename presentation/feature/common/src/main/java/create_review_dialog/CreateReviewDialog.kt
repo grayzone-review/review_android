@@ -1,5 +1,6 @@
 package create_review_dialog
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -56,6 +57,7 @@ import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapPreviousBut
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapSubmitButton
 import create_review_dialog.CreateReviewDialogViewModel.Action.DidTapTextField
 import create_review_dialog.CreateReviewDialogViewModel.Action.OnAppear
+import create_review_dialog.CreateReviewDialogViewModel.Action.Reset
 import create_review_dialog.CreateReviewDialogViewModel.Action.SheetDismissed
 import create_review_dialog.CreateReviewDialogViewModel.Action.UpdateCompany
 import create_review_dialog.CreateReviewDialogViewModel.Action.UpdateEmploymentPeriod
@@ -82,18 +84,25 @@ fun CreateReviewDialog(
     viewModel: CreateReviewDialogViewModel = hiltViewModel()
 ) {
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            viewModel.handleAction(Reset)
+            onDismiss()
+        },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
         )
     ) {
-        content(company = company, onDismiss = onDismiss, viewModel = viewModel)
+        Content(
+            company = company,
+            onDismiss = { viewModel.handleAction(Reset); onDismiss() },
+            viewModel = viewModel
+        )
     }
 }
 
 @Composable
-private fun content(
+private fun Content(
     company: CompactCompany? = null,
     onDismiss: () -> Unit,
     viewModel: CreateReviewDialogViewModel
@@ -102,6 +111,14 @@ private fun content(
     val scrollState = rememberScrollState()
     var alertError by remember { mutableStateOf<APIException?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
+
+    BackHandler {
+        when (uiState.phase) {
+            CreateReviewPhase.First -> { onDismiss() }
+            CreateReviewPhase.Second -> { viewModel.handleAction(DidTapPreviousButton) }
+            CreateReviewPhase.Third -> { viewModel.handleAction(DidTapPreviousButton) }
+        }
+    }
 
     LaunchedEffect(company != null) {
         viewModel.handleAction(OnAppear, company)

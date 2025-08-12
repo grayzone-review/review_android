@@ -1,7 +1,6 @@
 package com.feature.comments.scene.contents
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,12 +46,13 @@ import com.domain.entity.CompactCompany
 import com.example.presentation.designsystem.typography.Typography
 import com.feature.comments.scene.SearchUIState
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidRequestLoadMore
-import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidTapFilterButton
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidTapFollowCompanyButton
 import com.feature.comments.scene.contents.AfterContentViewModel.Action.DidUpdateSearchQuery
 import com.feature.comments.scene.contents.TagButtonType.Around
 import com.feature.comments.scene.contents.TagButtonType.Interest
 import com.feature.comments.scene.contents.TagButtonType.MyTown
+import common_ui.UpGrayIndicator
+import common_ui.UpIndicator
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -61,6 +61,7 @@ import preset_ui.icons.FollowAddOffIcon
 import preset_ui.icons.FollowPersonOnIcon
 import preset_ui.icons.InterestIcon
 import preset_ui.icons.MytownIcon
+import preset_ui.icons.SearchLineIcon
 import preset_ui.icons.StarFilled
 
 @Composable
@@ -79,10 +80,7 @@ fun AfterContent(
         selectedTagButtonType = selectedTagButtonData,
         onLoadMore = { viewModel.handleAction(DidRequestLoadMore, currentQuery) },
         onClickSearchResult = { onClickSearchResult(it) },
-        onClickTagButton = {
-            onClickTagButtonAtAfterContent(it)
-            viewModel.handleAction(DidTapFilterButton)
-        },
+        onClickTagButton = { onClickTagButtonAtAfterContent(it) },
         onClickFollowButton = { viewModel.handleAction(DidTapFollowCompanyButton, it) }
     )
 
@@ -128,20 +126,36 @@ private fun SearchResultList(
             .padding(horizontal = 20.dp)
     ) {
         ResultCountText(totalCount = totalCount)
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            items(
-                items = searchedCompanies,
-            ) { company ->
-                SearchedResultItem(
-                    company = company,
-                    onClickSearchResult = { onClickSearchResult(company) },
-                    onFollowClick = { onClickFollowButton(company) }
-                )
+
+        when {
+            // 0 페이지 검색 중 (주황 indicator)
+            uiState.searchedCompanies.isEmpty() && uiState.isLoading -> {
+                UpIndicator(isShow = true)
+            }
+            // 검색 결과 없음
+            uiState.searchedCompanies.isEmpty() && !uiState.isLoading -> {
+                EmptyResultView()
+            }
+            // 검색 결과 존재
+            else -> {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(bottom = 40.dp)
+                ) {
+                    items(items = searchedCompanies) { company ->
+                        SearchedResultItem(
+                            company = company,
+                            onClickSearchResult = { onClickSearchResult(company) },
+                            onFollowClick = { onClickFollowButton(company) }
+                        )
+                    }
+                    // Next Paging 검색 시 (회색 indicator)
+                    if (uiState.isLoading) {
+                        item { UpGrayIndicator(isShow = true) }
+                    }
+                }
             }
         }
     }
@@ -199,11 +213,11 @@ private fun SearchedResultItem(
                     ) {
                         StarFilled(16.dp, 16.dp)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = company.totalRating.toString(), style = Typography.captionBold, color = CS.Gray.G90)
+                        Text(text = "%.1f".format(company.totalRating), style = Typography.captionBold, color = CS.Gray.G90)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = company.companyAddress.take(n = 2), style = Typography.captionRegular, color = CS.Gray.G50)
                         Text(text = " · ", style = Typography.captionRegular, color = CS.Gray.G50)
-                        Text(text = "${formatDistance(company.distance)}km", style = Typography.captionRegular, color = CS.Gray.G50)
+                        Text(text = formatDistance(company.distance), style = Typography.captionRegular, color = CS.Gray.G50)
                     }
                 }
                 Box(
@@ -240,8 +254,6 @@ private fun SearchedResultItem(
     }
 }
 
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CompanyFilterChips(
     selectedTagButtonType: TagButtonType?,
@@ -307,7 +319,26 @@ fun CompanyFilterChips(
     }
 }
 
+@Composable
+private fun EmptyResultView() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        val textRes = "검색 결과를 찾을 수 없습니다."
+        SearchLineIcon(48.dp, 48.dp, tint = CS.Gray.G30)
+        Spacer(Modifier.height(12.dp))
+        Text(text = textRes, color = CS.Gray.G50, style = Typography.body1Regular)
+    }
+}
 
-private fun formatDistance(distance: Double): Double {
-    return String.format("%.1f", distance).toDouble()
+
+private fun formatDistance(distance: Double): String {
+    return if (distance < 0.1) {
+        "${(distance * 1000).toInt()}m"
+    } else {
+        "${"%.1f".format(distance)}km"
+    }
 }

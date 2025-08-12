@@ -15,7 +15,7 @@ import com.data.dto.ResponseModel.search.LegalDistrictResponseDTO
 import com.data.dto.ResponseModel.search.MyArchiveCompaniesResponseDTO
 import com.data.dto.ResponseModel.search.MyArchiveReviewsResponseDTO
 import com.data.dto.ResponseModel.search.RepliesResponseDTO
-import com.data.dto.ResponseModel.search.ReplyDto
+import com.data.dto.ResponseModel.search.ReplyDTO
 import com.data.dto.ResponseModel.search.ReviewFeedResponseDTO
 import com.data.dto.ResponseModel.search.SearchCompaniesResponseDTO
 import com.data.dto.ResponseModel.search.UserInfoResponseDTO
@@ -78,7 +78,8 @@ interface UpAPIService {
     @GET(UpEndpoint.Path.REVIEW_COMMENT)
     suspend fun reviewComments(
         @Path(UpEndpoint.Query.REVIEW_ID) reviewId: Int,
-        @Query(UpEndpoint.Query.PAGE) page: Int
+        @Query(UpEndpoint.Query.PAGE) page: Int,
+        @Query(UpEndpoint.Query.SORT) sort: String = UpEndpoint.Query.DESC_BY_CREATE
     ): APIResponse<CommentsDTO>
 
     @POST(UpEndpoint.Path.REVIEW_COMMENT)
@@ -90,14 +91,15 @@ interface UpAPIService {
     @GET(UpEndpoint.Path.COMMENT_REPLIES)
     suspend fun commentReplies(
         @Path(UpEndpoint.Query.COMMENT_ID) commentId: Int,
-        @Query(UpEndpoint.Query.PAGE) page: Int
+        @Query(UpEndpoint.Query.PAGE) page: Int,
+        @Query(UpEndpoint.Query.SORT) sort: String = UpEndpoint.Query.DESC_BY_CREATE
     ): APIResponse<RepliesResponseDTO>
 
     @POST(UpEndpoint.Path.COMMENT_REPLIES)
     suspend fun writeReply(
         @Path(UpEndpoint.Query.COMMENT_ID) commentId: Int,
         @Body requestModel: WriteReplyRequestModel
-    ): APIResponse<ReplyDto>
+    ): APIResponse<ReplyDTO>
 
     @GET(UpEndpoint.Path.SEARCH_LEGAL_DISTRICTS)
     suspend fun searchLegalDistrict(
